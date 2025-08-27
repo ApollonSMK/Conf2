@@ -4,15 +4,15 @@
 
 @layer base {
   :root {
-    --background: 35 27% 95%; /* Bege claro: #F5F2EE */
+    --background: 30 10% 80%; /* Cor personalizada: rgb(209, 204, 199) */
     --foreground: 356 44% 35%; /* Bordô: #803136 */
-    --card: 35 27% 95%;
+    --card: 30 10% 80%;
     --card-foreground: 356 44% 35%;
-    --popover: 35 27% 95%;
+    --popover: 30 10% 80%;
     --popover-foreground: 356 44% 35%;
     --primary: 353 56% 26%; /* Vinho escuro: #6B1D26 */
     --primary-foreground: 35 27% 98%;
-    --secondary: 30 52% 52%; /* Castanho dourado: #C68642 */
+    --secondary: 353 56% 26%; /* Vinho escuro: #6B1D26 */
     --secondary-foreground: 35 27% 98%;
     --muted: 35 20% 90%;
     --muted-foreground: 0 0% 37%; /* Cinza suave: #5E5E5E */
@@ -40,8 +40,8 @@
     --popover-foreground: 35 27% 95%;
     --primary: 35 27% 95%;
     --primary-foreground: 353 56% 26%;
-    --secondary: 30 52% 52%;
-    --secondary-foreground: 353 20% 10%;
+    --secondary: 353 56% 26%;
+    --secondary-foreground: 35 27% 98%;
     --muted: 353 20% 15%;
     --muted-foreground: 35 20% 65%;
     --accent: 30 52% 52%;
