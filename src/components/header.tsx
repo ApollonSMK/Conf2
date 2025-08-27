@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Utensils, Search, User } from 'lucide-react';
+import { Utensils, Search, User, Home, BookOpen, Calendar, Compass } from 'lucide-react';
 
 export function Header() {
   return (
@@ -10,38 +10,30 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <Utensils className="h-8 w-8 text-secondary" />
+              <Utensils className="h-8 w-8" />
               <span className="font-headline font-bold text-2xl tracking-tight">
-                Sabores de Portugal
+                Confrarias Portugal
               </span>
             </Link>
           </div>
           <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/" className="text-sm font-medium hover:text-secondary transition-colors">
-              Confrarias
+            <Link href="/inicio" className="flex items-center text-sm font-medium hover:text-secondary transition-colors">
+              <Home className="mr-2 h-4 w-4" /> Início
             </Link>
-            <Link href="/eventos" className="text-sm font-medium hover:text-secondary transition-colors">
-              Eventos
+            <Link href="/explorar" className="flex items-center text-sm font-medium hover:text-secondary transition-colors">
+              <Compass className="mr-2 h-4 w-4" /> Descobertas
             </Link>
-            <Link href="/explorar" className="text-sm font-medium hover:text-secondary transition-colors">
-              Explorar
+            <Link href="/confrarias" className="flex items-center text-sm font-medium hover:text-secondary transition-colors">
+              <BookOpen className="mr-2 h-4 w-4" /> Confrarias
             </Link>
-            <Link href="/novo-post" className="text-sm font-medium hover:text-secondary transition-colors">
-              Criar Post
+            <Link href="/eventos" className="flex items-center text-sm font-medium hover:text-secondary transition-colors">
+              <Calendar className="mr-2 h-4 w-4" /> Eventos
             </Link>
           </nav>
           <div className="flex items-center space-x-4">
-            <div className="relative hidden lg:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
-              <Input
-                type="search"
-                placeholder="Pesquisar..."
-                className="pl-10 w-48 bg-primary-foreground text-primary placeholder:text-muted-foreground"
-              />
-            </div>
             <Button variant="secondary" size="sm">
               <User className="mr-2 h-4 w-4" />
-              Login
+              Entrar
             </Button>
           </div>
         </div>
