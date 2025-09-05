@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Utensils, Search, User, Home, BookOpen, Calendar, Compass } from 'lucide-react';
+import { User, Home, BookOpen, Calendar, Compass } from 'lucide-react';
 
 export function Header() {
   return (
@@ -10,23 +9,22 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <Utensils className="h-8 w-8" />
               <span className="font-headline font-bold text-2xl tracking-tight">
                 Confrarias Portugal
               </span>
             </Link>
           </div>
           <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/inicio" className="flex items-center text-sm font-medium hover:text-secondary transition-colors">
+            <Link href="/inicio" className="flex items-center text-sm font-medium text-primary-foreground/90 hover:text-primary-foreground transition-colors">
               <Home className="mr-2 h-4 w-4" /> Início
             </Link>
-            <Link href="/explorar" className="flex items-center text-sm font-medium hover:text-secondary transition-colors">
+            <Link href="/explorar" className="flex items-center text-sm font-medium text-primary-foreground/90 hover:text-primary-foreground transition-colors">
               <Compass className="mr-2 h-4 w-4" /> Descobertas
             </Link>
-            <Link href="/confrarias" className="flex items-center text-sm font-medium hover:text-secondary transition-colors">
+            <Link href="/confrarias" className="flex items-center text-sm font-medium text-primary-foreground/90 hover:text-primary-foreground transition-colors">
               <BookOpen className="mr-2 h-4 w-4" /> Confrarias
             </Link>
-            <Link href="/eventos" className="flex items-center text-sm font-medium hover:text-secondary transition-colors">
+            <Link href="/eventos" className="flex items-center text-sm font-medium text-primary-foreground/90 hover:text-primary-foreground transition-colors">
               <Calendar className="mr-2 h-4 w-4" /> Eventos
             </Link>
           </nav>

@@ -7,7 +7,6 @@ export function Footer() {
       <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="flex items-center">
-            <Utensils className="h-6 w-6 mr-2 text-primary" />
             <span className="font-headline font-bold text-lg text-foreground">Confrarias Portugal</span>
           </div>
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">

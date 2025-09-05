@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Utensils, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -28,7 +28,6 @@ export default function InicioPage() {
     <div className="flex flex-col min-h-[calc(100vh-5rem)]">
       <section className="flex-grow flex items-center justify-center text-center py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <Utensils className="h-16 w-16 mx-auto mb-6 text-primary" />
           <h1 className="font-headline font-bold text-5xl md:text-6xl text-primary mb-4">
             Confrarias Gastronómicas
           </h1>
