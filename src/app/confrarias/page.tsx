@@ -17,7 +17,6 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  Users,
   Calendar,
   BookOpen,
   Filter,
@@ -25,12 +24,12 @@ import {
 } from 'lucide-react';
 
 const confrarias = [
-  { id: 1, slug: 'confraria-do-queijo-serra-da-estrela', name: 'Confraria do Queijo Serra da Estrela', region: 'Beira Alta', followers: 1250, events: 15, recipes: 45, logo: 'https://picsum.photos/100/100?random=1', data_ai_hint: 'cheese logo' },
-  { id: 2, slug: 'confraria-gastronomica-do-leitao-da-bairrada', name: 'Confraria Gastronómica do Leitão da Bairrada', region: 'Beira Litoral', followers: 2300, events: 22, recipes: 12, logo: 'https://picsum.photos/100/100?random=2', data_ai_hint: 'pig logo' },
-  { id: 3, slug: 'confraria-do-vinho-do-porto', name: 'Confraria do Vinho do Porto', region: 'Douro Litoral', followers: 5400, events: 45, recipes: 5, logo: 'https://picsum.photos/100/100?random=3', data_ai_hint: 'wine logo' },
-  { id: 4, slug: 'confraria-dos-sabores-de-tras-os-montes', name: 'Confraria dos Sabores de Trás-os-Montes', region: 'Trás-os-Montes', followers: 850, events: 8, recipes: 60, logo: 'https://picsum.photos/100/100?random=4', data_ai_hint: 'food logo' },
-  { id: 5, slug: 'confraria-do-marisco-de-olhao', name: 'Confraria do Marisco de Olhão', region: 'Algarve', followers: 3100, events: 30, recipes: 35, logo: 'https://picsum.photos/100/100?random=5', data_ai_hint: 'seafood logo' },
-  { id: 6, slug: 'confraria-da-broa-de-avintes', name: 'Confraria da Broa de Avintes', region: 'Douro Litoral', followers: 1500, events: 12, recipes: 18, logo: 'https://picsum.photos/100/100?random=6', data_ai_hint: 'bread logo' },
+  { id: 1, slug: 'confraria-do-queijo-serra-da-estrela', name: 'Confraria do Queijo Serra da Estrela', region: 'Beira Alta', events: 15, recipes: 45, logo: 'https://picsum.photos/100/100?random=1', data_ai_hint: 'cheese logo' },
+  { id: 2, slug: 'confraria-gastronomica-do-leitao-da-bairrada', name: 'Confraria Gastronómica do Leitão da Bairrada', region: 'Beira Litoral', events: 22, recipes: 12, logo: 'https://picsum.photos/100/100?random=2', data_ai_hint: 'pig logo' },
+  { id: 3, slug: 'confraria-do-vinho-do-porto', name: 'Confraria do Vinho do Porto', region: 'Douro Litoral', events: 45, recipes: 5, logo: 'https://picsum.photos/100/100?random=3', data_ai_hint: 'wine logo' },
+  { id: 4, slug: 'confraria-dos-sabores-de-tras-os-montes', name: 'Confraria dos Sabores de Trás-os-Montes', region: 'Trás-os-Montes', events: 8, recipes: 60, logo: 'https://picsum.photos/100/100?random=4', data_ai_hint: 'food logo' },
+  { id: 5, slug: 'confraria-do-marisco-de-olhao', name: 'Confraria do Marisco de Olhão', region: 'Algarve', events: 30, recipes: 35, logo: 'https://picsum.photos/100/100?random=5', data_ai_hint: 'seafood logo' },
+  { id: 6, slug: 'confraria-da-broa-de-avintes', name: 'Confraria da Broa de Avintes', region: 'Douro Litoral', events: 12, recipes: 18, logo: 'https://picsum.photos/100/100?random=6', data_ai_hint: 'bread logo' },
 ];
 
 function ConfrariaCard({ confraria }: { confraria: (typeof confrarias)[0] }) {
@@ -84,11 +83,10 @@ export default function ConfrariasPage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <section className="text-center mb-12">
         <h1 className="font-headline font-bold text-4xl md:text-5xl text-primary mb-4">
-          Confrarias de Portugal
+          As Nossas Confrarias
         </h1>
         <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-          Descubra, siga e participe nas comunidades que celebram o melhor da
-          gastronomia Portuguesa.
+          As guardiãs da tradição e do sabor. Conheça as irmandades que partilham o seu conhecimento e paixão por Portugal.
         </p>
       </section>
 
