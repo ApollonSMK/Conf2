@@ -65,7 +65,6 @@ export default function ConfrariaProfilePage({ params }: { params: { slug: strin
               <p className="text-lg text-muted-foreground flex items-center gap-2 mt-1"><MapPin className="h-5 w-5"/> {confraria.region}</p>
             </div>
             <div className="mt-4 md:mt-0 md:pb-4 flex items-center gap-2 flex-wrap">
-              <Button><Users className="mr-2"/> Seguir ({confraria.followers})</Button>
               <Button variant="secondary"><Mail className="mr-2"/> Contactar</Button>
             </div>
           </div>

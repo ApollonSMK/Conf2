@@ -57,12 +57,6 @@ function ConfrariaCard({ confraria }: { confraria: (typeof confrarias)[0] }) {
       <CardContent className="flex-grow p-4">
         <div className="flex justify-around text-muted-foreground text-sm">
           <div className="text-center">
-            <Users className="h-5 w-5 mx-auto mb-1 text-accent" />
-            <p>
-              <span className="font-bold text-foreground">{confraria.followers}</span> Seguidores
-            </p>
-          </div>
-          <div className="text-center">
             <Calendar className="h-5 w-5 mx-auto mb-1 text-accent" />
             <p>
               <span className="font-bold text-foreground">{confraria.events}</span> Eventos
