@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Grapes } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -27,7 +27,10 @@ export default function InicioPage() {
   return (
     <div className="flex flex-col min-h-[calc(100vh-5rem)]">
       <section className="flex-grow flex items-center justify-center text-center py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto flex flex-col items-center">
+           <div className="bg-primary/10 p-4 rounded-full mb-6">
+            <Grapes className="h-12 w-12 text-primary" />
+          </div>
           <h1 className="font-headline font-bold text-5xl md:text-6xl text-primary mb-4">
             Confrarias Gastronómicas
           </h1>
@@ -45,7 +48,7 @@ export default function InicioPage() {
                 Explorar Descobertas <ArrowRight className="ml-2" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="secondary" size="lg">
               <Link href="/confrarias">Conhecer as Confrarias</Link>
             </Button>
           </div>

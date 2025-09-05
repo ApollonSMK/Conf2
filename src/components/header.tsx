@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { User, Home, BookOpen, Calendar, Compass } from 'lucide-react';
+import { User, Home, BookOpen, Calendar, Compass, Grape } from 'lucide-react';
+import { Grapes } from 'lucide-react';
 
 export function Header() {
   return (
@@ -9,6 +10,7 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
+              <Grapes className="h-8 w-8" />
               <span className="font-headline font-bold text-2xl tracking-tight">
                 Confrarias Portugal
               </span>

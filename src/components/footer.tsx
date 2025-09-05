@@ -1,12 +1,13 @@
 import Link from 'next/link';
-import { Utensils } from 'lucide-react';
+import { Grapes } from 'lucide-react';
 
 export function Footer() {
   return (
     <footer className="bg-muted/50 text-muted-foreground border-t">
       <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
+             <Grapes className="h-6 w-6 text-primary" />
             <span className="font-headline font-bold text-lg text-foreground">Confrarias Portugal</span>
           </div>
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
