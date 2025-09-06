@@ -9,16 +9,46 @@ import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useTransition } from 'react';
-
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import '@/lib/firebase'; // Ensure Firebase is initialized
 
 export function LoginForm() {
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    startTransition(() => {
-        // Handle login logic here
-        console.log('Logging in...');
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    startTransition(async () => {
+      try {
+        const auth = getAuth();
+        await signInWithEmailAndPassword(auth, email, password);
+        
+        toast({
+          title: 'Login efetuado!',
+          description: 'Bem-vindo de volta. A redirecionar...',
+        });
+
+        router.push('/painel');
+
+      } catch (error: any) {
+        console.error("Firebase login error:", error);
+        let description = 'Ocorreu um erro ao tentar entrar. Verifique as suas credenciais.';
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          description = 'Email ou palavra-passe incorretos.';
+        }
+        toast({
+          title: 'Erro no Login',
+          description,
+          variant: 'destructive',
+        });
+      }
     });
   }
 
@@ -32,7 +62,7 @@ export function LoginForm() {
         <CardContent className="space-y-4">
             <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="exemplo@email.com" required />
+                <Input id="email" name="email" type="email" placeholder="exemplo@email.com" required />
             </div>
             <div className="space-y-2">
                  <div className="flex items-center justify-between">
@@ -41,7 +71,7 @@ export function LoginForm() {
                         Esqueceu-se?
                     </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" name="password" type="password" required />
             </div>
             
         </CardContent>
@@ -65,4 +95,3 @@ export function LoginForm() {
     </form>
   );
 }
-
