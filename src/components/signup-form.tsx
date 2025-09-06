@@ -6,12 +6,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 
 export function SignupForm() {
   const [isPending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +21,8 @@ export function SignupForm() {
         console.log('Signing up...');
     });
   }
+
+  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -39,7 +42,21 @@ export function SignupForm() {
             </div>
             <div className="space-y-2">
                 <Label htmlFor="password">Palavra-passe</Label>
-                <Input id="password" type="password" required />
+                <div className="relative">
+                    <Input id="password" type={showPassword ? 'text' : 'password'} required />
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-0 right-0 h-full px-3 py-2" onClick={togglePasswordVisibility}>
+                        {showPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                </div>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirmar Palavra-passe</Label>
+                <div className="relative">
+                    <Input id="confirm-password" type={showPassword ? 'text' : 'password'} required />
+                     <Button type="button" variant="ghost" size="icon" className="absolute top-0 right-0 h-full px-3 py-2" onClick={togglePasswordVisibility}>
+                        {showPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                </div>
             </div>
         </CardContent>
         <CardFooter className="flex-col gap-4">
