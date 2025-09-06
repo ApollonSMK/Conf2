@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useState, useTransition, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 type PasswordStrength = {
   score: number;
@@ -26,19 +27,56 @@ export function SignupForm() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    startTransition(() => {
-        // In a real app, this would be where you handle the signup logic with Firebase.
-        console.log('Signing up...');
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const pass = formData.get('password') as string;
+    const confirmPassword = formData.get('confirm-password') as string;
+
+    if (pass !== confirmPassword) {
+      toast({
+        title: 'Erro',
+        description: 'As palavras-passe não coincidem.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    startTransition(async () => {
+      try {
+        const auth = getAuth();
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        
+        // Update user profile with name
+        if(userCredential.user) {
+          await updateProfile(userCredential.user, { displayName: name });
+        }
+
         toast({
             title: 'Conta Criada!',
             description: 'A sua conta foi criada com sucesso. A redirecionar para o login...',
         });
-        // Redirect to login page after a short delay to allow the user to see the toast
+        
         setTimeout(() => {
           router.push('/login');
         }, 1500);
+
+      } catch (error: any) {
+        console.error("Firebase signup error:", error);
+        let description = 'Ocorreu um erro ao criar a sua conta. Tente novamente.';
+        if (error.code === 'auth/email-already-in-use') {
+          description = 'Este endereço de email já está a ser utilizado.';
+        } else if (error.code === 'auth/weak-password') {
+          description = 'A palavra-passe é demasiado fraca. Tente uma mais forte.';
+        }
+        toast({
+          title: 'Erro no Registo',
+          description,
+          variant: 'destructive',
+        });
+      }
     });
   }
 
@@ -76,16 +114,17 @@ export function SignupForm() {
         <CardContent className="space-y-4">
            <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
-              <Input id="name" placeholder="O seu nome" required />
+              <Input name="name" id="name" placeholder="O seu nome" required />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="exemplo@email.com" required />
+                <Input name="email" id="email" type="email" placeholder="exemplo@email.com" required />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="password">Palavra-passe</Label>
                 <div className="relative">
                     <Input 
+                      name="password"
                       id="password" 
                       type={showPassword ? 'text' : 'password'} 
                       required 
@@ -106,7 +145,7 @@ export function SignupForm() {
             <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirmar Palavra-passe</Label>
                 <div className="relative">
-                    <Input id="confirm-password" type={showPassword ? 'text' : 'password'} required />
+                    <Input name="confirm-password" id="confirm-password" type={showPassword ? 'text' : 'password'} required />
                      <Button type="button" variant="ghost" size="icon" className="absolute top-0 right-0 h-full px-3 py-2" onClick={togglePasswordVisibility}>
                         {showPassword ? <EyeOff /> : <Eye />}
                     </Button>
