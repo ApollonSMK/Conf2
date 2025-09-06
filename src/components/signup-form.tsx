@@ -5,14 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
+
+type PasswordStrength = {
+  score: number;
+  label: string;
+  color: string;
+};
 
 export function SignupForm() {
   const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +31,28 @@ export function SignupForm() {
   }
 
   const togglePasswordVisibility = () => setShowPassword(prev => !prev);
+
+  const passwordStrength = useMemo((): PasswordStrength => {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    if(password.length === 0) {
+        return { score: 0, label: '', color: '' };
+    }
+    
+    if (score < 3) {
+      return { score: score * 20, label: 'Fraca', color: 'bg-destructive' };
+    }
+    if (score < 5) {
+      return { score: score * 20, label: 'Média', color: 'bg-yellow-500' };
+    }
+    return { score: 100, label: 'Forte', color: 'bg-green-500' };
+  }, [password]);
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -43,11 +73,23 @@ export function SignupForm() {
             <div className="space-y-2">
                 <Label htmlFor="password">Palavra-passe</Label>
                 <div className="relative">
-                    <Input id="password" type={showPassword ? 'text' : 'password'} required />
+                    <Input 
+                      id="password" 
+                      type={showPassword ? 'text' : 'password'} 
+                      required 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
                     <Button type="button" variant="ghost" size="icon" className="absolute top-0 right-0 h-full px-3 py-2" onClick={togglePasswordVisibility}>
                         {showPassword ? <EyeOff /> : <Eye />}
                     </Button>
                 </div>
+                {password.length > 0 && (
+                    <div className="flex items-center gap-2 pt-1">
+                        <Progress value={passwordStrength.score} className={`h-2 ${passwordStrength.color}`} />
+                        <span className="text-xs text-muted-foreground">{passwordStrength.label}</span>
+                    </div>
+                )}
             </div>
             <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirmar Palavra-passe</Label>
