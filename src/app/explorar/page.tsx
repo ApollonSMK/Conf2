@@ -9,6 +9,7 @@ import { DiscoveryFilters } from '@/components/discovery-filters';
 const descobertas = [
   {
     id: 1,
+    slug: 'mercearia-do-ze',
     title: 'Mercearia do Zé',
     description: 'Uma pequena mercearia com os melhores queijos e enchidos da região. O Zé conhece todos os produtores!',
     image: 'https://picsum.photos/400/300?random=31',
@@ -17,6 +18,7 @@ const descobertas = [
   },
   {
     id: 2,
+    slug: 'pastelaria-doce-encontro',
     title: 'Pastelaria Doce Encontro',
     description: 'Os melhores pastéis de nata que já comi, feitos com uma receita secreta de família.',
     image: 'https://picsum.photos/400/300?random=32',
@@ -25,6 +27,7 @@ const descobertas = [
   },
   {
     id: 3,
+    slug: 'tasca-do-pescador',
     title: 'Tasca do Pescador',
     description: 'Peixe fresco grelhado na hora, mesmo em frente ao porto. Simples e delicioso.',
     image: 'https://picsum.photos/400/300?random=33',
@@ -33,6 +36,7 @@ const descobertas = [
   },
    {
     id: 4,
+    slug: 'quinta-do-vinho-bom',
     title: 'Quinta do Vinho Bom',
     description: 'Uma adega familiar que oferece provas de vinhos incríveis com vista para o vale.',
     image: 'https://picsum.photos/400/300?random=34',
@@ -66,18 +70,20 @@ export default function ExplorarPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
             {descobertas.map((descoberta) => (
               <Card key={descoberta.id} className="flex flex-col overflow-hidden group">
-                <div className="relative h-56">
-                    <Image src={descoberta.image} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={descoberta.data_ai_hint}/>
-                </div>
-                <CardHeader>
-                    <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                    <p className="text-foreground/90">{descoberta.description}</p>
-                </CardContent>
-                <CardFooter>
-                    <p className="text-sm text-muted-foreground">Partilhado por: <span className="font-medium text-foreground">{descoberta.author}</span></p>
-                </CardFooter>
+                 <Link href={`/explorar/${descoberta.slug}`} className="flex flex-col flex-grow">
+                    <div className="relative h-56">
+                        <Image src={descoberta.image} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={descoberta.data_ai_hint}/>
+                    </div>
+                    <CardHeader>
+                        <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                        <p className="text-foreground/90 line-clamp-3">{descoberta.description}</p>
+                    </CardContent>
+                    <CardFooter>
+                        <p className="text-sm text-muted-foreground">Partilhado por: <span className="font-medium text-foreground">{descoberta.author}</span></p>
+                    </CardFooter>
+                </Link>
               </Card>
             ))}
           </div>
