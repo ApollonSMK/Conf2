@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { PlusCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { DiscoveryFilters } from '@/components/discovery-filters';
 
 const descobertas = [
   {
@@ -57,23 +58,30 @@ export default function ExplorarPage() {
         </Button>
       </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {descobertas.map((descoberta) => (
-          <Card key={descoberta.id} className="flex flex-col overflow-hidden group">
-             <div className="relative h-56">
-                <Image src={descoberta.image} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={descoberta.data_ai_hint}/>
-             </div>
-             <CardHeader>
-                <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>
-             </CardHeader>
-             <CardContent className="flex-grow">
-                <p className="text-foreground/90">{descoberta.description}</p>
-             </CardContent>
-             <CardFooter>
-                <p className="text-sm text-muted-foreground">Partilhado por: <span className="font-medium text-foreground">{descoberta.author}</span></p>
-             </CardFooter>
-          </Card>
-        ))}
+       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <aside className="md:col-span-1">
+          <DiscoveryFilters />
+        </aside>
+        <main className="md:col-span-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+            {descobertas.map((descoberta) => (
+              <Card key={descoberta.id} className="flex flex-col overflow-hidden group">
+                <div className="relative h-56">
+                    <Image src={descoberta.image} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={descoberta.data_ai_hint}/>
+                </div>
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                    <p className="text-foreground/90">{descoberta.description}</p>
+                </CardContent>
+                <CardFooter>
+                    <p className="text-sm text-muted-foreground">Partilhado por: <span className="font-medium text-foreground">{descoberta.author}</span></p>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </main>
       </div>
     </div>
   );
