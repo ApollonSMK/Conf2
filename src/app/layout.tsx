@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Header } from '@/components/header';
@@ -22,7 +23,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased bg-background text-foreground flex flex-col min-h-screen">
+      <body className="font-body antialiased bg-background text-foreground flex flex-col min-h-screen has-[[data-sidebar=sidebar]]:overflow-hidden">
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />

@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Grape, MapPin, Mail } from 'lucide-react';
 
@@ -50,7 +51,7 @@ export function Footer() {
               <Link href="/inicio" className="block text-primary-foreground/80 hover:text-primary-foreground transition-colors">Início</Link>
               <Link href="/explorar" className="block text-primary-foreground/80 hover:text-primary-foreground transition-colors">Descobertas</Link>
               <Link href="/confrarias" className="block text-primary-foreground/80 hover:text-primary-foreground transition-colors">Confrarias</Link>
-              <Link href="#" className="block text-primary-foreground/80 hover:text-primary-foreground transition-colors">Painel do Confrade</Link>
+              <Link href="/painel" className="block text-primary-foreground/80 hover:text-primary-foreground transition-colors">Painel do Confrade</Link>
             </nav>
           </div>
         </div>
