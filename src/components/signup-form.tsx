@@ -11,6 +11,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useTransition, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 type PasswordStrength = {
   score: number;
@@ -23,6 +24,7 @@ export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState('');
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +33,12 @@ export function SignupForm() {
         console.log('Signing up...');
         toast({
             title: 'Conta Criada!',
-            description: 'A sua conta foi criada com sucesso. Bem-vindo(a)!',
+            description: 'A sua conta foi criada com sucesso. A redirecionar para o login...',
         });
+        // Redirect to login page after a short delay to allow the user to see the toast
+        setTimeout(() => {
+          router.push('/login');
+        }, 1500);
     });
   }
 
