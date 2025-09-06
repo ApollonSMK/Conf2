@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,8 +10,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Filter, Search, WandSparkles, X } from 'lucide-react';
+import { districts } from '@/lib/regions';
 
 export function DiscoveryFilters() {
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+    const councils = selectedDistrict ? districts.find(d => d.name === selectedDistrict)?.councils ?? [] : [];
+
     return (
         <Card>
             <CardContent className="p-6">
@@ -30,41 +35,28 @@ export function DiscoveryFilters() {
 
                     <div>
                         <Label htmlFor="district" className="text-sm font-medium text-foreground mb-2 block">Distrito</Label>
-                        <Select>
+                        <Select onValueChange={setSelectedDistrict}>
                             <SelectTrigger id="district">
                                 <SelectValue placeholder="Todos os distritos" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="aveiro">Aveiro</SelectItem>
-                                <SelectItem value="beja">Beja</SelectItem>
-                                <SelectItem value="braga">Braga</SelectItem>
-                                <SelectItem value="braganca">Bragança</SelectItem>
-                                <SelectItem value="castelo-branco">Castelo Branco</SelectItem>
-                                <SelectItem value="coimbra">Coimbra</SelectItem>
-                                <SelectItem value="evora">Évora</SelectItem>
-                                <SelectItem value="faro">Faro</SelectItem>
-                                <SelectItem value="guarda">Guarda</SelectItem>
-                                <SelectItem value="leiria">Leiria</SelectItem>
-                                <SelectItem value="lisboa">Lisboa</SelectItem>
-                                <SelectItem value="portalegre">Portalegre</SelectItem>
-                                <SelectItem value="porto">Porto</SelectItem>
-                                <SelectItem value="santarem">Santarém</SelectItem>
-                                <SelectItem value="setubal">Setúbal</SelectItem>
-                                <SelectItem value="viana-do-castelo">Viana do Castelo</SelectItem>
-                                <SelectItem value="vila-real">Vila Real</SelectItem>
-                                <SelectItem value="viseu">Viseu</SelectItem>
+                                {districts.map(district => (
+                                    <SelectItem key={district.name} value={district.name}>{district.name}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div>
                          <Label htmlFor="council" className="text-sm font-medium text-foreground mb-2 block">Concelho</Label>
-                        <Select disabled>
+                        <Select disabled={!selectedDistrict}>
                             <SelectTrigger id="council">
                                 <SelectValue placeholder="Todos os concelhos" />
                             </SelectTrigger>
                             <SelectContent>
-                                {/* Options would be populated based on district */}
+                                {councils.map(council => (
+                                     <SelectItem key={council} value={council}>{council}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
