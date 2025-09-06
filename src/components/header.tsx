@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { User, Home, BookOpen, Calendar, Compass, Grape } from 'lucide-react';
@@ -30,9 +31,11 @@ export function Header() {
             </Link>
           </nav>
           <div className="flex items-center space-x-4">
-            <Button variant="secondary" size="sm">
-              <User className="mr-2 h-4 w-4" />
-              Entrar
+            <Button asChild variant="secondary" size="sm">
+              <Link href="/login">
+                <User className="mr-2 h-4 w-4" />
+                Entrar
+              </Link>
             </Button>
           </div>
         </div>
