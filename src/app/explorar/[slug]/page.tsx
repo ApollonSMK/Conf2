@@ -20,6 +20,7 @@ const descobertaDetails = {
     data_ai_hint_author: 'woman portrait',
     category: 'Lugar',
     tags: ['Mercearia', 'Produtos Locais', 'Queijo', 'Trás-os-Montes'],
+    selos: 1,
     comments: [
         { id: 1, author: 'António Silva', text: 'Confirmo! O queijo de cabra é divinal.', avatar: 'https://picsum.photos/100/100?random=52' },
         { id: 2, author: 'João Pereira', text: 'Fui lá na semana passada por causa desta partilha. Não desiludiu! Obrigado!', avatar: 'https://picsum.photos/100/100?random=53' },
@@ -44,7 +45,9 @@ export default function DescobertaPage({ params }: { params: { slug: string } })
                             <CardTitle className="font-headline text-4xl text-primary">{descoberta.title}</CardTitle>
                         </div>
                         <div className="flex items-center gap-4 text-muted-foreground">
-                           <Button variant="ghost" size="icon"><Stamp className="h-5 w-5" /> <span className="sr-only">Selo</span></Button>
+                           <Button variant="outline">
+                                <Stamp className="h-5 w-5 mr-2" /> {descoberta.selos} Selo{descoberta.selos !== 1 && 's'}
+                           </Button>
                            <Button variant="ghost" size="icon"><Share2 className="h-5 w-5" /> <span className="sr-only">Partilhar</span></Button>
                         </div>
                     </div>
