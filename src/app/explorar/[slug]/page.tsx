@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, MessageCircle, Send, Share2 } from "lucide-react";
+import { MessageCircle, Send, Share2, Stamp } from "lucide-react";
 import Image from "next/image";
 
 // Mock data, in a real app this would come from a database based on the slug
@@ -44,7 +44,7 @@ export default function DescobertaPage({ params }: { params: { slug: string } })
                             <CardTitle className="font-headline text-4xl text-primary">{descoberta.title}</CardTitle>
                         </div>
                         <div className="flex items-center gap-4 text-muted-foreground">
-                           <Button variant="ghost" size="icon"><Heart className="h-5 w-5" /> <span className="sr-only">Gostar</span></Button>
+                           <Button variant="ghost" size="icon"><Stamp className="h-5 w-5" /> <span className="sr-only">Selo</span></Button>
                            <Button variant="ghost" size="icon"><Share2 className="h-5 w-5" /> <span className="sr-only">Partilhar</span></Button>
                         </div>
                     </div>
