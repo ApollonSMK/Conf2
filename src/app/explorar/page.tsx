@@ -1,10 +1,11 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle } from 'lucide-react';
+import { MapPin, PlusCircle, Stamp, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { DiscoveryFilters } from '@/components/discovery-filters';
+import { Badge } from '@/components/ui/badge';
 
 const descobertas = [
   {
@@ -15,6 +16,9 @@ const descobertas = [
     image: 'https://picsum.photos/400/300?random=31',
     data_ai_hint: 'grocery store',
     author: 'Maria Costa',
+    location: 'Trás-os-Montes',
+    category: 'Lugar',
+    selos: 1,
   },
   {
     id: 2,
@@ -24,6 +28,9 @@ const descobertas = [
     image: 'https://picsum.photos/400/300?random=32',
     data_ai_hint: 'portuguese custard tarts',
     author: 'António Silva',
+    location: 'Lisboa',
+    category: 'Produto',
+    selos: 5,
   },
   {
     id: 3,
@@ -33,6 +40,9 @@ const descobertas = [
     image: 'https://picsum.photos/400/300?random=33',
     data_ai_hint: 'grilled fish',
     author: 'João Pereira',
+    location: 'Setúbal',
+    category: 'Lugar',
+    selos: 12,
   },
    {
     id: 4,
@@ -42,6 +52,9 @@ const descobertas = [
     image: 'https://picsum.photos/400/300?random=34',
     data_ai_hint: 'wine tasting',
     author: 'Ana Santos',
+    location: 'Douro',
+    category: 'Lugar',
+    selos: 8,
   },
 ];
 
@@ -77,8 +90,13 @@ export default function ExplorarPage() {
                     <CardHeader>
                         <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-grow">
-                        <p className="text-foreground/90 line-clamp-3">{descoberta.description}</p>
+                    <CardContent className="flex-grow space-y-4">
+                        <p className="text-foreground/90 line-clamp-2">{descoberta.description}</p>
+                         <div className="flex flex-wrap gap-2 items-center">
+                            <Badge variant="secondary"><MapPin className="mr-1.5"/>{descoberta.location}</Badge>
+                            <Badge variant="secondary"><Tag className="mr-1.5"/>{descoberta.category}</Badge>
+                            <Badge variant="outline"><Stamp className="mr-1.5"/>{descoberta.selos} Selo{descoberta.selos !== 1 ? 's' : ''}</Badge>
+                        </div>
                     </CardContent>
                     <CardFooter>
                         <p className="text-sm text-muted-foreground">Partilhado por: <span className="font-medium text-foreground">{descoberta.author}</span></p>
