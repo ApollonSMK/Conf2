@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useTransition, useMemo } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 type PasswordStrength = {
   score: number;
@@ -21,12 +22,17 @@ export function SignupForm() {
   const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState('');
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(() => {
-        // Handle signup logic here
+        // In a real app, this would be where you handle the signup logic with Firebase.
         console.log('Signing up...');
+        toast({
+            title: 'Conta Criada!',
+            description: 'A sua conta foi criada com sucesso. Bem-vindo(a)!',
+        });
     });
   }
 
