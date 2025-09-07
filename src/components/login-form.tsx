@@ -6,16 +6,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { addOrUpdateUser } from '@/app/actions';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export function LoginForm() {
   const [isPending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -31,13 +34,19 @@ export function LoginForm() {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Ensure user document exists in Firestore
-        await addOrUpdateUser(user.uid, {
-            name: user.displayName!,
-            email: user.email!,
-            role: 'Confrade', // Default role for existing users
-            status: 'Ativo'   // Default status for existing users
-        });
+        // Check if user document exists in Firestore
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (!userDocSnap.exists()) {
+             // If document doesn't exist, create it
+            await addOrUpdateUser(user.uid, {
+                name: user.displayName || email.split('@')[0], // Fallback for name
+                email: user.email!,
+                role: 'Confrade', // Default role for existing users
+                status: 'Ativo'   // Default status for existing users
+            });
+        }
         
         toast({
           title: 'Login efetuado!',
@@ -61,6 +70,8 @@ export function LoginForm() {
     });
   }
 
+  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
+
   return (
     <form onSubmit={handleSubmit}>
       <Card>
@@ -80,7 +91,12 @@ export function LoginForm() {
                         Esqueceu-se?
                     </Link>
                 </div>
-                <Input id="password" name="password" type="password" required />
+                 <div className="relative">
+                    <Input id="password" name="password" type={showPassword ? 'text' : 'password'} required />
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-0 right-0 h-full px-3 py-2" onClick={togglePasswordVisibility}>
+                        {showPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                </div>
             </div>
             
         </CardContent>
