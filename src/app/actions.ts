@@ -2,7 +2,7 @@
 
 import { suggestTagsForPost } from '@/ai/flows/suggest-tags-for-post';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 export async function getTagSuggestions(content: string) {
   if (!content) {
@@ -28,6 +28,28 @@ export async function addOrUpdateUser(uid: string, data: { name: string, email: 
         throw new Error("Failed to save user data.");
     }
 }
+
+export async function updateUser(uid: string, data: Partial<{ name: string; email: string; role: string; status: string }>) {
+    try {
+        const userRef = doc(db, "users", uid);
+        await updateDoc(userRef, data);
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating user: ", error);
+        return { success: false, error: "Failed to update user data." };
+    }
+}
+
+export async function deleteUser(uid: string) {
+    try {
+        await deleteDoc(doc(db, "users", uid));
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting user: ", error);
+        return { success: false, error: "Failed to delete user." };
+    }
+}
+
 
 export async function createDiscovery(data: any) {
   try {
