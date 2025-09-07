@@ -18,7 +18,7 @@ export function BottomNavigator() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur-sm md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-primary/50 bg-card/95 backdrop-blur-sm md:hidden">
       <div className="grid h-16 grid-cols-5 items-center">
         {navItems.slice(0, 2).map((item) => {
            const isActive = pathname === item.href || (item.href !== '/inicio' && pathname.startsWith(item.href));
