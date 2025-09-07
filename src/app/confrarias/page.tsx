@@ -23,8 +23,6 @@ import {
   Filter,
   Search,
 } from 'lucide-react';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
 
 const confrarias = [
   { id: 1, slug: 'confraria-do-queijo-serra-da-estrela', name: 'Confraria do Queijo Serra da Estrela', region: 'Beira Alta', events: 15, recipes: 45, logo: 'https://picsum.photos/100/100?random=1', data_ai_hint: 'cheese logo' },
@@ -83,75 +81,69 @@ function ConfrariaCard({ confraria }: { confraria: (typeof confrarias)[0] }) {
 
 export default function ConfrariasPage() {
   return (
-    <>
-      <Header />
-      <main className="flex-grow">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <section className="text-center mb-12">
-            <h1 className="font-headline font-bold text-4xl md:text-5xl text-primary mb-4">
-              As Nossas Confrarias
-            </h1>
-            <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-              As guardiãs da tradição e do sabor. Conheça as irmandades que partilham o seu conhecimento e paixão por Portugal.
-            </p>
-          </section>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <section className="text-center mb-12">
+          <h1 className="font-headline font-bold text-4xl md:text-5xl text-primary mb-4">
+            As Nossas Confrarias
+          </h1>
+          <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+            As guardiãs da tradição e do sabor. Conheça as irmandades que partilham o seu conhecimento e paixão por Portugal.
+          </p>
+        </section>
 
-          <Card className="mb-8 p-4 md:p-6 bg-card/80">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-              <div className="relative">
-                <label htmlFor="search" className="text-sm font-medium text-foreground">
-                  Pesquisa
-                </label>
-                <Search className="absolute left-3 bottom-2.5 h-5 w-5 text-muted-foreground" />
-                <Input id="search" placeholder="Nome da confraria..." className="pl-10 mt-1" />
-              </div>
-              <div>
-                <label htmlFor="region" className="text-sm font-medium text-foreground">
-                  Região
-                </label>
-                <Select>
-                  <SelectTrigger id="region" className="mt-1">
-                    <SelectValue placeholder="Todas as regiões" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="norte">Norte</SelectItem>
-                    <SelectItem value="centro">Centro</SelectItem>
-                    <SelectItem value="lisboa">Lisboa</SelectItem>
-                    <SelectItem value="alentejo">Alentejo</SelectItem>
-                    <SelectItem value="algarve">Algarve</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label htmlFor="sort" className="text-sm font-medium text-foreground">
-                  Ordenar por
-                </label>
-                <Select>
-                  <SelectTrigger id="sort" className="mt-1">
-                    <SelectValue placeholder="Mais seguidas" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="followers">Mais seguidas</SelectItem>
-                    <SelectItem value="recent">Mais recentes</SelectItem>
-                    <SelectItem value="name_asc">Nome (A-Z)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button>
-                <Filter className="mr-2 h-4 w-4" />
-                Filtrar
-              </Button>
+        <Card className="mb-8 p-4 md:p-6 bg-card/80">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <div className="relative">
+              <label htmlFor="search" className="text-sm font-medium text-foreground">
+                Pesquisa
+              </label>
+              <Search className="absolute left-3 bottom-2.5 h-5 w-5 text-muted-foreground" />
+              <Input id="search" placeholder="Nome da confraria..." className="pl-10 mt-1" />
             </div>
-          </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {confrarias.map((confraria) => (
-              <ConfrariaCard key={confraria.id} confraria={confraria} />
-            ))}
+            <div>
+              <label htmlFor="region" className="text-sm font-medium text-foreground">
+                Região
+              </label>
+              <Select>
+                <SelectTrigger id="region" className="mt-1">
+                  <SelectValue placeholder="Todas as regiões" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="norte">Norte</SelectItem>
+                  <SelectItem value="centro">Centro</SelectItem>
+                  <SelectItem value="lisboa">Lisboa</SelectItem>
+                  <SelectItem value="alentejo">Alentejo</SelectItem>
+                  <SelectItem value="algarve">Algarve</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="sort" className="text-sm font-medium text-foreground">
+                Ordenar por
+              </label>
+              <Select>
+                <SelectTrigger id="sort" className="mt-1">
+                  <SelectValue placeholder="Mais seguidas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="followers">Mais seguidas</SelectItem>
+                  <SelectItem value="recent">Mais recentes</SelectItem>
+                  <SelectItem value="name_asc">Nome (A-Z)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button>
+              <Filter className="mr-2 h-4 w-4" />
+              Filtrar
+            </Button>
           </div>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {confrarias.map((confraria) => (
+            <ConfrariaCard key={confraria.id} confraria={confraria} />
+          ))}
         </div>
-      </main>
-      <Footer />
-    </>
+      </div>
   );
 }

@@ -32,7 +32,7 @@ const baseMenuItems = [
     { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: false, adminOnly: false },
 ];
 
-const adminMenuItem = { href: '/painel/admin/dashboard', label: 'Admin', icon: Shield, disabled: false, adminOnly: true };
+const adminMenuItem = { href: '/painel/admin', label: 'Admin', icon: Shield, disabled: false, adminOnly: true };
 
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -85,7 +85,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-        <div className="flex h-screen items-center justify-center">
+        <div className="flex h-screen w-full items-center justify-center">
             <p>A carregar...</p>
         </div>
     )

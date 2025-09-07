@@ -12,8 +12,6 @@ import { MobileDiscoveryFilters } from '@/components/mobile-discovery-filters';
 import { useEffect, useState } from 'react';
 import { getDiscoveries } from '../actions';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
 
 type Discovery = {
     id: string;
@@ -45,74 +43,68 @@ export default function ExplorarPage() {
     }, []);
 
   return (
-    <>
-      <Header />
-      <main className="flex-grow">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
-            <div>
-              <h1 className="font-headline font-bold text-4xl text-primary">Descobertas da Comunidade</h1>
-              <p className="mt-2 text-lg text-muted-foreground">Pérolas partilhadas pelos nossos membros. Encontre o seu próximo sabor favorito.</p>
-            </div>
-            <AddDiscoveryButton />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
+          <div>
+            <h1 className="font-headline font-bold text-4xl text-primary">Descobertas da Comunidade</h1>
+            <p className="mt-2 text-lg text-muted-foreground">Pérolas partilhadas pelos nossos membros. Encontre o seu próximo sabor favorito.</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <aside className="hidden md:block md:col-span-1">
-              <DiscoveryFilters />
-            </aside>
-            <main className="md:col-span-3">
-              <div className="md:hidden mb-6">
-                <MobileDiscoveryFilters />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-                {loading ? (
-                  Array.from({ length: 6 }).map((_, index) => (
-                    <Card key={index} className="flex flex-col overflow-hidden group">
-                      <div className="relative h-56">
-                        <Skeleton className="h-full w-full" />
-                      </div>
-                      <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
-                      <CardContent className="flex-grow space-y-4">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-5/6" />
-                        <div className="flex flex-wrap gap-2 items-center">
-                          <Skeleton className="h-6 w-20 rounded-full" />
-                          <Skeleton className="h-6 w-20 rounded-full" />
-                        </div>
-                      </CardContent>
-                      <CardFooter><Skeleton className="h-4 w-1/2" /></CardFooter>
-                    </Card>
-                  ))
-                ) : descobertas.map((descoberta) => (
-                  <Card key={descoberta.id} className="flex flex-col overflow-hidden group">
-                    <Link href={`/explorar/${descoberta.id}`} className="flex flex-col flex-grow">
-                      <div className="relative h-56">
-                        <Image src={descoberta.image || 'https://picsum.photos/400/300'} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={descoberta.data_ai_hint} />
-                      </div>
-                      <CardHeader>
-                        <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="flex-grow space-y-4">
-                        <p className="text-foreground/90 line-clamp-2">{descoberta.description}</p>
-                        <div className="flex flex-wrap gap-2 items-center">
-                          <Badge variant="secondary"><MapPin className="mr-1.5" />{descoberta.location}</Badge>
-                          <Badge variant="secondary"><Tag className="mr-1.5" />{descoberta.category}</Badge>
-                          <Badge variant="outline"><Stamp className="mr-1.5" />{descoberta.selos || 0} Selo{descoberta.selos !== 1 ? 's' : ''}</Badge>
-                        </div>
-                      </CardContent>
-                      <CardFooter>
-                        <p className="text-sm text-muted-foreground">Partilhado por: <span className="font-medium text-foreground">{descoberta.author}</span></p>
-                      </CardFooter>
-                    </Link>
-                  </Card>
-                ))}
-              </div>
-            </main>
-          </div>
+          <AddDiscoveryButton />
         </div>
-      </main>
-      <Footer />
-    </>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <aside className="hidden md:block md:col-span-1">
+            <DiscoveryFilters />
+          </aside>
+          <main className="md:col-span-3">
+            <div className="md:hidden mb-6">
+              <MobileDiscoveryFilters />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+              {loading ? (
+                Array.from({ length: 6 }).map((_, index) => (
+                  <Card key={index} className="flex flex-col overflow-hidden group">
+                    <div className="relative h-56">
+                      <Skeleton className="h-full w-full" />
+                    </div>
+                    <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
+                    <CardContent className="flex-grow space-y-4">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <Skeleton className="h-6 w-20 rounded-full" />
+                        <Skeleton className="h-6 w-20 rounded-full" />
+                      </div>
+                    </CardContent>
+                    <CardFooter><Skeleton className="h-4 w-1/2" /></CardFooter>
+                  </Card>
+                ))
+              ) : descobertas.map((descoberta) => (
+                <Card key={descoberta.id} className="flex flex-col overflow-hidden group">
+                  <Link href={`/explorar/${descoberta.id}`} className="flex flex-col flex-grow">
+                    <div className="relative h-56">
+                      <Image src={descoberta.image || 'https://picsum.photos/400/300'} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={descoberta.data_ai_hint} />
+                    </div>
+                    <CardHeader>
+                      <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow space-y-4">
+                      <p className="text-foreground/90 line-clamp-2">{descoberta.description}</p>
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <Badge variant="secondary"><MapPin className="mr-1.5" />{descoberta.location}</Badge>
+                        <Badge variant="secondary"><Tag className="mr-1.5" />{descoberta.category}</Badge>
+                        <Badge variant="outline"><Stamp className="mr-1.5" />{descoberta.selos || 0} Selo{descoberta.selos !== 1 ? 's' : ''}</Badge>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <p className="text-sm text-muted-foreground">Partilhado por: <span className="font-medium text-foreground">{descoberta.author}</span></p>
+                    </CardFooter>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+          </main>
+        </div>
+      </div>
   );
 }

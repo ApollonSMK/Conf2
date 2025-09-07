@@ -1,8 +1,6 @@
 
 import { getDiscoveryById } from "@/app/actions";
 import { DiscoveryClientPage } from "@/components/discovery-client-page";
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
 import { notFound } from "next/navigation";
 
 // Mock data, in a real app this would come from a database based on the slug
@@ -71,10 +69,6 @@ export default async function DescobertaPage({ params }: { params: { slug: strin
     }
 
     return (
-        <>
-            <Header />
-            <main className="flex-grow">{pageContent}</main>
-            <Footer />
-        </>
+        <div className="w-full">{pageContent}</div>
     )
 }

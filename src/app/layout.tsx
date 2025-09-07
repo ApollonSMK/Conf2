@@ -4,6 +4,8 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import '@/lib/firebase';
 import { BottomNavigator } from '@/components/bottom-navigator';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
 
 export const metadata: Metadata = {
   title: 'Sabores de Portugal',
@@ -22,9 +24,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased bg-background text-foreground flex flex-col min-h-screen pb-16 md:pb-0">
-        {children}
+      <body className="font-body antialiased bg-background text-foreground flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow flex">
+            {children}
+        </main>
         <Toaster />
+        <Footer />
         <BottomNavigator />
       </body>
     </html>

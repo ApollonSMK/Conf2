@@ -14,7 +14,6 @@ import {
   SidebarInset,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { BookOpen, Home, LogOut, Newspaper, Settings, Shield, Users, UtensilsCrossed } from 'lucide-react';
@@ -53,7 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                         asChild
-                        isActive={pathname === item.href}
+                        isActive={pathname === item.href || (item.href !== '/painel/admin/dashboard' && pathname.startsWith(item.href))}
                         disabled={item.disabled}
                         tooltip={{children: item.label}}
                     >
