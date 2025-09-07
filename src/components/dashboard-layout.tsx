@@ -19,12 +19,14 @@ import { Separator } from '@/components/ui/separator';
 import { BookOpen, Home, LogOut, Settings, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getAuth, onAuthStateChanged, User, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, User, signOut, updateProfile } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { updateUser } from '@/app/actions';
 
 const baseMenuItems = [
     { href: '/painel', label: 'Início', icon: Home, adminOnly: false },
@@ -83,14 +85,36 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     
     const menuItems = userRole === 'Admin' ? [...baseMenuItems, adminMenuItem] : baseMenuItems;
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
-            console.log("File selected:", file.name);
-            // TODO: Implement upload logic
+        if (!file || !user) return;
+
+        const storageRef = ref(storage, `profile_pictures/${user.uid}`);
+
+        try {
             toast({
-                title: 'Funcionalidade em desenvolvimento',
-                description: 'O upload da foto de perfil será implementado em breve.',
+                title: 'A carregar foto...',
+                description: 'Por favor, aguarde enquanto a sua nova foto é carregada.',
+            });
+            await uploadBytes(storageRef, file);
+            const photoURL = await getDownloadURL(storageRef);
+
+            await updateProfile(user, { photoURL });
+            await updateUser(user.uid, { photoURL });
+
+            // To refresh the UI with the new photo
+            setUser({ ...user, photoURL });
+
+            toast({
+                title: 'Foto de Perfil Atualizada!',
+                description: 'A sua nova foto de perfil já está visível.',
+            });
+        } catch (error) {
+            console.error("Error uploading photo:", error);
+            toast({
+                title: 'Erro no Upload',
+                description: 'Não foi possível carregar a sua foto. Tente novamente.',
+                variant: 'destructive',
             });
         }
     };

@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -9,7 +10,7 @@ import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
   "projectId": "sabores-de-portugal-k9ej6",
   "appId": "1:654308026060:web:85cf0120d79741c54a8469",
-  "storageBucket": "sabores-de-portugal-k9ej6.firebasestorage.app",
+  "storageBucket": "sabores-de-portugal-k9ej6.appspot.com",
   "apiKey": "AIzaSyAyaCQICZgaEDIEMCmDKviHV2UFDTEzfRs",
   "authDomain": "sabores-de-portugal-k9ej6.firebaseapp.com",
   "measurementId": "",
@@ -20,5 +21,6 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-export { app, auth, db };
+export { app, auth, db, storage };

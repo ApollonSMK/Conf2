@@ -18,7 +18,7 @@ export async function getTagSuggestions(content: string) {
   }
 }
 
-export async function addOrUpdateUser(uid: string, data: { name: string, email: string, role?: string, status?: string }) {
+export async function addOrUpdateUser(uid: string, data: { name: string, email: string, role?: string, status?: string, photoURL?: string }) {
     try {
         await setDoc(doc(db, "users", uid), {
             uid,
@@ -30,7 +30,7 @@ export async function addOrUpdateUser(uid: string, data: { name: string, email: 
     }
 }
 
-export async function updateUser(uid: string, data: Partial<{ name: string; email: string; role: string; status: string }>) {
+export async function updateUser(uid: string, data: Partial<{ name: string; email: string; role: string; status: string; photoURL: string }>) {
     try {
         const userRef = doc(db, "users", uid);
         await updateDoc(userRef, data);
