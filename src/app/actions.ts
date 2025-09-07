@@ -4,37 +4,46 @@
 import { suggestTagsForPost } from '@/ai/flows/suggest-tags-for-post';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, query, where, Timestamp, getDoc, arrayUnion, arrayRemove, increment } from 'firebase/firestore';
+import { r2Client } from '@/lib/r2';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { randomUUID } from 'crypto';
 
-export async function uploadImage(base64Image: string): Promise<{ success: boolean; url?: string; error?: string }> {
-  const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
-  if (!apiKey) {
-    console.error('IMGBB API key is not configured.');
-    return { success: false, error: 'O serviço de upload de imagens não está configurado.' };
-  }
+export async function uploadImage(formData: FormData): Promise<{ success: boolean; url?: string; error?: string }> {
+    const file = formData.get('file') as File | null;
 
-  const base64Data = base64Image.split(',')[1];
-
-  const formData = new FormData();
-  formData.append('image', base64Data);
-
-  try {
-    const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      return { success: true, url: result.data.url };
-    } else {
-      console.error('ImgBB upload failed:', result.error.message);
-      return { success: false, error: `Falha no upload da imagem: ${result.error.message}` };
+    if (!file) {
+        return { success: false, error: 'Nenhum ficheiro recebido.' };
     }
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    return { success: false, error: 'Ocorreu um erro inesperado durante o upload.' };
-  }
+
+    const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME;
+    const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+
+    if (!R2_BUCKET_NAME || !R2_PUBLIC_URL) {
+        console.error('Variáveis de ambiente do R2 não estão configuradas.');
+        return { success: false, error: 'O serviço de upload de imagens não está configurado.' };
+    }
+    
+    try {
+        const fileBuffer = Buffer.from(await file.arrayBuffer());
+        const fileExtension = file.name.split('.').pop();
+        const fileName = `${randomUUID()}.${fileExtension}`;
+
+        await r2Client.send(
+            new PutObjectCommand({
+                Bucket: R2_BUCKET_NAME,
+                Key: fileName,
+                Body: fileBuffer,
+                ContentType: file.type,
+            })
+        );
+        
+        const url = `${R2_PUBLIC_URL}/${fileName}`;
+        return { success: true, url };
+
+    } catch (error) {
+        console.error('Error uploading to R2:', error);
+        return { success: false, error: 'Ocorreu um erro inesperado durante o upload.' };
+    }
 }
 
 

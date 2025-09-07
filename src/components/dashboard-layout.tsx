@@ -36,14 +36,6 @@ const baseMenuItems = [
 
 const adminMenuItem = { href: '/painel/admin', label: 'Admin', icon: Shield, disabled: false, adminOnly: true };
 
-const fileToBase64 = (file: Blob): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const auth = getAuth();
@@ -108,9 +100,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             });
 
             const compressedFile = await imageCompression(file, options);
-            const base64Image = await fileToBase64(compressedFile);
+            
+            const formData = new FormData();
+            formData.append('file', compressedFile);
 
-            const uploadResult = await uploadImage(base64Image);
+            const uploadResult = await uploadImage(formData);
 
             if (!uploadResult.success || !uploadResult.url) {
                  toast({
