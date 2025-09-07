@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, Send, Share2, Stamp, Globe, Mail, Phone, Clock, MapPin, Facebook, Instagram } from "lucide-react";
+import { MessageCircle, Send, Share2, Stamp, Globe, Mail, Phone, Clock, MapPin, Facebook, Instagram, Heart, Sparkles, Wifi, ParkingSquare, Accessibility, Dog } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -47,6 +47,12 @@ const descobertaDetails = {
         { day: 'Segunda - Sexta', time: '09:00 - 19:00' },
         { day: 'Sábado', time: '09:00 - 13:00' },
         { day: 'Domingo', time: 'Fechado' },
+    ],
+    amenities: [
+        { name: 'Wi-Fi Grátis', icon: Wifi },
+        { name: 'Estacionamento', icon: ParkingSquare },
+        { name: 'Acessível a Cadeira de Rodas', icon: Accessibility },
+        { name: 'Aceita Animais', icon: Dog },
     ]
 };
 
@@ -194,10 +200,24 @@ export default function DescobertaPage({ params }: { params: { slug: string } })
                        </ul>
                     </CardContent>
                 </Card>
+
+                 <Card>
+                     <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Sparkles/> Comodidades</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                       <ul className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
+                           {descoberta.amenities.map(amenity => (
+                               <li key={amenity.name} className="flex items-center gap-2">
+                                   <amenity.icon className="h-4 w-4 text-accent" />
+                                   <span className="text-foreground">{amenity.name}</span>
+                               </li>
+                           ))}
+                       </ul>
+                    </CardContent>
+                </Card>
             </div>
            </div>
         </div>
     );
 }
-
-    
