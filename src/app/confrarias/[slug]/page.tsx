@@ -26,9 +26,6 @@ const confrariaDetails = {
   about: 'Fundada em 1982, a Confraria do Vinho do Porto tem como missão a defesa, promoção e prestígio do Vinho do Porto. Organizamos eventos, provas e workshops para entusiastas e profissionais, celebrando a rica herança deste vinho único no mundo.',
   foundationYear: 1982,
   members: ['António Silva', 'Maria Costa', 'João Pereira', 'Ana Santos'],
-  posts: [
-    { id: 1, title: 'Vindimas 2024 no Douro', content: 'As vindimas deste ano prometem! O clima ajudou e as uvas estão com uma qualidade excecional. Fiquem atentos aos nossos próximos eventos para provar o resultado.', image: 'https://picsum.photos/600/400?random=11', data_ai_hint: 'grape harvest' },
-  ],
   events: [
     { id: 1, name: 'Grande Prova de Vintages', date: '2024-11-15', location: 'Palácio da Bolsa, Porto' },
   ],
@@ -70,28 +67,14 @@ export default function ConfrariaProfilePage({ params }: { params: { slug: strin
           </div>
         </div>
 
-        <Tabs defaultValue="posts" className="mt-8">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
-            <TabsTrigger value="posts">Publicações</TabsTrigger>
+        <Tabs defaultValue="events" className="mt-8">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
             <TabsTrigger value="events">Eventos</TabsTrigger>
             <TabsTrigger value="recipes">Receitas</TabsTrigger>
             <TabsTrigger value="gallery">Galeria</TabsTrigger>
             <TabsTrigger value="about">Sobre</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="posts" className="mt-6">
-             <Card>
-                <CardHeader>
-                    <CardTitle>{confraria.posts[0].title}</CardTitle>
-                    <CardDescription>Publicado há 2 dias</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Image src={confraria.posts[0].image} alt={confraria.posts[0].title} width={600} height={400} className="rounded-lg mb-4 w-full h-auto object-cover" data-ai-hint={confraria.posts[0].data_ai_hint} />
-                    <p className="text-foreground/90">{confraria.posts[0].content}</p>
-                </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="events" className="mt-6">
             <Card>
                 <CardHeader><CardTitle>Próximos Eventos</CardTitle></CardHeader>
