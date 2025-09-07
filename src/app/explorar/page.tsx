@@ -1,7 +1,6 @@
-
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, PlusCircle, Stamp, Tag } from 'lucide-react';
+import { AddDiscoveryButton } from '@/components/add-discovery-button';
+import { MapPin, Stamp, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { DiscoveryFilters } from '@/components/discovery-filters';
@@ -67,12 +66,7 @@ export default function ExplorarPage() {
             <h1 className="font-headline font-bold text-4xl text-primary">Descobertas da Comunidade</h1>
             <p className="mt-2 text-lg text-muted-foreground">Pérolas partilhadas pelos nossos membros. Encontre o seu próximo sabor favorito.</p>
         </div>
-        <Button asChild>
-            <Link href="/explorar/nova">
-                <PlusCircle className="mr-2"/>
-                Adicionar Descoberta
-            </Link>
-        </Button>
+        <AddDiscoveryButton />
       </div>
 
        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
