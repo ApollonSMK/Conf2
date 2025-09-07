@@ -24,7 +24,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { updateUser } from '@/app/actions';
+import { updateUser, uploadImage } from '@/app/actions';
 import imageCompression from 'browser-image-compression';
 
 
@@ -36,7 +36,7 @@ const baseMenuItems = [
 
 const adminMenuItem = { href: '/painel/admin', label: 'Admin', icon: Shield, disabled: false, adminOnly: true };
 
-const fileToBase64 = (file: File): Promise<string> =>
+const fileToBase64 = (file: Blob): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -96,7 +96,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         if (!file || !user) return;
 
         const options = {
-            maxSizeMB: 0.5, // Compress to max 500KB
+            maxSizeMB: 0.5,
             maxWidthOrHeight: 800,
             useWebWorker: true,
         }
@@ -108,8 +108,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             });
 
             const compressedFile = await imageCompression(file, options);
-            
-            const photoURL = await fileToBase64(compressedFile);
+            const base64Image = await fileToBase64(compressedFile);
+
+            const uploadResult = await uploadImage(base64Image);
+
+            if (!uploadResult.success || !uploadResult.url) {
+                 toast({
+                    title: 'Erro no Upload',
+                    description: uploadResult.error || 'Não foi possível carregar a sua foto. Tente novamente.',
+                    variant: 'destructive',
+                });
+                return;
+            }
+
+            const photoURL = uploadResult.url;
 
             await updateProfile(user, { photoURL });
             await updateUser(user.uid, { photoURL });
