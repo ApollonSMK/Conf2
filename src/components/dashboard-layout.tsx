@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { BookOpen, Home, LogOut, Settings, Shield } from 'lucide-react';
+import { BookOpen, Home, LogOut, Settings, Shield, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, redirect } from 'next/navigation';
 import { getAuth, onAuthStateChanged, User, signOut, updateProfile } from 'firebase/auth';
@@ -121,7 +121,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             await updateUser(user.uid, { photoURL });
 
             // To refresh the UI with the new photo
-            setUser({ ...user, photoURL });
+            const refreshedUser = { ...user, photoURL };
+            setUser(refreshedUser);
 
             toast({
                 title: 'Foto de Perfil Atualizada!',
@@ -154,13 +155,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <Sidebar className="sticky top-0 max-h-screen">
         <SidebarHeader>
             <div className="flex items-center gap-3 p-2">
-                <label htmlFor="avatar-upload" className="cursor-pointer">
-                    <Avatar className="h-12 w-12">
-                        <AvatarImage src={user?.photoURL ?? "https://picsum.photos/100/100"} alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
-                        <AvatarFallback>{user?.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
-                    </Avatar>
-                </label>
-                <input type="file" id="avatar-upload" accept="image/*" className="hidden" onChange={handleFileChange} />
+                <div className="relative group">
+                    <label htmlFor="avatar-upload" className="cursor-pointer">
+                        <Avatar className="h-12 w-12">
+                            <AvatarImage src={user?.photoURL ?? ""} alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
+                            <AvatarFallback>{user?.displayName?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
+                        </Avatar>
+                         <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Camera className="h-6 w-6 text-white" />
+                        </div>
+                    </label>
+                    <input type="file" id="avatar-upload" accept="image/*" className="hidden" onChange={handleFileChange} />
+                </div>
 
                 <div className="overflow-hidden group-data-[collapsible=icon]:hidden">
                     {loading ? (
