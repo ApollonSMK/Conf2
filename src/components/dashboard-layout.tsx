@@ -64,7 +64,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         });
 
         return () => unsubscribe();
-    }, [auth, router]);
+    }, [auth]);
 
       const handleLogout = async () => {
         try {
@@ -93,7 +93,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             maxSizeMB: 1,
             maxWidthOrHeight: 800,
             useWebWorker: true,
-            fileType: 'image/webp'
         }
 
         try {
@@ -103,7 +102,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             });
 
             const compressedFile = await imageCompression(file, options);
-            const storageRef = ref(storage, `profile_pictures/${user.uid}.webp`);
+            const storageRef = ref(storage, `profile_pictures/${user.uid}_${compressedFile.name}`);
 
             await uploadBytes(storageRef, compressedFile);
             const photoURL = await getDownloadURL(storageRef);
