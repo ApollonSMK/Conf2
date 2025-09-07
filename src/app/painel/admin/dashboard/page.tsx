@@ -8,7 +8,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MoreHorizontal, ShieldCheck } from 'lucide-react';
-import { getUsers, getDiscoveries } from '@/app/actions';
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+
+async function getClientSideUsers() {
+    try {
+        const usersCol = collection(db, 'users');
+        const userSnapshot = await getDocs(usersCol);
+        const userList = userSnapshot.docs.map(doc => doc.data());
+        return userList;
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return [];
+    }
+}
+
+async function getClientSideDiscoveries() {
+    try {
+        const discoveriesCol = collection(db, 'discoveries');
+        const discoverySnapshot = await getDocs(discoveriesCol);
+        const discoveryList = discoverySnapshot.docs.map(doc => doc.data());
+        return discoveryList;
+    } catch (error) {
+        console.error("Error fetching discoveries:", error);
+        return [];
+    }
+}
 
 export default function AdminDashboardPage() {
     const [users, setUsers] = useState<any[]>([]);
@@ -18,8 +43,8 @@ export default function AdminDashboardPage() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const userList = await getUsers();
-                const discoveryList = await getDiscoveries();
+                const userList = await getClientSideUsers();
+                const discoveryList = await getClientSideDiscoveries();
                 setUsers(userList);
                 setDiscoveries(discoveryList);
             } catch (error) {
@@ -79,7 +104,7 @@ export default function AdminDashboardPage() {
                                         <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant={user.status === 'Ativo' ? 'outline' : 'destructive'}>{user.status}</Badge>
+                                        <Badge variant={user.status === 'Ativo' ? 'secondary' : 'destructive'}>{user.status}</Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon"><MoreHorizontal /></Button>
