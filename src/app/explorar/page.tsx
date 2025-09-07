@@ -1,4 +1,6 @@
 
+'use client';
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AddDiscoveryButton } from '@/components/add-discovery-button';
 import { MapPin, Stamp, Tag } from 'lucide-react';
@@ -7,60 +9,39 @@ import Link from 'next/link';
 import { DiscoveryFilters } from '@/components/discovery-filters';
 import { Badge } from '@/components/ui/badge';
 import { MobileDiscoveryFilters } from '@/components/mobile-discovery-filters';
+import { useEffect, useState } from 'react';
+import { getDiscoveries } from '../actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const descobertas = [
-  {
-    id: 1,
-    slug: 'mercearia-do-ze',
-    title: 'Mercearia do Zé',
-    description: 'Uma pequena mercearia com os melhores queijos e enchidos da região. O Zé conhece todos os produtores!',
-    image: 'https://picsum.photos/400/300?random=31',
-    data_ai_hint: 'grocery store',
-    author: 'Maria Costa',
-    location: 'Trás-os-Montes',
-    category: 'Lugar',
-    selos: 1,
-  },
-  {
-    id: 2,
-    slug: 'pastelaria-doce-encontro',
-    title: 'Pastelaria Doce Encontro',
-    description: 'Os melhores pastéis de nata que já comi, feitos com uma receita secreta de família.',
-    image: 'https://picsum.photos/400/300?random=32',
-    data_ai_hint: 'portuguese custard tarts',
-    author: 'António Silva',
-    location: 'Lisboa',
-    category: 'Produto',
-    selos: 5,
-  },
-  {
-    id: 3,
-    slug: 'tasca-do-pescador',
-    title: 'Tasca do Pescador',
-    description: 'Peixe fresco grelhado na hora, mesmo em frente ao porto. Simples e delicioso.',
-    image: 'https://picsum.photos/400/300?random=33',
-    data_ai_hint: 'grilled fish',
-    author: 'João Pereira',
-    location: 'Setúbal',
-    category: 'Lugar',
-    selos: 12,
-  },
-   {
-    id: 4,
-    slug: 'quinta-do-vinho-bom',
-    title: 'Quinta do Vinho Bom',
-    description: 'Uma adega familiar que oferece provas de vinhos incríveis com vista para o vale.',
-    image: 'https://picsum.photos/400/300?random=34',
-    data_ai_hint: 'wine tasting',
-    author: 'Ana Santos',
-    location: 'Douro',
-    category: 'Lugar',
-    selos: 8,
-  },
-];
+type Discovery = {
+    id: string;
+    slug: string;
+    title: string;
+    description: string;
+    image: string;
+    data_ai_hint: string;
+    author: string;
+    location: string;
+    category: string;
+    selos: number;
+}
 
 
 export default function ExplorarPage() {
+    const [descobertas, setDescobertas] = useState<Discovery[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDiscoveries = async () => {
+            setLoading(true);
+            const discoveryList = await getDiscoveries();
+            setDescobertas(discoveryList as Discovery[]);
+            setLoading(false);
+        };
+
+        fetchDiscoveries();
+    }, []);
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
@@ -80,11 +61,29 @@ export default function ExplorarPage() {
             <MobileDiscoveryFilters />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-            {descobertas.map((descoberta) => (
+             {loading ? (
+                Array.from({ length: 6 }).map((_, index) => (
+                    <Card key={index} className="flex flex-col overflow-hidden group">
+                        <div className="relative h-56">
+                            <Skeleton className="h-full w-full" />
+                        </div>
+                        <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
+                        <CardContent className="flex-grow space-y-4">
+                            <Skeleton className="h-4 w-full" />
+                             <Skeleton className="h-4 w-5/6" />
+                            <div className="flex flex-wrap gap-2 items-center">
+                               <Skeleton className="h-6 w-20 rounded-full" />
+                               <Skeleton className="h-6 w-20 rounded-full" />
+                            </div>
+                        </CardContent>
+                        <CardFooter><Skeleton className="h-4 w-1/2" /></CardFooter>
+                    </Card>
+                ))
+            ) : descobertas.map((descoberta) => (
               <Card key={descoberta.id} className="flex flex-col overflow-hidden group">
-                 <Link href={`/explorar/${descoberta.slug}`} className="flex flex-col flex-grow">
+                 <Link href={`/explorar/${descoberta.id}`} className="flex flex-col flex-grow">
                     <div className="relative h-56">
-                        <Image src={descoberta.image} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={descoberta.data_ai_hint}/>
+                        <Image src={descoberta.image || 'https://picsum.photos/400/300'} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={descoberta.data_ai_hint}/>
                     </div>
                     <CardHeader>
                         <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>
@@ -94,7 +93,7 @@ export default function ExplorarPage() {
                          <div className="flex flex-wrap gap-2 items-center">
                             <Badge variant="secondary"><MapPin className="mr-1.5"/>{descoberta.location}</Badge>
                             <Badge variant="secondary"><Tag className="mr-1.5"/>{descoberta.category}</Badge>
-                            <Badge variant="outline"><Stamp className="mr-1.5"/>{descoberta.selos} Selo{descoberta.selos !== 1 ? 's' : ''}</Badge>
+                            <Badge variant="outline"><Stamp className="mr-1.5"/>{descoberta.selos || 0} Selo{descoberta.selos !== 1 ? 's' : ''}</Badge>
                         </div>
                     </CardContent>
                     <CardFooter>
