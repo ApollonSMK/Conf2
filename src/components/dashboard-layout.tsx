@@ -23,7 +23,6 @@ import { usePathname } from 'next/navigation';
 
 const menuItems = [
     { href: '/painel', label: 'Início', icon: Home },
-    { href: '/painel/publicacoes', label: 'Publicações', icon: Newspaper, disabled: true },
     { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen, disabled: true },
     { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: true },
     { href: '/painel/admin', label: 'Admin', icon: Shield, disabled: true },
