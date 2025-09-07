@@ -83,11 +83,25 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     
     const menuItems = userRole === 'Admin' ? [...baseMenuItems, adminMenuItem] : baseMenuItems;
 
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            console.log("File selected:", file.name);
+            // TODO: Implement upload logic
+            toast({
+                title: 'Funcionalidade em desenvolvimento',
+                description: 'O upload da foto de perfil será implementado em breve.',
+            });
+        }
+    };
+
   if (loading) {
     return (
+      <div className="w-full flex">
         <div className="flex h-screen w-full items-center justify-center">
             <p>A carregar...</p>
         </div>
+      </div>
     )
   }
   
@@ -97,13 +111,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar className="sticky top-0 max-h-screen">
         <SidebarHeader>
             <div className="flex items-center gap-3 p-2">
-                <Avatar className="h-12 w-12">
-                    <AvatarImage src={user?.photoURL ?? "https://picsum.photos/100/100"} alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
-                    <AvatarFallback>{user?.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
-                </Avatar>
+                <label htmlFor="avatar-upload" className="cursor-pointer">
+                    <Avatar className="h-12 w-12">
+                        <AvatarImage src={user?.photoURL ?? "https://picsum.photos/100/100"} alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
+                        <AvatarFallback>{user?.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
+                    </Avatar>
+                </label>
+                <input type="file" id="avatar-upload" accept="image/*" className="hidden" onChange={handleFileChange} />
+
                 <div className="overflow-hidden group-data-[collapsible=icon]:hidden">
                     {loading ? (
                         <div className="space-y-1">
