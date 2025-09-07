@@ -7,15 +7,23 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreHorizontal, ShieldCheck } from 'lucide-react';
+import { MoreHorizontal, ShieldCheck, Pencil, Shield, Trash2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 async function getClientSideUsers() {
     try {
         const usersCol = collection(db, 'users');
         const userSnapshot = await getDocs(usersCol);
-        const userList = userSnapshot.docs.map(doc => doc.data());
+        const userList = userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return userList;
     } catch (error) {
         console.error("Error fetching users:", error);
@@ -95,7 +103,7 @@ export default function AdminDashboardPage() {
                                     </TableRow>
                                 ))
                             ) : users.map((user: any) => (
-                                <TableRow key={user.email}>
+                                <TableRow key={user.id}>
                                     <TableCell>
                                         <div className="font-medium">{user.name}</div>
                                         <div className="text-sm text-muted-foreground">{user.email}</div>
@@ -107,7 +115,30 @@ export default function AdminDashboardPage() {
                                         <Badge variant={user.status === 'Ativo' ? 'secondary' : 'destructive'}>{user.status}</Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon"><MoreHorizontal /></Button>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <span className="sr-only">Abrir menu</span>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem>
+                                                    <Pencil className="mr-2 h-4 w-4" />
+                                                    Editar
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <Shield className="mr-2 h-4 w-4" />
+                                                    Alterar Role
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    Eliminar
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
                             ))}
