@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, Send, Share2, Stamp, Globe, Mail, Phone, Clock, MapPin, Facebook, Instagram, Heart, Sparkles, Wifi, ParkingSquare, Accessibility, Dog } from "lucide-react";
+import { MessageCircle, Send, Share2, Stamp, Globe, Mail, Phone, Clock, MapPin, Facebook, Instagram, Heart, Sparkles, Wifi, ParkingSquare, Accessibility, Dog, CreditCard, Umbrella, ToyBrick, CalendarCheck, ShoppingBag, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -53,6 +53,9 @@ const descobertaDetails = {
         { name: 'Estacionamento', icon: ParkingSquare },
         { name: 'Acessível a Cadeira de Rodas', icon: Accessibility },
         { name: 'Aceita Animais', icon: Dog },
+        { name: 'Aceita Cartão', icon: CreditCard },
+        { name: 'Esplanada/Terraço', icon: Umbrella },
+        { name: 'Bom para Crianças', icon: ToyBrick },
     ]
 };
 

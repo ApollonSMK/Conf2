@@ -8,7 +8,7 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ImageUp, Loader2, Wifi, ParkingSquare, Accessibility, Dog } from 'lucide-react';
+import { ImageUp, Loader2, Wifi, ParkingSquare, Accessibility, Dog, CreditCard, Umbrella, ToyBrick, CalendarCheck, ShoppingBag, Truck } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Separator } from './ui/separator';
 import { Checkbox } from './ui/checkbox';
@@ -16,8 +16,14 @@ import { Checkbox } from './ui/checkbox';
 const amenities = [
     { id: 'wifi', label: 'Wi-Fi Grátis', icon: Wifi },
     { id: 'parking', label: 'Estacionamento', icon: ParkingSquare },
-    { id: 'accessibility', label: 'Acessível a Cadeira de Rodas', icon: Accessibility },
+    { id: 'accessibility', label: 'Acessível', icon: Accessibility },
     { id: 'pets', label: 'Aceita Animais', icon: Dog },
+    { id: 'creditcard', label: 'Aceita Cartão', icon: CreditCard },
+    { id: 'terrace', label: 'Esplanada', icon: Umbrella },
+    { id: 'kids', label: 'Bom para Crianças', icon: ToyBrick },
+    { id: 'reservations', label: 'Aceita Reservas', icon: CalendarCheck },
+    { id: 'takeaway', label: 'Takeaway', icon: ShoppingBag },
+    { id: 'delivery', label: 'Entrega ao Domicílio', icon: Truck },
 ];
 
 export function NewDiscoveryForm() {
@@ -129,7 +135,7 @@ export function NewDiscoveryForm() {
                     {amenities.map((amenity) => (
                         <div key={amenity.id} className="flex items-center space-x-3">
                             <Checkbox id={amenity.id} />
-                            <Label htmlFor={amenity.id} className="font-normal flex items-center gap-2 text-sm text-foreground">
+                            <Label htmlFor={amenity.id} className="font-normal flex items-center gap-2 text-sm text-foreground cursor-pointer">
                                 <amenity.icon className="h-5 w-5 text-muted-foreground"/>
                                 {amenity.label}
                             </Label>
