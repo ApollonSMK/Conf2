@@ -4,20 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { MoreHorizontal, ShieldCheck, UserCheck } from 'lucide-react';
+import { getUsers, getDiscoveries } from '@/app/actions';
 
-const users = [
-    { name: 'Ana Costa', email: 'ana@exemplo.com', role: 'Admin', status: 'Ativo' },
-    { name: 'João Pereira', email: 'joao@exemplo.com', role: 'Confrade', status: 'Ativo' },
-    { name: 'Maria Silva', email: 'maria@exemplo.com', role: 'Confrade', status: 'Pendente' },
-];
+export default async function AdminDashboardPage() {
+    const users = await getUsers();
+    const discoveries = await getDiscoveries();
 
-const discoveries = [
-    { title: 'Mercearia do Zé', author: 'Maria Costa', status: 'Aprovado' },
-    { title: 'Pastelaria Doce Encontro', author: 'António Silva', status: 'Pendente' },
-    { title: 'Tasca do Pescador', author: 'João Pereira', status: 'Rejeitado' },
-];
-
-export default function AdminDashboardPage() {
   return (
       <div className="p-4 sm:p-6 lg:p-8">
         <header className="mb-8">
@@ -47,7 +39,7 @@ export default function AdminDashboardPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {users.map(user => (
+                            {users.map((user: any) => (
                                 <TableRow key={user.email}>
                                     <TableCell>
                                         <div className="font-medium">{user.name}</div>
@@ -84,8 +76,8 @@ export default function AdminDashboardPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                             {discoveries.map(d => (
-                                <TableRow key={d.title}>
+                             {discoveries.map((d: any) => (
+                                <TableRow key={d.id}>
                                     <TableCell className="font-medium">{d.title}</TableCell>
                                     <TableCell>{d.author}</TableCell>
                                     <TableCell>

@@ -13,6 +13,7 @@ import { useState, useTransition, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { addOrUpdateUser } from '@/app/actions';
 
 type PasswordStrength = {
   score: number;
@@ -48,11 +49,16 @@ export function SignupForm() {
       try {
         const auth = getAuth();
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        const user = userCredential.user;
         
-        // Update user profile with name
-        if(userCredential.user) {
-          await updateProfile(userCredential.user, { displayName: name });
-        }
+        await updateProfile(user, { displayName: name });
+        
+        await addOrUpdateUser(user.uid, {
+            name: name,
+            email: user.email!,
+            role: 'Confrade', // Default role
+            status: 'Ativo' // Default status
+        });
 
         toast({
             title: 'Conta Criada!',

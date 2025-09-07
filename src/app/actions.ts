@@ -1,6 +1,8 @@
 'use server';
 
 import { suggestTagsForPost } from '@/ai/flows/suggest-tags-for-post';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 
 export async function getTagSuggestions(content: string) {
   if (!content) {
@@ -13,4 +15,56 @@ export async function getTagSuggestions(content: string) {
     console.error('Error suggesting tags:', error);
     return { tags: [], error: 'Falha ao sugerir tags. Tente novamente.' };
   }
+}
+
+export async function addOrUpdateUser(uid: string, data: { name: string, email: string, role?: string, status?: string }) {
+    try {
+        await setDoc(doc(db, "users", uid), {
+            uid,
+            ...data
+        }, { merge: true });
+    } catch (error) {
+        console.error("Error adding/updating user: ", error);
+        throw new Error("Failed to save user data.");
+    }
+}
+
+export async function createDiscovery(data: any) {
+  try {
+    const discoveryRef = doc(collection(db, "discoveries"));
+    await setDoc(discoveryRef, {
+      ...data,
+      id: discoveryRef.id,
+      createdAt: new Date(),
+      status: 'Pendente' // Default status
+    });
+    return { id: discoveryRef.id };
+  } catch (error) {
+    console.error("Error creating discovery: ", error);
+    throw new Error("Failed to create discovery.");
+  }
+}
+
+export async function getUsers() {
+    try {
+        const usersCol = collection(db, 'users');
+        const userSnapshot = await getDocs(usersCol);
+        const userList = userSnapshot.docs.map(doc => doc.data());
+        return userList;
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return [];
+    }
+}
+
+export async function getDiscoveries() {
+    try {
+        const discoveriesCol = collection(db, 'discoveries');
+        const discoverySnapshot = await getDocs(discoveriesCol);
+        const discoveryList = discoverySnapshot.docs.map(doc => doc.data());
+        return discoveryList;
+    } catch (error) {
+        console.error("Error fetching discoveries:", error);
+        return [];
+    }
 }
