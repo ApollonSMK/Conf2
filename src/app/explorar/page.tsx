@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AddDiscoveryButton } from '@/components/add-discovery-button';
 import { MapPin, Stamp, Tag } from 'lucide-react';
@@ -5,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { DiscoveryFilters } from '@/components/discovery-filters';
 import { Badge } from '@/components/ui/badge';
+import { MobileDiscoveryFilters } from '@/components/mobile-discovery-filters';
 
 const descobertas = [
   {
@@ -61,7 +63,7 @@ const descobertas = [
 export default function ExplorarPage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
         <div>
             <h1 className="font-headline font-bold text-4xl text-primary">Descobertas da Comunidade</h1>
             <p className="mt-2 text-lg text-muted-foreground">Pérolas partilhadas pelos nossos membros. Encontre o seu próximo sabor favorito.</p>
@@ -70,10 +72,13 @@ export default function ExplorarPage() {
       </div>
 
        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <aside className="md:col-span-1">
+        <aside className="hidden md:block md:col-span-1">
           <DiscoveryFilters />
         </aside>
         <main className="md:col-span-3">
+          <div className="md:hidden mb-6">
+            <MobileDiscoveryFilters />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
             {descobertas.map((descoberta) => (
               <Card key={descoberta.id} className="flex flex-col overflow-hidden group">

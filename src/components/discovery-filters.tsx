@@ -17,9 +17,9 @@ export function DiscoveryFilters() {
     const councils = selectedDistrict ? districts.find(d => d.name === selectedDistrict)?.councils ?? [] : [];
 
     return (
-        <Card>
-            <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-6">
+        <Card className="border-none shadow-none md:border md:shadow-sm">
+            <CardContent className="p-1 md:p-6">
+                <div className="hidden md:flex items-center gap-2 mb-6">
                     <Filter className="h-6 w-6 text-primary" />
                     <h2 className="font-headline text-2xl font-bold text-primary">Filtros</h2>
                 </div>
@@ -66,19 +66,19 @@ export function DiscoveryFilters() {
                         <RadioGroup defaultValue="all" className="space-y-2">
                              <div className="flex items-center space-x-2">
                                 <RadioGroupItem value="all" id="r-all"/>
-                                <Label htmlFor="r-all" className="font-normal cursor-pointer p-2 w-full rounded-md data-[state=checked]:bg-muted">Todos os tipos</Label>
+                                <Label htmlFor="r-all" className="font-normal cursor-pointer p-2 w-full rounded-md hover:bg-muted/50 data-[state=checked]:bg-muted">Todos os tipos</Label>
                             </div>
                              <div className="flex items-center space-x-2">
                                 <RadioGroupItem value="place" id="r-place" />
-                                <Label htmlFor="r-place" className="font-normal cursor-pointer p-2 w-full rounded-md hover:bg-muted/50">Lugar</Label>
+                                <Label htmlFor="r-place" className="font-normal cursor-pointer p-2 w-full rounded-md hover:bg-muted/50 data-[state=checked]:bg-muted">Lugar</Label>
                             </div>
                              <div className="flex items-center space-x-2">
                                 <RadioGroupItem value="person" id="r-person" />
-                                <Label htmlFor="r-person" className="font-normal cursor-pointer p-2 w-full rounded-md hover:bg-muted/50">Pessoa</Label>
+                                <Label htmlFor="r-person" className="font-normal cursor-pointer p-2 w-full rounded-md hover:bg-muted/50 data-[state=checked]:bg-muted">Pessoa</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <RadioGroupItem value="product" id="r-product" />
-                                <Label htmlFor="r-product" className="font-normal cursor-pointer p-2 w-full rounded-md hover:bg-muted/50">Produto</Label>
+                                <Label htmlFor="r-product" className="font-normal cursor-pointer p-2 w-full rounded-md hover:bg-muted/50 data-[state=checked]:bg-muted">Produto</Label>
                             </div>
                         </RadioGroup>
                     </div>
