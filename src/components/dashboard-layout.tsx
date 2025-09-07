@@ -27,6 +27,8 @@ import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { updateUser } from '@/app/actions';
+import imageCompression from 'browser-image-compression';
+
 
 const baseMenuItems = [
     { href: '/painel', label: 'Início', icon: Home, adminOnly: false },
@@ -89,14 +91,23 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         const file = event.target.files?.[0];
         if (!file || !user) return;
 
-        const storageRef = ref(storage, `profile_pictures/${user.uid}`);
+        const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 800,
+            useWebWorker: true,
+            fileType: 'image/webp'
+        }
 
         try {
             toast({
-                title: 'A carregar foto...',
-                description: 'Por favor, aguarde enquanto a sua nova foto é carregada.',
+                title: 'A processar a sua foto...',
+                description: 'Por favor, aguarde enquanto otimizamos e carregamos a imagem.',
             });
-            await uploadBytes(storageRef, file);
+
+            const compressedFile = await imageCompression(file, options);
+            const storageRef = ref(storage, `profile_pictures/${user.uid}.webp`);
+
+            await uploadBytes(storageRef, compressedFile);
             const photoURL = await getDownloadURL(storageRef);
 
             await updateProfile(user, { photoURL });
@@ -121,10 +132,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="w-full flex">
-        <div className="flex h-screen w-full items-center justify-center">
-            <p>A carregar...</p>
-        </div>
+      <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow flex">
+            <div className="flex h-full w-full items-center justify-center">
+                <p>A carregar...</p>
+            </div>
+          </main>
+          <Footer />
       </div>
     )
   }
@@ -134,88 +149,98 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SidebarProvider>
-      <Sidebar className="sticky top-0 max-h-screen">
-        <SidebarHeader>
-            <div className="flex items-center gap-3 p-2">
-                <label htmlFor="avatar-upload" className="cursor-pointer">
-                    <Avatar className="h-12 w-12">
-                        <AvatarImage src={user?.photoURL ?? "https://picsum.photos/100/100"} alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
-                        <AvatarFallback>{user?.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
-                    </Avatar>
-                </label>
-                <input type="file" id="avatar-upload" accept="image/*" className="hidden" onChange={handleFileChange} />
+    <>
+        <Header/>
+        <main className="flex-grow flex">
+             <SidebarProvider>
+              <Sidebar className="sticky top-20 max-h-[calc(100vh-10rem)]">
+                <SidebarHeader>
+                    <div className="flex items-center gap-3 p-2">
+                        <label htmlFor="avatar-upload" className="cursor-pointer">
+                            <Avatar className="h-12 w-12">
+                                <AvatarImage src={user?.photoURL ?? "https://picsum.photos/100/100"} alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
+                                <AvatarFallback>{user?.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
+                            </Avatar>
+                        </label>
+                        <input type="file" id="avatar-upload" accept="image/*" className="hidden" onChange={handleFileChange} />
 
-                <div className="overflow-hidden group-data-[collapsible=icon]:hidden">
-                    {loading ? (
-                        <div className="space-y-1">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-3 w-20" />
+                        <div className="overflow-hidden group-data-[collapsible=icon]:hidden">
+                            {loading ? (
+                                <div className="space-y-1">
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-3 w-20" />
+                                </div>
+                            ) : (
+                                <>
+                                 <p className="font-semibold truncate text-foreground">{user?.displayName ?? 'Confrade'}</p>
+                                 <p className="text-xs truncate text-muted-foreground">{userRole ?? 'Confrade'}</p>
+                                </>
+                            )}
                         </div>
-                    ) : (
-                        <>
-                         <p className="font-semibold truncate text-foreground">{user?.displayName ?? 'Confrade'}</p>
-                         <p className="text-xs truncate text-muted-foreground">{userRole ?? 'Confrade'}</p>
-                        </>
-                    )}
-                </div>
-            </div>
-        </SidebarHeader>
-        <Separator />
-        <SidebarContent>
-          <SidebarMenu>
-            {menuItems.map((item) => (
-                (item.href === '/painel' ? (
-                     <SidebarMenuItem key={item.href}>
-                        <SidebarMenuButton
-                            asChild
-                            isActive={pathname === item.href}
-                            disabled={item.disabled}
-                            tooltip={{children: item.label}}
-                        >
-                            <Link href={item.href}>
-                                <item.icon />
-                                <span>{item.label}</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ) : (
-                    <SidebarMenuItem key={item.href}>
-                        <SidebarMenuButton
-                            asChild
-                            isActive={pathname.startsWith(item.href)}
-                            disabled={item.disabled}
-                            tooltip={{children: item.label}}
-                        >
-                            <Link href={item.href}>
-                                <item.icon />
-                                <span>{item.label}</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ))
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-        <Separator />
-        <SidebarFooter>
-            <SidebarMenu>
-                 <SidebarMenuItem>
-                    <SidebarMenuButton tooltip={{children: 'Terminar Sessão'}} onClick={handleLogout}>
-                        <LogOut />
-                        <span>Terminar Sessão</span>
-                    </SidebarMenuButton>
-                 </SidebarMenuItem>
-            </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:hidden">
-            <h1 className="text-lg font-medium text-foreground">Painel</h1>
-            <SidebarTrigger />
-        </header>
-        {children}
-      </SidebarInset>
-    </SidebarProvider>
+                    </div>
+                </SidebarHeader>
+                <Separator />
+                <SidebarContent>
+                  <SidebarMenu>
+                    {menuItems.map((item) => (
+                        (item.href === '/painel' ? (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={pathname === item.href}
+                                    disabled={item.disabled}
+                                    tooltip={{children: item.label}}
+                                >
+                                    <Link href={item.href}>
+                                        <item.icon />
+                                        <span>{item.label}</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ) : (
+                            <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={pathname.startsWith(item.href)}
+                                    disabled={item.disabled}
+                                    tooltip={{children: item.label}}
+                                >
+                                    <Link href={item.href}>
+                                        <item.icon />
+                                        <span>{item.label}</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))
+                    ))}
+                  </SidebarMenu>
+                </SidebarContent>
+                <Separator />
+                <SidebarFooter>
+                    <SidebarMenu>
+                         <SidebarMenuItem>
+                            <SidebarMenuButton tooltip={{children: 'Terminar Sessão'}} onClick={handleLogout}>
+                                <LogOut />
+                                <span>Terminar Sessão</span>
+                            </SidebarMenuButton>
+                         </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarFooter>
+              </Sidebar>
+              <SidebarInset>
+                <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:hidden">
+                    <h1 className="text-lg font-medium text-foreground">Painel</h1>
+                    <SidebarTrigger />
+                </header>
+                {children}
+              </SidebarInset>
+            </SidebarProvider>
+        </main>
+        <Footer/>
+    </>
   );
 }
+
+// Temporary components to avoid breaking the layout during refactor
+const Header = () => <header className="h-20 bg-primary"></header>;
+const Footer = () => <footer className="h-20 bg-primary"></footer>;
