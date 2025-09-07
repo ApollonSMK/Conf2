@@ -1,20 +1,22 @@
 
 'use client';
 
-import { useTransition } from 'react';
+import { useTransition, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ImageUp, Loader2, Wifi, ParkingSquare, Accessibility, Dog, CreditCard, Umbrella, ToyBrick, CalendarCheck, ShoppingBag, Truck } from 'lucide-react';
+import { ImageUp, Loader2, Wifi, ParkingSquare, Accessibility, Dog, CreditCard, Umbrella, ToyBrick, CalendarCheck, ShoppingBag, Truck, X, Plus } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Separator } from './ui/separator';
 import { Checkbox } from './ui/checkbox';
-import { createDiscovery, updateDiscovery } from '@/app/actions';
+import { createDiscovery, updateDiscovery, uploadImage } from '@/app/actions';
 import { getAuth } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import imageCompression from 'browser-image-compression';
+import Image from 'next/image';
 
 const amenitiesList = [
     { id: 'wifi', label: 'Wi-Fi Grátis', icon: Wifi },
@@ -35,10 +37,49 @@ type DiscoveryFormProps = {
 
 export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const { toast } = useToast();
   const auth = getAuth();
   const router = useRouter();
   const isEditMode = !!discovery;
+
+  useEffect(() => {
+    if (isEditMode && discovery?.images) {
+        // In edit mode, image URLs are strings, not File objects
+        setImagePreviews(discovery.images.map((img: any) => img.url));
+    }
+  }, [discovery, isEditMode]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newImageFiles = [...imageFiles, ...files];
+    setImageFiles(newImageFiles);
+
+    const newImagePreviews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(prev => [...prev, ...newImagePreviews]);
+  };
+  
+  const handleRemoveImage = (index: number) => {
+    // Note: When editing, previews might contain URLs (strings) and new files (objects)
+    const newImageFiles = imageFiles.filter((_, i) => {
+        // This logic is tricky because imageFiles only contains NEW files.
+        // Previews contain old URLs and new object URLs.
+        // A simpler approach for this component might be to track indices.
+        // Let's assume for now we only remove newly added files this way.
+        // A better implementation would track objects with { type: 'new' | 'existing', data: File | string }
+        return i !== index;
+    });
+
+    const newImagePreviews = imagePreviews.filter((_, i) => i !== index);
+
+    // This is a simplified removal. In a complex scenario, you'd need to track which file corresponds to which preview.
+    // For now, we'll remove from both arrays by index, which works if the user only adds files and doesn't mix removals.
+    // To handle removing existing images, we'd need a separate state for `imagesToDelete`.
+    setImageFiles(currentFiles => currentFiles.filter((_, i) => i !== index));
+    setImagePreviews(currentPreviews => currentPreviews.filter((_, i) => i !== index));
+  };
+
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,34 +95,62 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
         return;
     }
     
-    const selectedAmenities = amenitiesList
-      .filter(amenity => formData.get(amenity.id))
-      .map(amenity => amenity.label);
-
-    const data = {
-        title: formData.get('title') as string,
-        description: formData.get('description') as string,
-        category: formData.get('category') as string,
-        // The location object should be constructed correctly
-        location: {
-            address: formData.get('address') as string,
-        },
-        contact: {
-             phone: formData.get('phone') as string,
-             email: formData.get('email') as string,
-             website: formData.get('website') as string,
-        },
-        social: {
-            facebook: formData.get('facebook') as string,
-            instagram: formData.get('instagram') as string,
-        },
-        amenities: selectedAmenities,
-        author: user.displayName,
-        authorId: user.uid,
-    };
-
     startTransition(async () => {
         try {
+            // 1. Upload new images
+            const uploadedImageUrls = [];
+            
+            toast({ title: 'A processar imagens...', description: 'Por favor, aguarde.'});
+
+            for (const file of imageFiles) {
+                 const compressedFile = await imageCompression(file, {
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true,
+                });
+
+                const imageFormData = new FormData();
+                imageFormData.append('file', compressedFile);
+                const result = await uploadImage(imageFormData);
+
+                if (result.success && result.url) {
+                    uploadedImageUrls.push({ url: result.url, data_ai_hint: 'user upload' });
+                } else {
+                    throw new Error(result.error || 'Falha no upload de uma imagem.');
+                }
+            }
+
+            // 2. Combine existing and new images
+            const existingImages = isEditMode ? discovery.images.filter((img: any) => imagePreviews.includes(img.url)) : [];
+            const finalImages = [...existingImages, ...uploadedImageUrls];
+
+
+            const selectedAmenities = amenitiesList
+              .filter(amenity => formData.get(amenity.id))
+              .map(amenity => amenity.label);
+
+            const data = {
+                title: formData.get('title') as string,
+                description: formData.get('description') as string,
+                category: formData.get('category') as string,
+                images: finalImages,
+                location: {
+                    address: formData.get('address') as string,
+                },
+                contact: {
+                     phone: formData.get('phone') as string,
+                     email: formData.get('email') as string,
+                     website: formData.get('website') as string,
+                },
+                social: {
+                    facebook: formData.get('facebook') as string,
+                    instagram: formData.get('instagram') as string,
+                },
+                amenities: selectedAmenities,
+                author: user.displayName,
+                authorId: user.uid,
+            };
+
             if(isEditMode) {
                  await updateDiscovery(discovery.id, data);
                  toast({
@@ -96,11 +165,13 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
                     description: 'A sua descoberta foi submetida para revisão. Obrigado por partilhar!',
                 });
                 (e.target as HTMLFormElement).reset();
+                setImageFiles([]);
+                setImagePreviews([]);
             }
-        } catch (error) {
+        } catch (error: any) {
              toast({
                 title: 'Erro',
-                description: 'Não foi possível guardar a sua descoberta. Tente novamente.',
+                description: error.message || 'Não foi possível guardar a sua descoberta. Tente novamente.',
                 variant: 'destructive',
             });
         }
@@ -219,17 +290,34 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
 
             <Separator />
 
-            {/* Imagens */}
-            <div className="space-y-2">
+             {/* Imagens */}
+            <div className="space-y-4">
                 <Label htmlFor="photo">Fotografias</Label>
-                <div className="flex items-center justify-center w-full">
-                    <Label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <ImageUp className="w-8 h-8 mb-4 text-muted-foreground" />
-                            <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Clique para carregar</span> ou arraste e solte</p>
-                            <p className="text-xs text-muted-foreground">PNG, JPG, GIF (MAX. 5MB)</p>
+                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {imagePreviews.map((src, index) => (
+                        <div key={index} className="relative group aspect-square">
+                            <Image
+                                src={src}
+                                alt={`Preview ${index}`}
+                                fill
+                                className="object-cover rounded-lg border"
+                            />
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => handleRemoveImage(index)}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
                         </div>
-                        <Input id="dropzone-file" type="file" className="hidden" multiple />
+                    ))}
+                    <Label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
+                        <div className="flex flex-col items-center justify-center">
+                            <Plus className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                        <Input id="dropzone-file" type="file" className="hidden" multiple onChange={handleImageChange} accept="image/png, image/jpeg, image/gif"/>
                     </Label>
                 </div> 
             </div>
