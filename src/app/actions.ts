@@ -1,8 +1,9 @@
+
 'use server';
 
 import { suggestTagsForPost } from '@/ai/flows/suggest-tags-for-post';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, query, where, Timestamp } from 'firebase/firestore';
 
 export async function getTagSuggestions(content: string) {
   if (!content) {
@@ -83,10 +84,38 @@ export async function getDiscoveries() {
     try {
         const discoveriesCol = collection(db, 'discoveries');
         const discoverySnapshot = await getDocs(discoveriesCol);
-        const discoveryList = discoverySnapshot.docs.map(doc => doc.data());
+        const discoveryList = discoverySnapshot.docs.map(doc => {
+            const data = doc.data();
+            // Convert Firestore Timestamp to JS Date if necessary
+            if (data.createdAt && data.createdAt instanceof Timestamp) {
+                data.createdAt = data.createdAt.toDate();
+            }
+            return data;
+        });
         return discoveryList;
     } catch (error) {
         console.error("Error fetching discoveries:", error);
+        return [];
+    }
+}
+
+
+export async function getDiscoveriesByAuthor(authorId: string) {
+    try {
+        const discoveriesRef = collection(db, 'discoveries');
+        const q = query(discoveriesRef, where("authorId", "==", authorId));
+        const querySnapshot = await getDocs(q);
+        const discoveryList = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            // Convert Firestore Timestamp to JS Date, which is serializable
+            if (data.createdAt && data.createdAt.toDate) {
+                data.createdAt = data.createdAt.toDate().toISOString();
+            }
+            return { id: doc.id, ...data };
+        });
+        return discoveryList;
+    } catch (error) {
+        console.error("Error fetching discoveries by author:", error);
         return [];
     }
 }

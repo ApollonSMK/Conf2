@@ -26,7 +26,7 @@ import { Skeleton } from './ui/skeleton';
 
 const baseMenuItems = [
     { href: '/painel', label: 'Início', icon: Home, adminOnly: false },
-    { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen, disabled: true, adminOnly: false },
+    { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen, disabled: false, adminOnly: false },
     { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: true, adminOnly: false },
 ];
 
