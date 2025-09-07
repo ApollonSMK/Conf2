@@ -1,14 +1,35 @@
 
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, ShieldCheck, UserCheck } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { MoreHorizontal, ShieldCheck } from 'lucide-react';
 import { getUsers, getDiscoveries } from '@/app/actions';
 
-export default async function AdminDashboardPage() {
-    const users = await getUsers();
-    const discoveries = await getDiscoveries();
+export default function AdminDashboardPage() {
+    const [users, setUsers] = useState<any[]>([]);
+    const [discoveries, setDiscoveries] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const userList = await getUsers();
+                const discoveryList = await getDiscoveries();
+                setUsers(userList);
+                setDiscoveries(discoveryList);
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchData();
+    }, []);
 
   return (
       <div className="p-4 sm:p-6 lg:p-8">
@@ -39,7 +60,16 @@ export default async function AdminDashboardPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {users.map((user: any) => (
+                            {loading ? (
+                                Array.from({ length: 3 }).map((_, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                                        <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                                    </TableRow>
+                                ))
+                            ) : users.map((user: any) => (
                                 <TableRow key={user.email}>
                                     <TableCell>
                                         <div className="font-medium">{user.name}</div>
@@ -76,7 +106,15 @@ export default async function AdminDashboardPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                             {discoveries.map((d: any) => (
+                             {loading ? (
+                                Array.from({ length: 3 }).map((_, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                                    </TableRow>
+                                ))
+                            ) : discoveries.map((d: any) => (
                                 <TableRow key={d.id}>
                                     <TableCell className="font-medium">{d.title}</TableCell>
                                     <TableCell>{d.author}</TableCell>
