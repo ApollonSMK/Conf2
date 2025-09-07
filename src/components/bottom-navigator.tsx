@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Home, Compass, BookOpen, User, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const navItems = [
   { href: '/inicio', icon: Home, label: 'Início' },
@@ -16,6 +17,11 @@ const navItems = [
 
 export function BottomNavigator() {
   const pathname = usePathname();
+  const isMobile = useIsMobile();
+
+  if (!isMobile) {
+    return null;
+  }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-primary/50 bg-card/95 backdrop-blur-sm md:hidden">
@@ -47,7 +53,7 @@ export function BottomNavigator() {
             <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center gap-1 text-center">
               <item.icon className={cn('h-6 w-6 shrink-0', isActive ? 'text-primary' : 'text-muted-foreground')} />
               <span className={cn('text-xs font-medium', isActive ? 'text-primary' : 'text-muted-foreground')}>
-                {item.label}
+                {item-label}
               </span>
             </Link>
           );
