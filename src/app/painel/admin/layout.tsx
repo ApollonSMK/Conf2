@@ -17,18 +17,19 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { BookOpen, Home, LogOut, Newspaper, Settings, Shield } from 'lucide-react';
+import { BookOpen, Home, LogOut, Newspaper, Settings, Shield, Users, UtensilsCrossed } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const menuItems = [
-    { href: '/painel', label: 'Início', icon: Home },
-    { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen, disabled: true },
-    { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: true },
-    { href: '/painel/admin/dashboard', label: 'Admin', icon: Shield, disabled: false },
+    { href: '/painel/admin/dashboard', label: 'Dashboard', icon: Home },
+    { href: '/painel/admin/users', label: 'Utilizadores', icon: Users, disabled: true },
+    { href: '/painel/admin/discoveries', label: 'Descobertas', icon: BookOpen, disabled: true },
+    { href: '/painel/admin/confrarias', label: 'Confrarias', icon: UtensilsCrossed, disabled: true },
+    { href: '/painel/admin/settings', label: 'Definições', icon: Settings, disabled: true },
 ]
 
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
   return (
@@ -36,13 +37,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <Sidebar>
         <SidebarHeader>
             <div className="flex items-center gap-3 p-2">
-                <Avatar className="h-12 w-12">
-                    <AvatarImage src="https://picsum.photos/100/100" alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
-                    <AvatarFallback>AC</AvatarFallback>
-                </Avatar>
+                 <div className="bg-primary/10 p-2 rounded-lg">
+                     <Shield className="h-8 w-8 text-primary" />
+                 </div>
                 <div className="overflow-hidden group-data-[collapsible=icon]:hidden">
-                    <p className="font-semibold truncate text-foreground">António Costa</p>
-                    <p className="text-xs truncate text-muted-foreground">Confrade Fundador</p>
+                    <p className="font-semibold truncate text-foreground">Painel Admin</p>
+                    <p className="text-xs truncate text-muted-foreground">Gestão da Plataforma</p>
                 </div>
             </div>
         </SidebarHeader>
@@ -70,9 +70,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <SidebarFooter>
             <SidebarMenu>
                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip={{children: 'Terminar Sessão'}}>
-                        <LogOut />
-                        <span>Terminar Sessão</span>
+                    <SidebarMenuButton tooltip={{children: 'Voltar ao Site'}}>
+                         <Link href="/" className='w-full'>
+                            <LogOut />
+                            <span>Voltar ao Site</span>
+                        </Link>
                     </SidebarMenuButton>
                  </SidebarMenuItem>
             </SidebarMenu>
@@ -80,7 +82,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:hidden">
-            <h1 className="text-lg font-medium text-foreground">Painel</h1>
+            <h1 className="text-lg font-medium text-foreground">Painel Admin</h1>
             <SidebarTrigger />
         </header>
         {children}

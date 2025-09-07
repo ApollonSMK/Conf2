@@ -1,5 +1,4 @@
 
-import { DashboardLayout } from '@/components/dashboard-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,9 +17,8 @@ const discoveries = [
     { title: 'Tasca do Pescador', author: 'João Pereira', status: 'Rejeitado' },
 ];
 
-export default function AdminPage() {
+export default function AdminDashboardPage() {
   return (
-    <DashboardLayout>
       <div className="p-4 sm:p-6 lg:p-8">
         <header className="mb-8">
           <div className="flex items-center gap-3">
@@ -116,6 +114,5 @@ export default function AdminPage() {
 
         </div>
       </div>
-    </DashboardLayout>
   );
 }
