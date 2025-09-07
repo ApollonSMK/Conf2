@@ -12,6 +12,7 @@ import { useTransition } from 'react';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { addOrUpdateUser } from '@/app/actions';
 
 export function LoginForm() {
   const [isPending, startTransition] = useTransition();
@@ -27,7 +28,16 @@ export function LoginForm() {
     startTransition(async () => {
       try {
         const auth = getAuth();
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Ensure user document exists in Firestore
+        await addOrUpdateUser(user.uid, {
+            name: user.displayName!,
+            email: user.email!,
+            role: 'Confrade', // Default role for existing users
+            status: 'Ativo'   // Default status for existing users
+        });
         
         toast({
           title: 'Login efetuado!',
