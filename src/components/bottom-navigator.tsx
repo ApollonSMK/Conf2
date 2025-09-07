@@ -53,7 +53,7 @@ export function BottomNavigator() {
             <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center gap-1 text-center">
               <item.icon className={cn('h-6 w-6 shrink-0', isActive ? 'text-primary' : 'text-muted-foreground')} />
               <span className={cn('text-xs font-medium', isActive ? 'text-primary' : 'text-muted-foreground')}>
-                {item-label}
+                {item.label}
               </span>
             </Link>
           );
