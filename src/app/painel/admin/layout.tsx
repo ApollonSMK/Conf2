@@ -23,7 +23,7 @@ import { usePathname } from 'next/navigation';
 const menuItems = [
     { href: '/painel/admin/dashboard', label: 'Dashboard', icon: Home },
     { href: '/painel/admin/users', label: 'Utilizadores', icon: Users, disabled: true },
-    { href: '/painel/admin/discoveries', label: 'Descobertas', icon: BookOpen, disabled: true },
+    { href: '/painel/admin/discoveries', label: 'Descobertas', icon: BookOpen, disabled: false },
     { href: '/painel/admin/confrarias', label: 'Confrarias', icon: UtensilsCrossed, disabled: true },
     { href: '/painel/admin/settings', label: 'Definições', icon: Settings, disabled: true },
 ]
