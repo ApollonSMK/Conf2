@@ -32,7 +32,7 @@ export function AddDiscoveryButton() {
     return () => unsubscribe();
   }, [auth]);
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (e: React.MouseEvent) => {
     if (!user) {
       e.preventDefault();
       setIsDialogOpen(true);
@@ -52,13 +52,9 @@ export function AddDiscoveryButton() {
 
   return (
     <>
-      {user ? (
-        <Button asChild>
-          <Link href="/explorar/nova">{buttonContent}</Link>
-        </Button>
-      ) : (
-        <Button onClick={handleClick}>{buttonContent}</Button>
-      )}
+      <Button asChild={!!user} onClick={handleClick}>
+        {user ? <Link href="/explorar/nova">{buttonContent}</Link> : buttonContent}
+      </Button>
 
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent>
@@ -70,12 +66,12 @@ export function AddDiscoveryButton() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <div className="flex gap-2">
-                <AlertDialogAction asChild>
-                    <Link href="/registo">Registar</Link>
-                </AlertDialogAction>
-                <AlertDialogAction asChild>
+            <div className="flex flex-col sm:flex-row gap-2">
+                <AlertDialogAction asChild className="w-full sm:w-auto">
                     <Link href="/login">Entrar</Link>
+                </AlertDialogAction>
+                <AlertDialogAction asChild variant="secondary" className="w-full sm:w-auto">
+                    <Link href="/registo">Registar</Link>
                 </AlertDialogAction>
             </div>
           </AlertDialogFooter>
