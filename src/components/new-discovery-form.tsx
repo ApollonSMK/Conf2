@@ -8,7 +8,17 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ImageUp, Loader2 } from 'lucide-react';
+import { ImageUp, Loader2, Wifi, ParkingSquare, Accessibility, Dog } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Separator } from './ui/separator';
+import { Checkbox } from './ui/checkbox';
+
+const amenities = [
+    { id: 'wifi', label: 'Wi-Fi Grátis', icon: Wifi },
+    { id: 'parking', label: 'Estacionamento', icon: ParkingSquare },
+    { id: 'accessibility', label: 'Acessível a Cadeira de Rodas', icon: Accessibility },
+    { id: 'pets', label: 'Aceita Animais', icon: Dog },
+];
 
 export function NewDiscoveryForm() {
   const [isPending, startTransition] = useTransition();
@@ -30,39 +40,121 @@ export function NewDiscoveryForm() {
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Detalhes da Descoberta</CardTitle>
-          <CardDescription>Preencha os detalhes abaixo.</CardDescription>
+          <CardDescription>Quanto mais detalhes partilhar, mais útil será para a comunidade.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">Título da Descoberta</Label>
-            <Input id="title" placeholder="Ex: A melhor tasca de peixe grelhado do Algarve" required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              placeholder="Descreva o que torna este lugar ou produto tão especial..."
-              className="min-h-[150px]"
-              required
-            />
-          </div>
-           <div className="space-y-2">
-            <Label htmlFor="location">Localização (opcional)</Label>
-            <Input id="location" placeholder="Ex: Rua da Praia, 123, Faro" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="photo">Fotografia</Label>
-            <div className="flex items-center justify-center w-full">
-                <Label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <ImageUp className="w-8 h-8 mb-4 text-muted-foreground" />
-                        <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Clique para carregar</span> ou arraste e solte</p>
-                        <p className="text-xs text-muted-foreground">PNG, JPG or GIF (MAX. 800x400px)</p>
+        <CardContent className="space-y-8">
+            {/* Título e Descrição */}
+            <div className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="title">Título da Descoberta *</Label>
+                    <Input id="title" placeholder="Ex: A melhor tasca de peixe grelhado do Algarve" required />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="description">Descrição *</Label>
+                    <Textarea
+                    id="description"
+                    placeholder="Descreva o que torna este lugar ou produto tão especial..."
+                    className="min-h-[150px]"
+                    required
+                    />
+                </div>
+            </div>
+
+            <Separator />
+
+            {/* Categoria */}
+            <div className="space-y-4">
+                 <Label>Tipo de Descoberta *</Label>
+                 <RadioGroup defaultValue="place" className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <RadioGroupItem value="place" id="r-place" className="peer sr-only" />
+                        <Label htmlFor="r-place" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
+                            Lugar
+                        </Label>
                     </div>
-                    <Input id="dropzone-file" type="file" className="hidden" />
-                </Label>
-            </div> 
-          </div>
+                     <div>
+                        <RadioGroupItem value="product" id="r-product" className="peer sr-only" />
+                        <Label htmlFor="r-product" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
+                           Produto
+                        </Label>
+                    </div>
+                     <div>
+                        <RadioGroupItem value="person" id="r-person" className="peer sr-only" />
+                        <Label htmlFor="r-person" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
+                           Pessoa
+                        </Label>
+                    </div>
+                </RadioGroup>
+            </div>
+            
+            <Separator />
+            
+            {/* Contactos e Localização */}
+            <div className="space-y-4">
+                 <h3 className="text-lg font-medium text-foreground">Localização e Contactos</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="address">Morada</Label>
+                        <Input id="address" placeholder="Rua, Número, Cidade" />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="phone">Telefone</Label>
+                        <Input id="phone" type="tel" placeholder="+351..." />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" type="email" placeholder="geral@exemplo.com" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="website">Website</Label>
+                        <Input id="website" type="url" placeholder="https://www.exemplo.com" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="facebook">Facebook</Label>
+                        <Input id="facebook" type="url" placeholder="https://facebook.com/exemplo" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="instagram">Instagram</Label>
+                        <Input id="instagram" type="url" placeholder="https://instagram.com/exemplo" />
+                    </div>
+                </div>
+            </div>
+
+            <Separator />
+
+             {/* Comodidades */}
+            <div className="space-y-4">
+                <h3 className="text-lg font-medium text-foreground">Comodidades</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {amenities.map((amenity) => (
+                        <div key={amenity.id} className="flex items-center space-x-3">
+                            <Checkbox id={amenity.id} />
+                            <Label htmlFor={amenity.id} className="font-normal flex items-center gap-2 text-sm text-foreground">
+                                <amenity.icon className="h-5 w-5 text-muted-foreground"/>
+                                {amenity.label}
+                            </Label>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <Separator />
+
+            {/* Imagens */}
+            <div className="space-y-2">
+                <Label htmlFor="photo">Fotografias</Label>
+                <div className="flex items-center justify-center w-full">
+                    <Label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <ImageUp className="w-8 h-8 mb-4 text-muted-foreground" />
+                            <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Clique para carregar</span> ou arraste e solte</p>
+                            <p className="text-xs text-muted-foreground">PNG, JPG, GIF (MAX. 5MB)</p>
+                        </div>
+                        <Input id="dropzone-file" type="file" className="hidden" multiple />
+                    </Label>
+                </div> 
+            </div>
+
         </CardContent>
         <CardFooter>
           <Button type="submit" className="ml-auto" disabled={isPending}>
