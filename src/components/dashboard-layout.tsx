@@ -15,21 +15,51 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { BookOpen, Home, LogOut, Newspaper, Settings, Shield } from 'lucide-react';
+import { BookOpen, Home, LogOut, Settings, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Skeleton } from './ui/skeleton';
 
-const menuItems = [
-    { href: '/painel', label: 'Início', icon: Home },
-    { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen, disabled: true },
-    { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: true },
-    { href: '/painel/admin/dashboard', label: 'Admin', icon: Shield, disabled: false },
-]
+const baseMenuItems = [
+    { href: '/painel', label: 'Início', icon: Home, adminOnly: false },
+    { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen, disabled: true, adminOnly: false },
+    { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: true, adminOnly: false },
+];
+
+const adminMenuItem = { href: '/painel/admin/dashboard', label: 'Admin', icon: Shield, disabled: false, adminOnly: true };
+
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const auth = getAuth();
+    const [user, setUser] = React.useState<User | null>(null);
+    const [userRole, setUserRole] = React.useState<string | null>(null);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+                const userDocRef = doc(db, "users", currentUser.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    setUserRole(userDocSnap.data().role);
+                }
+            } else {
+                setUser(null);
+                setUserRole(null);
+            }
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [auth]);
+    
+    const menuItems = userRole === 'Admin' ? [...baseMenuItems, adminMenuItem] : baseMenuItems;
 
   return (
     <SidebarProvider>
@@ -37,12 +67,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <SidebarHeader>
             <div className="flex items-center gap-3 p-2">
                 <Avatar className="h-12 w-12">
-                    <AvatarImage src="https://picsum.photos/100/100" alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
-                    <AvatarFallback>AC</AvatarFallback>
+                    <AvatarImage src={user?.photoURL ?? "https://picsum.photos/100/100"} alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
+                    <AvatarFallback>{user?.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
                 </Avatar>
                 <div className="overflow-hidden group-data-[collapsible=icon]:hidden">
-                    <p className="font-semibold truncate text-foreground">António Costa</p>
-                    <p className="text-xs truncate text-muted-foreground">Confrade Fundador</p>
+                    {loading ? (
+                        <div className="space-y-1">
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-3 w-20" />
+                        </div>
+                    ) : (
+                        <>
+                         <p className="font-semibold truncate text-foreground">{user?.displayName ?? 'Confrade'}</p>
+                         <p className="text-xs truncate text-muted-foreground">{userRole ?? 'Confrade'}</p>
+                        </>
+                    )}
                 </div>
             </div>
         </SidebarHeader>
