@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreHorizontal, ShieldCheck, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { MoreHorizontal, ShieldCheck, Pencil, Trash2, Loader2, Eye, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, DocumentData } from 'firebase/firestore';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,7 +41,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { updateUser, deleteUser } from '@/app/actions';
+import { updateUser, deleteUser, updateDiscoveryStatus } from '@/app/actions';
+import Link from 'next/link';
 
 
 type User = {
@@ -52,6 +53,14 @@ type User = {
     role: 'Admin' | 'Confrade';
     status: 'Ativo' | 'Inativo';
 };
+
+type Discovery = {
+    id: string;
+    title: string;
+    author: string;
+    status: 'Aprovado' | 'Pendente' | 'Rejeitado';
+} & DocumentData;
+
 
 async function getClientSideUsers(): Promise<User[]> {
     try {
@@ -65,11 +74,11 @@ async function getClientSideUsers(): Promise<User[]> {
     }
 }
 
-async function getClientSideDiscoveries() {
+async function getClientSideDiscoveries(): Promise<Discovery[]> {
     try {
         const discoveriesCol = collection(db, 'discoveries');
         const discoverySnapshot = await getDocs(discoveriesCol);
-        const discoveryList = discoverySnapshot.docs.map(doc => doc.data());
+        const discoveryList = discoverySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Discovery));
         return discoveryList;
     } catch (error) {
         console.error("Error fetching discoveries:", error);
@@ -79,7 +88,7 @@ async function getClientSideDiscoveries() {
 
 export default function AdminDashboardPage() {
     const [users, setUsers] = useState<User[]>([]);
-    const [discoveries, setDiscoveries] = useState<any[]>([]);
+    const [discoveries, setDiscoveries] = useState<Discovery[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
@@ -97,13 +106,20 @@ export default function AdminDashboardPage() {
             console.error("Failed to fetch users:", error);
         }
     }
+    
+    const fetchDiscoveries = async () => {
+        try {
+            const discoveryList = await getClientSideDiscoveries();
+            setDiscoveries(discoveryList);
+        } catch (error) {
+            console.error("Failed to fetch discoveries:", error);
+        }
+    }
 
     useEffect(() => {
         async function fetchData() {
             setLoading(true);
-            await fetchUsers();
-            const discoveryList = await getClientSideDiscoveries();
-            setDiscoveries(discoveryList);
+            await Promise.all([fetchUsers(), fetchDiscoveries()]);
             setLoading(false);
         }
         fetchData();
@@ -141,6 +157,18 @@ export default function AdminDashboardPage() {
             }
         });
     };
+    
+    const handleUpdateDiscoveryStatus = (discoveryId: string, status: 'Aprovado' | 'Rejeitado' | 'Pendente') => {
+        startTransition(async () => {
+            const result = await updateDiscoveryStatus(discoveryId, status);
+            if (result.success) {
+                toast({ title: 'Sucesso', description: `Descoberta marcada como ${status}.` });
+                await fetchDiscoveries(); // Refresh discovery list
+            } else {
+                toast({ title: 'Erro', description: result.error, variant: 'destructive' });
+            }
+        });
+    }
 
     const handleDeleteUser = () => {
         if (!userToDelete) return;
@@ -248,6 +276,7 @@ export default function AdminDashboardPage() {
                                     <TableHead>Título</TableHead>
                                     <TableHead>Autor</TableHead>
                                     <TableHead>Status</TableHead>
+                                    <TableHead className="text-right">Ações</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -257,9 +286,10 @@ export default function AdminDashboardPage() {
                                             <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                                             <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                             <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                                            <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                                         </TableRow>
                                     ))
-                                ) : discoveries.map((d: any) => (
+                                ) : discoveries.map((d: Discovery) => (
                                     <TableRow key={d.id}>
                                         <TableCell className="font-medium">{d.title}</TableCell>
                                         <TableCell>{d.author}</TableCell>
@@ -267,6 +297,38 @@ export default function AdminDashboardPage() {
                                             <Badge variant={d.status === 'Aprovado' ? 'secondary' : d.status === 'Pendente' ? 'outline' : 'destructive'}>
                                                 {d.status}
                                             </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                             <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                        <span className="sr-only">Abrir menu</span>
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                                                    <DropdownMenuItem asChild>
+                                                        <Link href={`/explorar/${d.id}`} target="_blank">
+                                                            <Eye className="mr-2 h-4 w-4" />
+                                                            Ver
+                                                        </Link>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem onSelect={() => handleUpdateDiscoveryStatus(d.id, 'Aprovado')}>
+                                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                                        Aprovar
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => handleUpdateDiscoveryStatus(d.id, 'Pendente')}>
+                                                        <Clock className="mr-2 h-4 w-4" />
+                                                        Pendente
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => handleUpdateDiscoveryStatus(d.id, 'Rejeitado')} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                                        <XCircle className="mr-2 h-4 w-4" />
+                                                        Rejeitar
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </TableCell>
                                     </TableRow>
                                 ))}

@@ -142,6 +142,17 @@ export async function getDiscoveries() {
     }
 }
 
+export async function updateDiscoveryStatus(discoveryId: string, status: 'Aprovado' | 'Rejeitado' | 'Pendente') {
+    try {
+        const discoveryRef = doc(db, "discoveries", discoveryId);
+        await updateDoc(discoveryRef, { status });
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating discovery status: ", error);
+        return { success: false, error: "Failed to update discovery status." };
+    }
+}
+
 
 export async function getDiscoveriesByAuthor(authorId: string) {
     try {
