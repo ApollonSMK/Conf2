@@ -112,6 +112,20 @@ export async function createDiscovery(data: any) {
   }
 }
 
+export async function updateDiscovery(id: string, data: any) {
+  try {
+    const discoveryRef = doc(db, "discoveries", id);
+    await updateDoc(discoveryRef, {
+      ...data,
+      status: 'Pendente', // Reset status to Pending on edit
+    });
+    return { success: true, id };
+  } catch (error) {
+    console.error("Error updating discovery: ", error);
+    throw new Error("Failed to update discovery.");
+  }
+}
+
 export async function getUsers() {
     try {
         const usersCol = collection(db, 'users');

@@ -1,5 +1,5 @@
 
-import { NewDiscoveryForm } from '@/components/new-discovery-form';
+import { DiscoveryForm } from '@/components/new-discovery-form';
 
 export default function NovaDescobertaPage() {
   return (
@@ -9,7 +9,7 @@ export default function NovaDescobertaPage() {
           <h1 className="font-headline font-bold text-4xl text-primary">Partilhar uma Descoberta</h1>
           <p className="text-lg text-muted-foreground">Encontrou um lugar, produto ou sabor que vale a pena partilhar? Adicione-o aqui!</p>
         </div>
-        <NewDiscoveryForm />
+        <DiscoveryForm />
       </div>
     </div>
   );

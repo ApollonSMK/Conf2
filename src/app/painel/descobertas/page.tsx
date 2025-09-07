@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { getDiscoveriesByAuthor } from '@/app/actions';
-import { BookOpen, PlusCircle } from 'lucide-react';
+import { BookOpen, PlusCircle, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -60,7 +60,7 @@ export default function MinhasDescobertasPage() {
         <header className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-primary">Minhas Descobertas</h1>
-              <p className="mt-1 text-muted-foreground">Acompanhe as suas partilhas e o estado de cada uma.</p>
+              <p className="mt-1 text-muted-foreground">Acompanhe e edite as suas partilhas.</p>
             </div>
              <Button asChild>
               <Link href="/explorar/nova">
@@ -88,6 +88,7 @@ export default function MinhasDescobertasPage() {
                   <TableHead>Categoria</TableHead>
                   <TableHead>Data</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -98,6 +99,7 @@ export default function MinhasDescobertasPage() {
                       <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                       <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                     </TableRow>
                   ))
                 ) : discoveries.length > 0 ? (
@@ -119,11 +121,19 @@ export default function MinhasDescobertasPage() {
                           {discovery.status}
                         </Badge>
                       </TableCell>
+                       <TableCell className="text-right">
+                         <Button asChild variant="ghost" size="icon">
+                            <Link href={`/painel/descobertas/editar/${discovery.id}`}>
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">Editar</span>
+                            </Link>
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                     <TableRow>
-                        <TableCell colSpan={4} className="h-24 text-center">
+                        <TableCell colSpan={5} className="h-24 text-center">
                             Ainda não partilhou nenhuma descoberta.
                         </TableCell>
                     </TableRow>
