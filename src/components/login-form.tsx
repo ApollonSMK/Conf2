@@ -12,7 +12,6 @@ import { useTransition } from 'react';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import '@/lib/firebase'; // Ensure Firebase is initialized
 
 export function LoginForm() {
   const [isPending, startTransition] = useTransition();

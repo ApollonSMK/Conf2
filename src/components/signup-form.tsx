@@ -13,7 +13,6 @@ import { useState, useTransition, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import '@/lib/firebase'; // Ensure Firebase is initialized
 
 type PasswordStrength = {
   score: number;
