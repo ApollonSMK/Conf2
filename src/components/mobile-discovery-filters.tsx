@@ -19,7 +19,7 @@ export function MobileDiscoveryFilters() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full border-primary">
           <Filter className="mr-2 h-4 w-4" />
           Filtros
         </Button>
