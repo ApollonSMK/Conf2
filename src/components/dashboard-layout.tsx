@@ -19,15 +19,17 @@ import { Separator } from '@/components/ui/separator';
 import { BookOpen, Home, LogOut, Settings, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Skeleton } from './ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 const baseMenuItems = [
     { href: '/painel', label: 'Início', icon: Home, adminOnly: false },
     { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen, disabled: false, adminOnly: false },
-    { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: true, adminOnly: false },
+    { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: false, adminOnly: false },
 ];
 
 const adminMenuItem = { href: '/painel/admin/dashboard', label: 'Admin', icon: Shield, disabled: false, adminOnly: true };
@@ -36,6 +38,8 @@ const adminMenuItem = { href: '/painel/admin/dashboard', label: 'Admin', icon: S
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const auth = getAuth();
+    const { toast } = useToast();
+    const router = useRouter();
     const [user, setUser] = React.useState<User | null>(null);
     const [userRole, setUserRole] = React.useState<string | null>(null);
     const [loading, setLoading] = React.useState(true);
@@ -52,14 +56,44 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             } else {
                 setUser(null);
                 setUserRole(null);
+                router.push('/login'); // Redirect to login if not authenticated
             }
             setLoading(false);
         });
 
         return () => unsubscribe();
-    }, [auth]);
+    }, [auth, router]);
+
+      const handleLogout = async () => {
+        try {
+        await signOut(auth);
+        toast({
+            title: 'Sessão terminada',
+            description: 'Até à próxima!',
+        });
+        router.push('/');
+        } catch (error) {
+        toast({
+            title: 'Erro',
+            description: 'Não foi possível terminar a sessão. Tente novamente.',
+            variant: 'destructive'
+        });
+        }
+    };
     
     const menuItems = userRole === 'Admin' ? [...baseMenuItems, adminMenuItem] : baseMenuItems;
+
+  if (loading) {
+    return (
+        <div className="flex h-screen items-center justify-center">
+            <p>A carregar...</p>
+        </div>
+    )
+  }
+  
+  if(!user) {
+    return null; // The redirect is being handled in the effect
+  }
 
   return (
     <SidebarProvider>
@@ -89,19 +123,35 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarMenu>
             {menuItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                        asChild
-                        isActive={pathname === item.href}
-                        disabled={item.disabled}
-                        tooltip={{children: item.label}}
-                    >
-                        <Link href={item.href}>
-                            <item.icon />
-                            <span>{item.label}</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
+                (item.href === '/painel' ? (
+                     <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                            asChild
+                            isActive={pathname === item.href}
+                            disabled={item.disabled}
+                            tooltip={{children: item.label}}
+                        >
+                            <Link href={item.href}>
+                                <item.icon />
+                                <span>{item.label}</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                ) : (
+                    <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                            asChild
+                            isActive={pathname.startsWith(item.href)}
+                            disabled={item.disabled}
+                            tooltip={{children: item.label}}
+                        >
+                            <Link href={item.href}>
+                                <item.icon />
+                                <span>{item.label}</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                ))
             ))}
           </SidebarMenu>
         </SidebarContent>
@@ -109,7 +159,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <SidebarFooter>
             <SidebarMenu>
                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip={{children: 'Terminar Sessão'}}>
+                    <SidebarMenuButton tooltip={{children: 'Terminar Sessão'}} onClick={handleLogout}>
                         <LogOut />
                         <span>Terminar Sessão</span>
                     </SidebarMenuButton>
