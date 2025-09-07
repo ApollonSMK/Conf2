@@ -5,18 +5,20 @@ import * as React from 'react';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { DashboardLayout } from '@/components/dashboard-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, Newspaper, Stamp } from 'lucide-react';
+import { BookOpen, Award, Stamp } from 'lucide-react';
 import { getDiscoveriesByAuthor } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type Discovery = {
   id: string;
+  selos?: number;
   [key: string]: any;
 };
 
 export default function PainelPage() {
     const [user, setUser] = React.useState<User | null>(null);
     const [discoveries, setDiscoveries] = React.useState<Discovery[]>([]);
+    const [totalSelosRecebidos, setTotalSelosRecebidos] = React.useState(0);
     const [loading, setLoading] = React.useState(true);
     const auth = getAuth();
 
@@ -35,8 +37,13 @@ export default function PainelPage() {
     const fetchDiscoveries = async (uid: string) => {
         setLoading(true);
         try {
-            const userDiscoveries = await getDiscoveriesByAuthor(uid);
-            setDiscoveries(userDiscoveries as Discovery[]);
+            const userDiscoveries = await getDiscoveriesByAuthor(uid) as Discovery[];
+            setDiscoveries(userDiscoveries);
+
+            // Calculate total selos recebidos
+            const totalSelos = userDiscoveries.reduce((acc, discovery) => acc + (discovery.selos || 0), 0);
+            setTotalSelosRecebidos(totalSelos);
+
         } catch (error) {
             console.error("Error fetching discoveries:", error);
         } finally {
@@ -45,9 +52,9 @@ export default function PainelPage() {
     };
     
     const stats = [
-        { title: 'Publicações Criadas', value: 12, icon: Newspaper, loading: false },
         { title: 'Descobertas Partilhadas', value: discoveries.length, icon: BookOpen, loading: loading },
-        { title: 'Selos Recebidos', value: 142, icon: Stamp, loading: false },
+        { title: 'Selos Recebidos', value: totalSelosRecebidos, icon: Award, loading: loading },
+        { title: 'Selos Concedidos', value: 42, icon: Stamp, loading: false }, // Mocked data for now
     ];
 
     return (
@@ -71,12 +78,9 @@ export default function PainelPage() {
                     ) : (
                         <div className="text-2xl font-bold text-foreground">{stat.value}</div>
                     )}
-                    {stat.title === 'Descobertas Partilhadas' && !stat.loading && (
-                         <p className="text-xs text-muted-foreground">no total</p>
-                    )}
-                     {stat.title !== 'Descobertas Partilhadas' && !stat.loading && (
-                         <p className="text-xs text-muted-foreground">nos últimos 30 dias</p>
-                    )}
+                     <p className="text-xs text-muted-foreground">
+                        {stat.title === 'Selos Concedidos' ? 'no total' : 'na sua atividade'}
+                     </p>
                 </CardContent>
                 </Card>
             ))}
