@@ -1,6 +1,8 @@
 
 import { getDiscoveryById } from "@/app/actions";
 import { DiscoveryClientPage } from "@/components/discovery-client-page";
+import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
 import { notFound } from "next/navigation";
 
 // Mock data, in a real app this would come from a database based on the slug
@@ -58,11 +60,21 @@ const descobertaDetails = {
 export default async function DescobertaPage({ params }: { params: { slug: string } }) {
     const descoberta = await getDiscoveryById(params.slug);
 
+    let pageContent;
+
     if (!descoberta) {
         // Fallback to mock data if not found, or use notFound()
         // notFound(); 
-        return <DiscoveryClientPage discovery={descobertaDetails as any} />;
+        pageContent = <DiscoveryClientPage discovery={descobertaDetails as any} />;
+    } else {
+        pageContent = <DiscoveryClientPage discovery={descoberta as any} />;
     }
-    
-    return <DiscoveryClientPage discovery={descoberta as any} />;
+
+    return (
+        <>
+            <Header />
+            <main className="flex-grow">{pageContent}</main>
+            <Footer />
+        </>
+    )
 }
