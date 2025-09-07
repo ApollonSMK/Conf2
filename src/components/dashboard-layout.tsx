@@ -25,7 +25,7 @@ const menuItems = [
     { href: '/painel', label: 'Início', icon: Home },
     { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen, disabled: true },
     { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: true },
-    { href: '/painel/admin', label: 'Admin', icon: Shield, disabled: true },
+    { href: '/painel/admin', label: 'Admin', icon: Shield, disabled: false },
 ]
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -51,8 +51,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {menuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton 
-                        asChild 
+                    <SidebarMenuButton
+                        asChild
                         isActive={pathname === item.href}
                         disabled={item.disabled}
                         tooltip={{children: item.label}}
