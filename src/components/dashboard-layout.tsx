@@ -21,8 +21,7 @@ import Link from 'next/link';
 import { usePathname, useRouter, redirect } from 'next/navigation';
 import { getAuth, onAuthStateChanged, User, signOut, updateProfile } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { db, storage } from '@/lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db } from '@/lib/firebase';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { updateUser } from '@/app/actions';
@@ -37,6 +36,13 @@ const baseMenuItems = [
 
 const adminMenuItem = { href: '/painel/admin', label: 'Admin', icon: Shield, disabled: false, adminOnly: true };
 
+const fileToBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -90,7 +96,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         if (!file || !user) return;
 
         const options = {
-            maxSizeMB: 1,
+            maxSizeMB: 0.5, // Compress to max 500KB
             maxWidthOrHeight: 800,
             useWebWorker: true,
         }
@@ -102,10 +108,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             });
 
             const compressedFile = await imageCompression(file, options);
-            const storageRef = ref(storage, `profile_pictures/${user.uid}_${compressedFile.name}`);
-
-            await uploadBytes(storageRef, compressedFile);
-            const photoURL = await getDownloadURL(storageRef);
+            
+            const photoURL = await fileToBase64(compressedFile);
 
             await updateProfile(user, { photoURL });
             await updateUser(user.uid, { photoURL });
