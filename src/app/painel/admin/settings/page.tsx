@@ -40,7 +40,7 @@ function AdManager() {
       <CardHeader>
         <CardTitle>Gestão de Anúncios</CardTitle>
         <CardDescription>
-          Faça o upload e gira as imagens para os espaços publicitários da plataforma.
+          Faça o upload e gira as imagens ou GIFs para os espaços publicitários da plataforma.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-8">
@@ -52,11 +52,11 @@ function AdManager() {
                 <Image src={desktopAdPreview} width={728} height={90} alt="Pré-visualização do anúncio desktop" className="max-w-full h-auto" data-ai-hint="advertisement banner"/>
             </div>
           </div>
-           <Input id="desktopAd" type="file" className="sr-only" onChange={(e) => handleFileChange(e, setDesktopAdPreview)} />
+           <Input id="desktopAd" type="file" className="sr-only" onChange={(e) => handleFileChange(e, setDesktopAdPreview)} accept="image/png, image/jpeg, image/gif" />
            <Button asChild variant="outline">
                 <Label htmlFor="desktopAd" className="cursor-pointer">
                     <ImageIcon className="mr-2" />
-                    Alterar Imagem (728x90)
+                    Alterar Imagem/GIF (728x90)
                 </Label>
             </Button>
         </div>
@@ -69,11 +69,11 @@ function AdManager() {
                 <Image src={mobileAdPreview} width={320} height={100} alt="Pré-visualização do anúncio mobile" data-ai-hint="advertisement banner" />
             </div>
            </div>
-           <Input id="mobileAd" type="file" className="sr-only" onChange={(e) => handleFileChange(e, setMobileAdPreview)} />
+           <Input id="mobileAd" type="file" className="sr-only" onChange={(e) => handleFileChange(e, setMobileAdPreview)} accept="image/png, image/jpeg, image/gif" />
             <Button asChild variant="outline">
                 <Label htmlFor="mobileAd" className="cursor-pointer">
                     <ImageIcon className="mr-2" />
-                    Alterar Imagem (320x100)
+                    Alterar Imagem/GIF (320x100)
                 </Label>
             </Button>
         </div>
@@ -86,11 +86,11 @@ function AdManager() {
                 <Image src={inFeedAdPreview} width={300} height={250} alt="Pré-visualização do anúncio in-feed" data-ai-hint="advertisement banner" />
             </div>
            </div>
-            <Input id="inFeedAd" type="file" className="sr-only" onChange={(e) => handleFileChange(e, setInFeedAdPreview)} />
+            <Input id="inFeedAd" type="file" className="sr-only" onChange={(e) => handleFileChange(e, setInFeedAdPreview)} accept="image/png, image/jpeg, image/gif" />
              <Button asChild variant="outline">
                 <Label htmlFor="inFeedAd" className="cursor-pointer">
                     <ImageIcon className="mr-2" />
-                    Alterar Imagem (300x250)
+                    Alterar Imagem/GIF (300x250)
                 </Label>
             </Button>
         </div>
@@ -108,7 +108,7 @@ function AdManager() {
 export default function AdminSettingsPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 w-full space-y-8">
-      <header className="mb-8">
+      <header>
         <div className="flex items-center gap-3">
           <Settings className="h-8 w-8 text-primary" />
           <div>
