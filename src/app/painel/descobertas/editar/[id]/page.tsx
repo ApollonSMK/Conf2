@@ -14,9 +14,13 @@ export default function EditarDescobertaPage({ params }: { params: { id: string 
     useEffect(() => {
         const fetchDiscovery = async () => {
             const discoveryId = params.id;
-            if (!discoveryId) return;
+            if (!discoveryId) {
+                setError("ID da descoberta não encontrado.");
+                setLoading(false);
+                return;
+            };
+
             try {
-                setLoading(true);
                 const fetchedDiscovery = await getDiscoveryById(discoveryId);
                 if (fetchedDiscovery) {
                     setDiscovery(fetchedDiscovery);
@@ -31,7 +35,7 @@ export default function EditarDescobertaPage({ params }: { params: { id: string 
         };
 
         fetchDiscovery();
-    }, []);
+    }, [params.id]);
 
 
     if (loading) {
