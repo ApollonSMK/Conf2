@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreHorizontal, ShieldCheck, Pencil, Trash2, Loader2, Eye, CheckCircle, XCircle, Clock, Users, ArrowRight, UtensilsCrossed } from 'lucide-react';
+import { MoreHorizontal, ShieldCheck, Pencil, Trash2, Loader2, Eye, CheckCircle, XCircle, Clock, Users, ArrowRight, UtensilsCrossed, BookOpen } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, DocumentData, query, where } from 'firebase/firestore';
 import {
@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from '@/hooks/use-toast';
-import { getConfrariaSubmissions, updateDiscoveryStatus } from '@/app/actions';
+import { getConfrariaSubmissions, updateDiscoveryStatus, getConfrariasCount } from '@/app/actions';
 import Link from 'next/link';
 
 
@@ -69,6 +69,8 @@ async function getPendingSubmissionsCount(): Promise<number> {
 export default function AdminDashboardPage() {
     const [userCount, setUserCount] = useState(0);
     const [discoveries, setDiscoveries] = useState<Discovery[]>([]);
+    const [discoveriesCount, setDiscoveriesCount] = useState(0);
+    const [confrariasCount, setConfrariasCount] = useState(0);
     const [pendingSubmissions, setPendingSubmissions] = useState(0);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
@@ -77,14 +79,17 @@ export default function AdminDashboardPage() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [count, discoveryList, submissionsCount] = await Promise.all([
+            const [count, discoveryList, submissionsCount, totalConfrarias] = await Promise.all([
                 getClientSideUsersCount(),
                 getClientSideDiscoveries(),
-                getPendingSubmissionsCount()
+                getPendingSubmissionsCount(),
+                getConfrariasCount(),
             ]);
             setUserCount(count);
             setDiscoveries(discoveryList);
+            setDiscoveriesCount(discoveryList.length)
             setPendingSubmissions(submissionsCount);
+            setConfrariasCount(totalConfrarias);
         } catch (error) {
             console.error("Failed to fetch dashboard data:", error);
         } finally {
@@ -121,58 +126,50 @@ export default function AdminDashboardPage() {
             </div>
             </header>
 
-            <div className="grid gap-8 lg:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <div>
-                            <CardTitle className="text-sm font-medium">Total de Utilizadores</CardTitle>
-                             <CardDescription>O número total de utilizadores registados.</CardDescription>
-                        </div>
-                        <Users className="h-6 w-6 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Total de Utilizadores</CardTitle>
+                        <Users className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                       {loading ? (
-                           <Skeleton className="h-8 w-16" />
-                       ) : (
-                           <div className="text-3xl font-bold">{userCount}</div>
-                       )}
-                    </CardContent>
-                    <CardContent>
-                         <Button asChild variant="outline" size="sm">
-                            <Link href="/painel/admin/users">
-                                Gerir Utilizadores <ArrowRight className="ml-2 h-4 w-4" />
-                            </Link>
-                        </Button>
+                       {loading ? <Skeleton className="h-8 w-16" /> : <div className="text-3xl font-bold">{userCount}</div> }
+                       <p className="text-xs text-muted-foreground">Utilizadores registados</p>
                     </CardContent>
                 </Card>
-
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Total de Descobertas</CardTitle>
+                        <BookOpen className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                       {loading ? <Skeleton className="h-8 w-16" /> : <div className="text-3xl font-bold">{discoveriesCount}</div> }
+                       <p className="text-xs text-muted-foreground">Partilhas da comunidade</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Total de Confrarias</CardTitle>
+                        <UtensilsCrossed className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                       {loading ? <Skeleton className="h-8 w-16" /> : <div className="text-3xl font-bold">{confrariasCount}</div> }
+                       <p className="text-xs text-muted-foreground">Confrarias ativas</p>
+                    </CardContent>
+                </Card>
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <div>
-                            <CardTitle className="text-sm font-medium">Pedidos de Adesão</CardTitle>
-                             <CardDescription>Pedidos de confrarias pendentes.</CardDescription>
-                        </div>
-                        <UtensilsCrossed className="h-6 w-6 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Pedidos de Adesão</CardTitle>
+                        <Users className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                       {loading ? (
-                           <Skeleton className="h-8 w-16" />
-                       ) : (
-                        <>
-                           <div className="text-3xl font-bold">{pendingSubmissions}</div>
-                            {pendingSubmissions > 0 && <p className="text-xs text-muted-foreground">A aguardar revisão</p>}
-                        </>
-                       )}
-                    </CardContent>
-                     <CardContent>
-                         <Button asChild variant="outline" size="sm">
-                            <Link href="/painel/admin/confrarias">
-                                Gerir Pedidos <ArrowRight className="ml-2 h-4 w-4" />
-                            </Link>
-                        </Button>
+                       {loading ? <Skeleton className="h-8 w-16" /> : <div className="text-3xl font-bold">{pendingSubmissions}</div> }
+                       <p className="text-xs text-muted-foreground">A aguardar revisão</p>
                     </CardContent>
                 </Card>
-
+            </div>
+            
+            <div className="grid gap-8 mt-8 lg:grid-cols-2">
                 <Card className="lg:col-span-2">
                     <CardHeader>
                         <CardTitle>Gerir Descobertas</CardTitle>

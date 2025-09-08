@@ -313,3 +313,15 @@ export async function updateConfrariaSubmissionStatus(submissionId: string, stat
         return { success: false, error: "Failed to update submission status." };
     }
 }
+
+export async function getConfrariasCount(): Promise<number> {
+    try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where("role", "==", "Confraria"));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.size;
+    } catch (error) {
+        console.error("Error fetching confrarias count:", error);
+        return 0;
+    }
+}
