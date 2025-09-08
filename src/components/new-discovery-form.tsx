@@ -17,6 +17,8 @@ import { getAuth } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import imageCompression from 'browser-image-compression';
 import Image from 'next/image';
+import { districts } from '@/lib/regions';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 const amenitiesList = [
     { id: 'wifi', label: 'Wi-Fi Grátis', icon: Wifi },
@@ -44,10 +46,25 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
   const router = useRouter();
   const isEditMode = !!discovery;
 
+  // State for location dropdowns
+  const [selectedDistrict, setSelectedDistrict] = useState(discovery?.location?.district || '');
+  const [councils, setCouncils] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (selectedDistrict) {
+      const districtData = districts.find(d => d.name === selectedDistrict);
+      setCouncils(districtData?.councils || []);
+    } else {
+      setCouncils([]);
+    }
+  }, [selectedDistrict]);
+
   useEffect(() => {
     if (isEditMode && discovery?.images) {
-        // In edit mode, image URLs are strings, not File objects
         setImagePreviews(discovery.images.map((img: any) => img.url));
+    }
+    if (isEditMode && discovery?.location?.district) {
+        setSelectedDistrict(discovery.location.district);
     }
   }, [discovery, isEditMode]);
 
@@ -61,21 +78,6 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
   };
   
   const handleRemoveImage = (index: number) => {
-    // Note: When editing, previews might contain URLs (strings) and new files (objects)
-    const newImageFiles = imageFiles.filter((_, i) => {
-        // This logic is tricky because imageFiles only contains NEW files.
-        // Previews contain old URLs and new object URLs.
-        // A simpler approach for this component might be to track indices.
-        // Let's assume for now we only remove newly added files this way.
-        // A better implementation would track objects with { type: 'new' | 'existing', data: File | string }
-        return i !== index;
-    });
-
-    const newImagePreviews = imagePreviews.filter((_, i) => i !== index);
-
-    // This is a simplified removal. In a complex scenario, you'd need to track which file corresponds to which preview.
-    // For now, we'll remove from both arrays by index, which works if the user only adds files and doesn't mix removals.
-    // To handle removing existing images, we'd need a separate state for `imagesToDelete`.
     setImageFiles(currentFiles => currentFiles.filter((_, i) => i !== index));
     setImagePreviews(currentPreviews => currentPreviews.filter((_, i) => i !== index));
   };
@@ -100,7 +102,9 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
             // 1. Upload new images
             const uploadedImageUrls = [];
             
-            toast({ title: 'A processar imagens...', description: 'Por favor, aguarde.'});
+            if(imageFiles.length > 0) {
+              toast({ title: 'A processar imagens...', description: 'Por favor, aguarde.'});
+            }
 
             for (const file of imageFiles) {
                  const compressedFile = await imageCompression(file, {
@@ -138,6 +142,8 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
                 images: finalImages,
                 location: {
                     address: formData.get('address') as string,
+                    district: selectedDistrict,
+                    council: formData.get('council') as string,
                 },
                 contact: {
                      phone: formData.get('phone') as string,
@@ -169,6 +175,7 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
                 (e.target as HTMLFormElement).reset();
                 setImageFiles([]);
                 setImagePreviews([]);
+                setSelectedDistrict('');
             }
         } catch (error: any) {
              toast({
@@ -247,7 +254,33 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="address">Morada</Label>
-                        <Input id="address" name="address" placeholder="Rua, Número, Cidade" defaultValue={discovery?.location?.address}/>
+                        <Input id="address" name="address" placeholder="Rua, Número, Código Postal" defaultValue={discovery?.location?.address}/>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="district">Distrito *</Label>
+                        <Select name="district" value={selectedDistrict} onValueChange={setSelectedDistrict} required>
+                            <SelectTrigger id="district">
+                                <SelectValue placeholder="Selecione o distrito" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {districts.map(d => (
+                                    <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="council">Concelho *</Label>
+                        <Select name="council" defaultValue={discovery?.location?.council} disabled={!selectedDistrict} required>
+                            <SelectTrigger id="council">
+                                <SelectValue placeholder="Selecione o concelho" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {councils.map(c => (
+                                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="phone">Telefone</Label>
@@ -261,11 +294,11 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
                         <Label htmlFor="website">Website</Label>
                         <Input id="website" name="website" type="url" placeholder="https://www.exemplo.com" defaultValue={discovery?.contact?.website}/>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 md:col-span-2">
                         <Label htmlFor="facebook">Facebook</Label>
                         <Input id="facebook" name="facebook" type="url" placeholder="https://facebook.com/exemplo" defaultValue={discovery?.social?.facebook}/>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 md:col-span-2">
                         <Label htmlFor="instagram">Instagram</Label>
                         <Input id="instagram" name="instagram" type="url" placeholder="https://instagram.com/exemplo" defaultValue={discovery?.social?.instagram}/>
                     </div>

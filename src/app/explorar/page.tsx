@@ -18,10 +18,9 @@ type Discovery = {
     slug: string;
     title: string;
     description: string;
-    image: string;
-    data_ai_hint: string;
+    images: { url: string; data_ai_hint: string }[];
     author: string;
-    location: { address: string };
+    location: { address: string, council: string, district: string };
     category: string;
     selos: number;
 }
@@ -91,7 +90,9 @@ export default function ExplorarPage() {
                     <CardContent className="flex-grow space-y-4">
                       <p className="text-foreground/90 line-clamp-2">{descoberta.description}</p>
                       <div className="flex flex-wrap gap-2 items-center">
-                        <Badge variant="secondary"><MapPin className="mr-1.5" />{descoberta.location?.address}</Badge>
+                        {descoberta.location?.council && (
+                          <Badge variant="secondary"><MapPin className="mr-1.5" />{`${descoberta.location.council}, ${descoberta.location.district}`}</Badge>
+                        )}
                         <Badge variant="secondary"><Tag className="mr-1.5" />{descoberta.category}</Badge>
                         <Badge variant="outline"><Stamp className="mr-1.5" />{descoberta.selos || 0} Selo{descoberta.selos !== 1 ? 's' : ''}</Badge>
                       </div>
