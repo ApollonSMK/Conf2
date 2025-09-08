@@ -21,7 +21,7 @@ type Discovery = {
     image: string;
     data_ai_hint: string;
     author: string;
-    location: string;
+    location: { address: string };
     category: string;
     selos: number;
 }
@@ -83,7 +83,7 @@ export default function ExplorarPage() {
                 <Card key={descoberta.id} className="flex flex-col overflow-hidden group">
                   <Link href={`/explorar/${descoberta.id}`} className="flex flex-col flex-grow">
                     <div className="relative h-56">
-                      <Image src={descoberta.image || 'https://picsum.photos/400/300'} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={descoberta.data_ai_hint} />
+                      <Image src={(descoberta.images && descoberta.images.length > 0 && descoberta.images[0].url) || 'https://picsum.photos/400/300'} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={(descoberta.images && descoberta.images.length > 0 && descoberta.images[0].data_ai_hint) || 'food place'} />
                     </div>
                     <CardHeader>
                       <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>
@@ -91,7 +91,7 @@ export default function ExplorarPage() {
                     <CardContent className="flex-grow space-y-4">
                       <p className="text-foreground/90 line-clamp-2">{descoberta.description}</p>
                       <div className="flex flex-wrap gap-2 items-center">
-                        <Badge variant="secondary"><MapPin className="mr-1.5" />{descoberta.location}</Badge>
+                        <Badge variant="secondary"><MapPin className="mr-1.5" />{descoberta.location?.address}</Badge>
                         <Badge variant="secondary"><Tag className="mr-1.5" />{descoberta.category}</Badge>
                         <Badge variant="outline"><Stamp className="mr-1.5" />{descoberta.selos || 0} Selo{descoberta.selos !== 1 ? 's' : ''}</Badge>
                       </div>
