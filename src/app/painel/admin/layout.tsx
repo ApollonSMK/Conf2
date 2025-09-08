@@ -25,7 +25,7 @@ const menuItems = [
     { href: '/painel/admin/users', label: 'Utilizadores', icon: Users, disabled: false },
     { href: '/painel/admin/discoveries', label: 'Descobertas', icon: BookOpen, disabled: false },
     { href: '/painel/admin/confrarias', label: 'Confrarias', icon: UtensilsCrossed, disabled: false },
-    { href: '/painel/admin/settings', label: 'Definições', icon: Settings, disabled: true },
+    { href: '/painel/admin/settings', label: 'Definições', icon: Settings, disabled: false },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
