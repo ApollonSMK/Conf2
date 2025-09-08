@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getConfrariaSubmissions, updateConfrariaSubmissionStatus } from '@/app/actions';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
 type Submission = {
@@ -275,10 +276,18 @@ export default function AdminConfrariasPage() {
                 </Button>
             </header>
 
-            <div className="space-y-8">
-              <PedidosDeAdesao />
-              <ConfrariasAtivas />
-            </div>
+            <Tabs defaultValue="ativas" className="w-full">
+                <TabsList>
+                    <TabsTrigger value="ativas">Confrarias Ativas</TabsTrigger>
+                    <TabsTrigger value="pedidos">Pedidos de Adesão</TabsTrigger>
+                </TabsList>
+                <TabsContent value="ativas" className="mt-6">
+                    <ConfrariasAtivas />
+                </TabsContent>
+                <TabsContent value="pedidos" className="mt-6">
+                    <PedidosDeAdesao />
+                </TabsContent>
+            </Tabs>
         </div>
   );
 }
