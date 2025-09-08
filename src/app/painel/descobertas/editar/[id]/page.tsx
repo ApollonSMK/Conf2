@@ -30,7 +30,7 @@ export default function EditarDescobertaPage({ params }: { params: { id: string 
         };
 
         fetchDiscovery();
-    }, [params.id]);
+    }, []);
 
 
     if (loading) {
