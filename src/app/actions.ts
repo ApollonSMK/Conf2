@@ -266,3 +266,20 @@ export async function getSealsGivenByUser(userId: string) {
         return 0;
     }
 }
+
+
+export async function createConfrariaSubmission(data: any) {
+    try {
+        const submissionRef = doc(collection(db, "confrariaSubmissions"));
+        await setDoc(submissionRef, {
+            ...data,
+            id: submissionRef.id,
+            submittedAt: new Date(),
+            status: 'Pendente',
+        });
+        return { success: true, id: submissionRef.id };
+    } catch (error) {
+        console.error("Error creating confraria submission: ", error);
+        return { success: false, error: "Falha ao submeter o pedido de adesão." };
+    }
+}

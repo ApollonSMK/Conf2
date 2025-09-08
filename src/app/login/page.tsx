@@ -1,5 +1,7 @@
 
 import { LoginForm } from '@/components/login-form';
+import { Separator } from '@/components/ui/separator';
+import { UtensilsCrossed } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -16,6 +18,13 @@ export default function LoginPage() {
             </p>
           </div>
           <LoginForm />
+          <Separator />
+           <div className="text-center">
+             <Link href="/aderir-confraria" className="group inline-flex items-center justify-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                <UtensilsCrossed className="mr-2 h-4 w-4 transition-transform group-hover:-rotate-12" />
+                <span>Você é uma confraria? <span className="font-bold text-secondary group-hover:underline">Aderir aqui.</span></span>
+            </Link>
+           </div>
         </div>
       </main>
   );
