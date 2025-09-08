@@ -9,18 +9,58 @@ import { Label } from '@/components/ui/label';
 import { Settings, Image as ImageIcon, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
+type AdType = 'desktop' | 'mobile' | 'in-feed';
+
+type AdSlot = {
+  id: AdType;
+  title: string;
+  dimensions: string;
+  previewUrl: string;
+  width: number;
+  height: number;
+};
+
+const initialAdSlots: AdSlot[] = [
+  { 
+    id: 'desktop', 
+    title: 'Anúncio de Topo (Desktop)', 
+    dimensions: '728x90', 
+    previewUrl: 'https://picsum.photos/728/90', 
+    width: 728, 
+    height: 90 
+  },
+  { 
+    id: 'mobile', 
+    title: 'Anúncio de Topo (Mobile)', 
+    dimensions: '320x100', 
+    previewUrl: 'https://picsum.photos/320/100', 
+    width: 320, 
+    height: 100 
+  },
+  { 
+    id: 'in-feed', 
+    title: 'Anúncio In-Feed (Explorar)', 
+    dimensions: '300x250', 
+    previewUrl: 'https://picsum.photos/300/250', 
+    width: 300, 
+    height: 250 
+  },
+];
+
 function AdManager() {
-  const [desktopAdPreview, setDesktopAdPreview] = useState('https://picsum.photos/728/90');
-  const [mobileAdPreview, setMobileAdPreview] = useState('https://picsum.photos/320/100');
-  const [inFeedAdPreview, setInFeedAdPreview] = useState('https://picsum.photos/300/250');
+  const [adSlots, setAdSlots] = useState<AdSlot[]>(initialAdSlots);
   const [isPending, setIsPending] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setPreview: React.Dispatch<React.SetStateAction<string>>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, adId: AdType) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreview(reader.result as string);
+        setAdSlots(currentSlots =>
+          currentSlots.map(slot =>
+            slot.id === adId ? { ...slot, previewUrl: reader.result as string } : slot
+          )
+        );
       };
       reader.readAsDataURL(file);
     }
@@ -32,8 +72,8 @@ function AdManager() {
     setTimeout(() => {
         // Here you would call a server action to upload images and save URLs
         setIsPending(false);
-    }, 1500)
-  }
+    }, 1500);
+  };
 
   return (
     <Card>
@@ -44,56 +84,36 @@ function AdManager() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-8">
-        {/* Desktop Ad */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-lg">Anúncio de Topo (Desktop)</h3>
-          <div className="p-4 border-2 border-dashed rounded-lg">
-            <div className="flex justify-center items-center bg-muted/50 p-4 rounded-md min-h-[90px]">
-                <Image src={desktopAdPreview} width={728} height={90} alt="Pré-visualização do anúncio desktop" className="max-w-full h-auto" data-ai-hint="advertisement banner"/>
+        {adSlots.map(slot => (
+          <div key={slot.id} className="space-y-4 p-4 border rounded-lg">
+            <h3 className="font-medium text-lg">{slot.title}</h3>
+            <div className="p-4 border-2 border-dashed rounded-lg">
+              <div className="flex justify-center items-center bg-muted/50 p-4 rounded-md" style={{ minHeight: slot.height, minWidth: slot.width }}>
+                  <Image 
+                    src={slot.previewUrl} 
+                    width={slot.width} 
+                    height={slot.height} 
+                    alt={`Pré-visualização do anúncio ${slot.title}`} 
+                    className="max-w-full h-auto" 
+                    data-ai-hint="advertisement banner"
+                  />
+              </div>
             </div>
-          </div>
-           <Input id="desktopAd" type="file" className="sr-only" onChange={(e) => handleFileChange(e, setDesktopAdPreview)} accept="image/png, image/jpeg, image/gif" />
-           <Button asChild variant="outline">
-                <Label htmlFor="desktopAd" className="cursor-pointer">
-                    <ImageIcon className="mr-2" />
-                    Alterar Imagem/GIF (728x90)
-                </Label>
-            </Button>
-        </div>
-
-        {/* Mobile Ad */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-lg">Anúncio de Topo (Mobile)</h3>
-           <div className="p-4 border-2 border-dashed rounded-lg">
-             <div className="flex justify-center items-center bg-muted/50 p-4 rounded-md">
-                <Image src={mobileAdPreview} width={320} height={100} alt="Pré-visualização do anúncio mobile" data-ai-hint="advertisement banner" />
-            </div>
-           </div>
-           <Input id="mobileAd" type="file" className="sr-only" onChange={(e) => handleFileChange(e, setMobileAdPreview)} accept="image/png, image/jpeg, image/gif" />
-            <Button asChild variant="outline">
-                <Label htmlFor="mobileAd" className="cursor-pointer">
-                    <ImageIcon className="mr-2" />
-                    Alterar Imagem/GIF (320x100)
-                </Label>
-            </Button>
-        </div>
-
-        {/* In-Feed Ad */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-lg">Anúncio In-Feed (Explorar)</h3>
-           <div className="p-4 border-2 border-dashed rounded-lg">
-             <div className="flex justify-center items-center bg-muted/50 p-4 rounded-md">
-                <Image src={inFeedAdPreview} width={300} height={250} alt="Pré-visualização do anúncio in-feed" data-ai-hint="advertisement banner" />
-            </div>
-           </div>
-            <Input id="inFeedAd" type="file" className="sr-only" onChange={(e) => handleFileChange(e, setInFeedAdPreview)} accept="image/png, image/jpeg, image/gif" />
+             <Input 
+                id={`${slot.id}Ad`} 
+                type="file" 
+                className="sr-only" 
+                onChange={(e) => handleFileChange(e, slot.id)} 
+                accept="image/png, image/jpeg, image/gif"
+            />
              <Button asChild variant="outline">
-                <Label htmlFor="inFeedAd" className="cursor-pointer">
-                    <ImageIcon className="mr-2" />
-                    Alterar Imagem/GIF (300x250)
-                </Label>
-            </Button>
-        </div>
+                  <Label htmlFor={`${slot.id}Ad`} className="cursor-pointer">
+                      <ImageIcon className="mr-2" />
+                      Alterar Imagem/GIF ({slot.dimensions})
+                  </Label>
+              </Button>
+          </div>
+        ))}
       </CardContent>
        <CardFooter>
           <Button onClick={handleSave} disabled={isPending}>
@@ -102,7 +122,7 @@ function AdManager() {
           </Button>
         </CardFooter>
     </Card>
-  )
+  );
 }
 
 export default function AdminSettingsPage() {
