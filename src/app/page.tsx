@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ArrowRight, Grape } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -82,9 +82,9 @@ export default function Page() {
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               {Destaques.map((destaque) => (
-                <Card key={destaque.id} className="overflow-hidden group">
-                  <Link href={destaque.link}>
-                    <div className="relative h-64">
+                <Card key={destaque.id} className="overflow-hidden group flex flex-col">
+                  <Link href={destaque.link} className="flex flex-col h-full">
+                    <div className="relative h-64 w-full">
                       <Image
                         src={destaque.image}
                         alt={destaque.title}
@@ -92,16 +92,16 @@ export default function Page() {
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         data-ai-hint={destaque.data_ai_hint}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                     </div>
-                    <CardContent className="p-6 bg-card absolute bottom-0 w-full">
+                    <div className="p-6 bg-card flex flex-col flex-grow">
                       <h3 className="font-headline font-bold text-xl text-primary mb-2">
                         {destaque.title}
                       </h3>
                       <p className="text-muted-foreground">
                         {destaque.description}
                       </p>
-                    </CardContent>
+                    </div>
                   </Link>
                 </Card>
               ))}
