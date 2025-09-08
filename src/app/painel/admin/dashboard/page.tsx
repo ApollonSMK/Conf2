@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreHorizontal, ShieldCheck, Pencil, Trash2, Loader2, Eye, CheckCircle, XCircle, Clock, Users, ArrowRight } from 'lucide-react';
+import { MoreHorizontal, ShieldCheck, Pencil, Trash2, Loader2, Eye, CheckCircle, XCircle, Clock, Users, ArrowRight, UtensilsCrossed } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, DocumentData, query, where } from 'firebase/firestore';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from '@/hooks/use-toast';
-import { updateDiscoveryStatus } from '@/app/actions';
+import { getConfrariaSubmissions, updateDiscoveryStatus } from '@/app/actions';
 import Link from 'next/link';
 
 
@@ -54,37 +54,45 @@ async function getClientSideDiscoveries(): Promise<Discovery[]> {
     }
 }
 
+async function getPendingSubmissionsCount(): Promise<number> {
+    try {
+        const submissionsCol = collection(db, 'confrariaSubmissions');
+        const q = query(submissionsCol, where("status", "==", "Pendente"));
+        const snapshot = await getDocs(q);
+        return snapshot.size;
+    } catch (error) {
+        console.error("Error fetching pending submissions count:", error);
+        return 0;
+    }
+}
+
 export default function AdminDashboardPage() {
     const [userCount, setUserCount] = useState(0);
     const [discoveries, setDiscoveries] = useState<Discovery[]>([]);
+    const [pendingSubmissions, setPendingSubmissions] = useState(0);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
 
-    const fetchUsersCount = async () => {
+    const fetchData = async () => {
+        setLoading(true);
         try {
-            const count = await getClientSideUsersCount();
+            const [count, discoveryList, submissionsCount] = await Promise.all([
+                getClientSideUsersCount(),
+                getClientSideDiscoveries(),
+                getPendingSubmissionsCount()
+            ]);
             setUserCount(count);
+            setDiscoveries(discoveryList);
+            setPendingSubmissions(submissionsCount);
         } catch (error) {
-            console.error("Failed to fetch users count:", error);
+            console.error("Failed to fetch dashboard data:", error);
+        } finally {
+            setLoading(false);
         }
     }
     
-    const fetchDiscoveries = async () => {
-        try {
-            const discoveryList = await getClientSideDiscoveries();
-            setDiscoveries(discoveryList);
-        } catch (error) {
-            console.error("Failed to fetch discoveries:", error);
-        }
-    }
-
     useEffect(() => {
-        async function fetchData() {
-            setLoading(true);
-            await Promise.all([fetchUsersCount(), fetchDiscoveries()]);
-            setLoading(false);
-        }
         fetchData();
     }, []);
 
@@ -93,7 +101,7 @@ export default function AdminDashboardPage() {
             const result = await updateDiscoveryStatus(discoveryId, status);
             if (result.success) {
                 toast({ title: 'Sucesso', description: `Descoberta marcada como ${status}.` });
-                await fetchDiscoveries(); // Refresh discovery list
+                await fetchData(); // Refresh all data
             } else {
                 toast({ title: 'Erro', description: result.error, variant: 'destructive' });
             }
@@ -138,15 +146,30 @@ export default function AdminDashboardPage() {
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Gerir Confrarias</CardTitle>
-                        <CardDescription>Adicionar, editar ou remover confrarias da plataforma.</CardDescription>
+                 <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <div>
+                            <CardTitle className="text-sm font-medium">Pedidos de Adesão</CardTitle>
+                             <CardDescription>Pedidos de confrarias pendentes.</CardDescription>
+                        </div>
+                        <UtensilsCrossed className="h-6 w-6 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="flex items-center justify-center h-24 border-2 border-dashed rounded-md">
-                            <p className="text-sm text-muted-foreground">Em construção...</p>
-                        </div>
+                       {loading ? (
+                           <Skeleton className="h-8 w-16" />
+                       ) : (
+                        <>
+                           <div className="text-3xl font-bold">{pendingSubmissions}</div>
+                            {pendingSubmissions > 0 && <p className="text-xs text-muted-foreground">A aguardar revisão</p>}
+                        </>
+                       )}
+                    </CardContent>
+                     <CardContent>
+                         <Button asChild variant="outline" size="sm">
+                            <Link href="/painel/admin/confrarias">
+                                Gerir Pedidos <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
                     </CardContent>
                 </Card>
 

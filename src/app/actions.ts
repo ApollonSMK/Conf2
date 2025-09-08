@@ -283,3 +283,33 @@ export async function createConfrariaSubmission(data: any) {
         return { success: false, error: "Falha ao submeter o pedido de adesão." };
     }
 }
+
+export async function getConfrariaSubmissions() {
+    try {
+        const submissionsCol = collection(db, 'confrariaSubmissions');
+        const submissionSnapshot = await getDocs(submissionsCol);
+        const submissionList = submissionSnapshot.docs.map(doc => {
+            const data = doc.data();
+            if (data.submittedAt && data.submittedAt instanceof Timestamp) {
+                data.submittedAt = data.submittedAt.toDate();
+            }
+            return data;
+        });
+        return submissionList;
+    } catch (error) {
+        console.error("Error fetching confraria submissions:", error);
+        return [];
+    }
+}
+
+
+export async function updateConfrariaSubmissionStatus(submissionId: string, status: 'Aprovado' | 'Rejeitado' | 'Pendente') {
+    try {
+        const submissionRef = doc(db, "confrariaSubmissions", submissionId);
+        await updateDoc(submissionRef, { status });
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating submission status: ", error);
+        return { success: false, error: "Failed to update submission status." };
+    }
+}
