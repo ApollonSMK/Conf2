@@ -56,6 +56,25 @@ export default function Page() {
             </div>
           </div>
         </section>
+
+        {/* Ad Section */}
+        <section className="py-8 container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center flex-col">
+            <span className="text-xs text-muted-foreground mb-2">Publicidade</span>
+            <div className="bg-muted/50 rounded-lg p-4 w-full flex justify-center">
+                {/* Desktop Ad */}
+                <div className="hidden md:block">
+                  <Image src="https://placehold.co/728x90/eae6e1/602a30?text=Anuncio+728x90" alt="Publicidade" width={728} height={90} />
+                </div>
+                {/* Mobile Ad */}
+                <div className="block md:hidden">
+                    <Image src="https://placehold.co/320x100/eae6e1/602a30?text=Anuncio+320x100" alt="Publicidade" width={320} height={100} />
+                </div>
+            </div>
+          </div>
+        </section>
+
+
         <section className="bg-muted/50 py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="font-headline font-bold text-4xl text-primary text-center mb-10">
