@@ -45,6 +45,7 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
     const [loadingAuth, setLoadingAuth] = useState(true);
     const [isPending, startTransition] = useTransition();
     const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+    const [formattedDate, setFormattedDate] = useState('');
     const { toast } = useToast();
     const auth = getAuth();
     
@@ -55,6 +56,20 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
         });
         return () => unsubscribe();
     }, [auth]);
+
+    useEffect(() => {
+        if (discovery.createdAt) {
+            const date = new Date(discovery.createdAt);
+            const options: Intl.DateTimeFormatOptions = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                timeZone: 'UTC' // Format in UTC to avoid timezone differences
+            };
+            setFormattedDate(new Intl.DateTimeFormat('pt-PT', options).format(date));
+        }
+    }, [discovery.createdAt]);
+
 
     const handleSealClick = () => {
         if (!user) {
@@ -92,15 +107,6 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
     
     const hasContactInfo = discovery.contact?.website || discovery.contact?.email || discovery.contact?.phone || discovery.social?.facebook || discovery.social?.instagram;
 
-    const formatDate = (dateString: string | Date) => {
-        if (!dateString) return '';
-        return new Date(dateString).toLocaleDateString('pt-PT', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-        });
-    };
-    
     return (
     <>
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
@@ -152,7 +158,7 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
                             </Avatar>
                             <div>
                                 <p className="font-semibold text-foreground">{discovery.author}</p>
-                                <p className="text-sm text-muted-foreground">Publicado a {formatDate(discovery.createdAt)}</p>
+                                <p className="text-sm text-muted-foreground">Publicado a {formattedDate}</p>
                             </div>
                         </div>
 
