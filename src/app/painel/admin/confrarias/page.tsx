@@ -18,10 +18,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from '@/hooks/use-toast';
-import { getConfrariaSubmissions, updateConfrariaSubmissionStatus } from '@/app/actions';
-import { db } from '@/lib/firebase';
+import { getConfrariaSubmissions, updateConfrariaSubmissionStatus, createConfrariaUser } from '@/app/actions';
+import { db, auth } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { addOrUpdateUser } from '@/app/actions';
 
 
 type Submission = {
@@ -178,7 +183,7 @@ function PedidosDeAdesao() {
     );
 }
 
-function ConfrariasAtivas() {
+function ConfrariasAtivas({ refreshTrigger, onRefreshed }: { refreshTrigger: number, onRefreshed: () => void }) {
     const [confrarias, setConfrarias] = useState<ConfrariaUser[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -198,7 +203,10 @@ function ConfrariasAtivas() {
 
     useEffect(() => {
         fetchConfrarias();
-    }, []);
+        if (onRefreshed) {
+            onRefreshed();
+        }
+    }, [refreshTrigger]);
 
     return (
          <Card>
@@ -258,8 +266,106 @@ function ConfrariasAtivas() {
     );
 }
 
+function AddConfrariaDialog({ onConfrariaAdded }: { onConfrariaAdded: () => void }) {
+    const [isPending, startTransition] = useTransition();
+    const [open, setOpen] = useState(false);
+    const { toast } = useToast();
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const name = formData.get('name') as string;
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+
+        if (password.length < 6) {
+            toast({ title: 'Erro', description: 'A palavra-passe deve ter pelo menos 6 caracteres.', variant: 'destructive' });
+            return;
+        }
+
+        startTransition(async () => {
+            try {
+                // This uses the client-side SDK. Make sure this component is only used where auth is initialized.
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                await updateProfile(user, { displayName: name });
+                
+                await addOrUpdateUser(user.uid, {
+                    name: name,
+                    email: user.email!,
+                    role: 'Confraria',
+                    status: 'Ativo'
+                });
+
+                toast({ title: 'Sucesso', description: 'Nova confraria adicionada com sucesso.' });
+                onConfrariaAdded(); // Trigger refresh
+                setOpen(false); // Close dialog
+            } catch (error: any) {
+                console.error("Error creating confraria user:", error);
+                let description = 'Ocorreu um erro ao criar a conta da confraria.';
+                if (error.code === 'auth/email-already-in-use') {
+                  description = 'Este endereço de email já está a ser utilizado.';
+                } else if (error.code === 'auth/weak-password') {
+                  description = 'A palavra-passe é demasiado fraca. Tente uma mais forte.';
+                }
+                toast({ title: 'Erro', description, variant: 'destructive' });
+            }
+        });
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button>
+                    <PlusCircle className="mr-2" />
+                    Adicionar Confraria
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Adicionar Nova Confraria</DialogTitle>
+                    <DialogDescription>
+                        Crie uma nova conta de utilizador para uma confraria. Eles poderão alterar a palavra-passe mais tarde.
+                    </DialogDescription>
+                </DialogHeader>
+                <form id="add-confraria-form" onSubmit={handleSubmit}>
+                    <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Nome da Confraria</Label>
+                            <Input id="name" name="name" required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input id="email" name="email" type="email" required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Palavra-passe Inicial</Label>
+                            <Input id="password" name="password" type="password" required />
+                        </div>
+                    </div>
+                </form>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button type="button" variant="secondary">Cancelar</Button>
+                    </DialogClose>
+                    <Button type="submit" form="add-confraria-form" disabled={isPending}>
+                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Adicionar
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 export default function AdminConfrariasPage() {
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+    const handleConfrariaAdded = () => {
+        setRefreshTrigger(t => t + 1);
+    };
+
   return (
         <div className="p-4 sm:p-6 lg:p-8 w-full space-y-8">
             <header className="flex items-center justify-between">
@@ -270,10 +376,7 @@ export default function AdminConfrariasPage() {
                         <p className="mt-1 text-muted-foreground">Rever pedidos de adesão e gerir confrarias existentes.</p>
                     </div>
                 </div>
-                <Button>
-                    <PlusCircle className="mr-2" />
-                    Adicionar Confraria
-                </Button>
+                <AddConfrariaDialog onConfrariaAdded={handleConfrariaAdded} />
             </header>
 
             <Tabs defaultValue="ativas" className="w-full">
@@ -282,7 +385,7 @@ export default function AdminConfrariasPage() {
                     <TabsTrigger value="pedidos">Pedidos de Adesão</TabsTrigger>
                 </TabsList>
                 <TabsContent value="ativas" className="mt-6">
-                    <ConfrariasAtivas />
+                    <ConfrariasAtivas refreshTrigger={refreshTrigger} onRefreshed={() => {}} />
                 </TabsContent>
                 <TabsContent value="pedidos" className="mt-6">
                     <PedidosDeAdesao />

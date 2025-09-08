@@ -48,7 +48,7 @@ type User = {
     uid: string;
     name: string;
     email: string;
-    role: 'Admin' | 'Confrade';
+    role: 'Confrade-Mor' | 'Confrade' | 'Confraria';
     status: 'Ativo' | 'Inativo';
 };
 
@@ -189,7 +189,9 @@ export default function AdminUsersPage() {
                                     <TableCell className="font-medium">{user.name}</TableCell>
                                     <TableCell className="hidden sm:table-cell text-muted-foreground">{user.email}</TableCell>
                                     <TableCell>
-                                        <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
+                                        <Badge variant={user.role === 'Confrade-Mor' ? 'default' : user.role === 'Confraria' ? 'secondary' : 'outline'}>
+                                            {user.role}
+                                        </Badge>
                                     </TableCell>
                                     <TableCell>
                                         <Badge variant={user.status === 'Ativo' ? 'secondary' : 'destructive'}>{user.status}</Badge>
@@ -254,8 +256,9 @@ export default function AdminUsersPage() {
                                <SelectValue placeholder="Selecione um role" />
                            </SelectTrigger>
                            <SelectContent>
-                               <SelectItem value="Admin">Admin</SelectItem>
+                               <SelectItem value="Confrade-Mor">Confrade-Mor</SelectItem>
                                <SelectItem value="Confrade">Confrade</SelectItem>
+                               <SelectItem value="Confraria">Confraria</SelectItem>
                            </SelectContent>
                        </Select>
                     </div>
