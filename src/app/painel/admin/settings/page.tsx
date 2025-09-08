@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { uploadImage } from '@/app/actions';
 
 type AdType = 'desktop' | 'mobile' | 'in-feed';
 
@@ -43,10 +44,10 @@ const initialAdSlots: AdSlot[] = [
 
 function AdManager() {
   const [adSlots, setAdSlots] = useState<AdSlot[]>(initialAdSlots);
-  const [isPending, setIsPending] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAdType, setNewAdType] = useState<AdType | ''>('');
-  const [newAdUrl, setNewAdUrl] = useState('');
+  const [newAdFile, setNewAdFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   const getAdDefinition = (type: AdType): AdDefinition => {
@@ -72,37 +73,57 @@ function AdManager() {
   };
 
   const handleSave = () => {
-    setIsPending(true);
-    // In a real app, you would save the adSlots array to your database.
-    // This would likely involve mapping over the slots and saving their type and URL.
-    toast({
-        title: "Alterações a serem guardadas...",
-        description: "Numa aplicação real, isto guardaria a configuração na base de dados."
-    });
-    setTimeout(() => {
-        setIsPending(false);
+    startTransition(() => {
+        // In a real app, you would save the adSlots array to your database.
+        // This would likely involve mapping over the slots and saving their type and URL.
         toast({
-            title: "Simulação Concluída",
-            description: "As alterações foram guardadas (simulado)."
+            title: "Alterações a serem guardadas...",
+            description: "Numa aplicação real, isto guardaria a configuração na base de dados."
         });
-    }, 1500);
+        setTimeout(() => {
+            toast({
+                title: "Simulação Concluída",
+                description: "As alterações foram guardadas (simulado)."
+            });
+        }, 1500);
+    });
   };
   
   const handleAddNewAd = () => {
-    if (!newAdType || !newAdUrl) {
-      toast({ title: 'Erro', description: 'Por favor, selecione um tipo e insira um URL.', variant: 'destructive'});
+    if (!newAdType || !newAdFile) {
+      toast({ title: 'Erro', description: 'Por favor, selecione um tipo e um ficheiro.', variant: 'destructive'});
       return;
     }
-    const newAd: AdSlot = {
-      id: new Date().getTime().toString(), // Simple unique ID
-      type: newAdType,
-      previewUrl: newAdUrl,
-    };
-    setAdSlots(prev => [...prev, newAd]);
-    setNewAdType('');
-    setNewAdUrl('');
-    setIsModalOpen(false);
-    toast({ title: 'Sucesso', description: 'Novo banner de anúncio adicionado.'});
+
+    startTransition(async () => {
+        try {
+            toast({ title: 'A carregar anúncio...', description: 'Por favor, aguarde.'});
+
+            const formData = new FormData();
+            formData.append('file', newAdFile);
+            const uploadResult = await uploadImage(formData);
+
+            if (!uploadResult.success || !uploadResult.url) {
+                throw new Error(uploadResult.error || 'Falha no upload do anúncio.');
+            }
+
+            const newAd: AdSlot = {
+                id: new Date().getTime().toString(), // Simple unique ID
+                type: newAdType,
+                previewUrl: uploadResult.url,
+            };
+            setAdSlots(prev => [...prev, newAd]);
+            
+            // Reset form and close modal
+            setNewAdType('');
+            setNewAdFile(null);
+            setIsModalOpen(false);
+
+            toast({ title: 'Sucesso', description: 'Novo banner de anúncio adicionado.'});
+        } catch (error: any) {
+             toast({ title: 'Erro', description: error.message, variant: 'destructive'});
+        }
+    });
   };
 
   const handleRemoveAd = (idToRemove: string) => {
@@ -119,7 +140,13 @@ function AdManager() {
               Adicione, remova e gira os banners para os espaços publicitários da plataforma.
             </CardDescription>
         </div>
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <Dialog open={isModalOpen} onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if(!open) {
+            setNewAdType('');
+            setNewAdFile(null);
+          }
+        }}>
             <DialogTrigger asChild>
                 <Button>
                     <PlusCircle className="mr-2" />
@@ -148,19 +175,22 @@ function AdManager() {
                        </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="adUrl">URL da Imagem/GIF</Label>
+                        <Label htmlFor="adFile">Ficheiro (Imagem ou GIF)</Label>
                         <Input 
-                          id="adUrl" 
-                          placeholder="https://exemplo.com/imagem.gif" 
-                          value={newAdUrl}
-                          onChange={(e) => setNewAdUrl(e.target.value)}
+                          id="adFile" 
+                          type="file"
+                          accept="image/png, image/jpeg, image/gif"
+                          onChange={(e) => setNewAdFile(e.target.files?.[0] || null)}
+                          className="file:text-foreground"
                         />
-                         <p className="text-xs text-muted-foreground">Cole aqui o URL da imagem. Upload direto em breve.</p>
                     </div>
                 </div>
                 <DialogFooter>
-                    <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                    <Button onClick={handleAddNewAd}>Adicionar</Button>
+                    <DialogClose asChild><Button variant="secondary" disabled={isPending}>Cancelar</Button></DialogClose>
+                    <Button onClick={handleAddNewAd} disabled={isPending}>
+                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Adicionar
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -255,3 +285,5 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+
+    
