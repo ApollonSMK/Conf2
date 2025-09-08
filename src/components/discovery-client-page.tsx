@@ -64,7 +64,6 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
-                timeZone: 'UTC' // Format in UTC to avoid timezone differences
             };
             setFormattedDate(new Intl.DateTimeFormat('pt-PT', options).format(date));
         }

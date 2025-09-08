@@ -193,6 +193,18 @@ export async function getDiscoveryById(id: string) {
         const docSnap = await getDoc(discoveryRef);
         if (docSnap.exists()) {
             const data = docSnap.data();
+
+            // Fetch author details
+            if (data.authorId) {
+                const userRef = doc(db, 'users', data.authorId);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    data.author = userData.name || data.author;
+                    data.authorAvatar = userData.photoURL || '';
+                }
+            }
+
             if (data.createdAt && data.createdAt.toDate) {
                 data.createdAt = data.createdAt.toDate().toISOString();
             }
