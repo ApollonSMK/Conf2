@@ -121,7 +121,9 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
             }
 
             // 2. Combine existing and new images
-            const existingImages = isEditMode ? discovery.images.filter((img: any) => imagePreviews.includes(img.url)) : [];
+            const existingImages = isEditMode && Array.isArray(discovery.images)
+              ? discovery.images.filter((img: any) => imagePreviews.includes(img.url))
+              : [];
             const finalImages = [...existingImages, ...uploadedImageUrls];
 
 
