@@ -82,8 +82,8 @@ export default function Page() {
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               {Destaques.map((destaque) => (
-                <Card key={destaque.id} className="overflow-hidden group flex flex-col">
-                  <Link href={destaque.link} className="flex flex-col h-full">
+                 <Card key={destaque.id} className="overflow-hidden group flex flex-col">
+                  <Link href={destaque.link} className="flex flex-col h-full bg-card">
                     <div className="relative h-64 w-full">
                       <Image
                         src={destaque.image}
@@ -92,13 +92,12 @@ export default function Page() {
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         data-ai-hint={destaque.data_ai_hint}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                     </div>
-                    <div className="p-6 bg-card flex flex-col flex-grow">
+                    <div className="p-6 flex flex-col flex-grow">
                       <h3 className="font-headline font-bold text-xl text-primary mb-2">
                         {destaque.title}
                       </h3>
-                      <p className="text-muted-foreground">
+                      <p className="text-muted-foreground flex-grow">
                         {destaque.description}
                       </p>
                     </div>
