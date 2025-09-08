@@ -25,13 +25,13 @@ import {
 } from '@/components/ui/alert-dialog';
 
 
-const amenityIcons = {
+const amenityIcons: { [key: string]: React.ElementType } = {
     'Wi-Fi Grátis': Wifi,
     'Estacionamento': ParkingSquare,
-    'Acessível a Cadeira de Rodas': Accessibility,
+    'Acessível': Accessibility,
     'Aceita Animais': Dog,
     'Aceita Cartão': CreditCard,
-    'Esplanada/Terraço': Umbrella,
+    'Esplanada': Umbrella,
     'Bom para Crianças': ToyBrick,
     'Aceita Reservas': CalendarCheck,
     'Takeaway': ShoppingBag,
@@ -93,6 +93,7 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
     const hasContactInfo = discovery.contact?.website || discovery.contact?.email || discovery.contact?.phone || discovery.social?.facebook || discovery.social?.instagram;
 
     const formatDate = (dateString: string | Date) => {
+        if (!dateString) return '';
         return new Date(dateString).toLocaleDateString('pt-PT', {
             day: 'numeric',
             month: 'long',
@@ -115,8 +116,8 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
                                 </div>
                                 {discovery.images.length > 1 && (
                                     <div className="grid grid-cols-2 gap-px bg-border">
-                                        {discovery.images.slice(1, 3).map((image:any) => (
-                                            <div key={image.id} className="relative h-48">
+                                        {discovery.images.slice(1, 3).map((image:any, index: number) => (
+                                            <div key={image.url || index} className="relative h-48">
                                                 <Image src={image.url} alt={discovery.title} fill className="object-cover" data-ai-hint={image.data_ai_hint} />
                                             </div>
                                         ))}
@@ -147,7 +148,7 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
                         <div className="flex items-center gap-3 my-6">
                             <Avatar>
                                 <AvatarImage src={discovery.authorAvatar} alt={discovery.author} data-ai-hint={discovery.data_ai_hint_author} />
-                                <AvatarFallback>{discovery.author.charAt(0)}</AvatarFallback>
+                                <AvatarFallback>{discovery.author?.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
                                 <p className="font-semibold text-foreground">{discovery.author}</p>
@@ -275,7 +276,7 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
                         <CardContent>
                         <ul className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
                             {discovery.amenities.map((amenityName: string) => {
-                                const AmenityIcon = (amenityIcons as any)[amenityName];
+                                const AmenityIcon = amenityIcons[amenityName];
                                 return AmenityIcon ? (
                                     <li key={amenityName} className="flex items-center gap-2">
                                         <AmenityIcon className="h-4 w-4 text-accent" />
