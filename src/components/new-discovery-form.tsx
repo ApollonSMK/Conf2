@@ -157,6 +157,7 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
                 amenities: selectedAmenities,
                 author: user.displayName,
                 authorId: user.uid,
+                authorAvatar: user.photoURL || '',
             };
 
             if(isEditMode) {
