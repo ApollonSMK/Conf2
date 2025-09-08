@@ -64,11 +64,11 @@ export default function InicioPage() {
             <div className="bg-muted/50 rounded-lg p-4 w-full flex justify-center">
                 {/* Desktop Ad */}
                 <div className="hidden md:block">
-                  <Image src="https://placehold.co/728x90/eae6e1/602a30?text=Anuncio+728x90" alt="Publicidade" width={728} height={90} />
+                  <Image src="https://picsum.photos/728/90" alt="Publicidade" width={728} height={90} className="rounded-md" data-ai-hint="advertisement banner" />
                 </div>
                 {/* Mobile Ad */}
                 <div className="block md:hidden">
-                    <Image src="https://placehold.co/320x100/eae6e1/602a30?text=Anuncio+320x100" alt="Publicidade" width={320} height={100} />
+                    <Image src="https://picsum.photos/320/100" alt="Publicidade" width={320} height={100} className="rounded-md" data-ai-hint="advertisement banner" />
                 </div>
             </div>
           </div>
