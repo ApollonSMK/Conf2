@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreHorizontal, UtensilsCrossed, Eye, CheckCircle, XCircle, Clock, Loader2, Users, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, UtensilsCrossed, Eye, CheckCircle, XCircle, Clock, Loader2, Users, Pencil, Trash2, PlusCircle } from 'lucide-react';
 import { DocumentData, Timestamp } from 'firebase/firestore';
 import {
   DropdownMenu,
@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useToast } from '@/hooks/use-toast';
 import { getConfrariaSubmissions, updateConfrariaSubmissionStatus } from '@/app/actions';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
@@ -41,7 +40,7 @@ type ConfrariaUser = {
 }
 
 
-function PedidosDeAdesaoTab() {
+function PedidosDeAdesao() {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
@@ -115,7 +114,7 @@ function PedidosDeAdesaoTab() {
                     </TableHeader>
                     <TableBody>
                         {loading ? (
-                            Array.from({ length: 5 }).map((_, index) => (
+                            Array.from({ length: 3 }).map((_, index) => (
                                 <TableRow key={index}>
                                     <TableCell><Skeleton className="h-5 w-40" /></TableCell>
                                     <TableCell><Skeleton className="h-5 w-32" /></TableCell>
@@ -178,7 +177,7 @@ function PedidosDeAdesaoTab() {
     );
 }
 
-function ConfrariasAtivasTab() {
+function ConfrariasAtivas() {
     const [confrarias, setConfrarias] = useState<ConfrariaUser[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -262,7 +261,7 @@ function ConfrariasAtivasTab() {
 export default function AdminConfrariasPage() {
   return (
         <div className="p-4 sm:p-6 lg:p-8 w-full space-y-8">
-            <header>
+            <header className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <UtensilsCrossed className="h-8 w-8 text-primary" />
                     <div>
@@ -270,20 +269,16 @@ export default function AdminConfrariasPage() {
                         <p className="mt-1 text-muted-foreground">Rever pedidos de adesão e gerir confrarias existentes.</p>
                     </div>
                 </div>
+                <Button>
+                    <PlusCircle className="mr-2" />
+                    Adicionar Confraria
+                </Button>
             </header>
 
-            <Tabs defaultValue="pedidos" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="pedidos">Pedidos de Adesão</TabsTrigger>
-                    <TabsTrigger value="ativas">Confrarias Ativas</TabsTrigger>
-                </TabsList>
-                <TabsContent value="pedidos" className="mt-6">
-                    <PedidosDeAdesaoTab />
-                </TabsContent>
-                <TabsContent value="ativas" className="mt-6">
-                    <ConfrariasAtivasTab />
-                </TabsContent>
-            </Tabs>
+            <div className="space-y-8">
+              <PedidosDeAdesao />
+              <ConfrariasAtivas />
+            </div>
         </div>
   );
 }
