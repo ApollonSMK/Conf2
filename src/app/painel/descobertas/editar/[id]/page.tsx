@@ -13,10 +13,11 @@ export default function EditarDescobertaPage({ params }: { params: { id: string 
 
     useEffect(() => {
         const fetchDiscovery = async () => {
-            if (!params.id) return;
+            const discoveryId = params.id;
+            if (!discoveryId) return;
             try {
                 setLoading(true);
-                const fetchedDiscovery = await getDiscoveryById(params.id);
+                const fetchedDiscovery = await getDiscoveryById(discoveryId);
                 if (fetchedDiscovery) {
                     setDiscovery(fetchedDiscovery);
                 } else {
