@@ -446,6 +446,26 @@ export async function getPostsByConfraria(confrariaId: string) {
         return [];
     }
 }
-    
 
+export async function updatePost(postId: string, data: any) {
+  try {
+    const postRef = doc(db, "posts", postId);
+    await updateDoc(postRef, data);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating post: ", error);
+    return { success: false, error: "Falha ao atualizar a publicação." };
+  }
+}
+
+export async function deletePost(postId: string) {
+  try {
+    const postRef = doc(db, "posts", postId);
+    await deleteDoc(postRef);
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting post: ", error);
+    return { success: false, error: "Falha ao eliminar a publicação." };
+  }
+}
     

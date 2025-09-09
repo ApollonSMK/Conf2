@@ -1,24 +1,34 @@
 
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { getTagSuggestions, createPost } from '@/app/actions';
+import { getTagSuggestions, createPost, updatePost } from '@/app/actions';
 import { Wand2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAuth } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
-interface NewPostFormProps {
-    confrariaId: string;
-    onPostCreated?: () => void;
+interface Post {
+    id: string;
+    title: string;
+    content: string;
+    tags?: string[];
 }
 
-export function NewPostForm({ confrariaId, onPostCreated }: NewPostFormProps) {
+interface NewPostFormProps {
+    confrariaId: string;
+    post?: Post;
+    onPostCreated?: () => void;
+    onPostUpdated?: () => void;
+}
+
+export function NewPostForm({ confrariaId, post, onPostCreated, onPostUpdated }: NewPostFormProps) {
+  const isEditMode = !!post;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
@@ -28,6 +38,14 @@ export function NewPostForm({ confrariaId, onPostCreated }: NewPostFormProps) {
   const { toast } = useToast();
   const auth = getAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isEditMode) {
+        setTitle(post.title);
+        setContent(post.content);
+        setTags(post.tags || []);
+    }
+  }, [post, isEditMode]);
 
 
   const handleSuggestTags = () => {
@@ -67,37 +85,49 @@ export function NewPostForm({ confrariaId, onPostCreated }: NewPostFormProps) {
     }
 
     startSubmission(async () => {
-        const postData = {
-            confrariaId,
-            authorId: user.uid,
-            authorName: user.displayName,
-            authorAvatar: user.photoURL,
-            title,
-            content,
-            tags,
-        };
-        const result = await createPost(postData);
-
-        if (result.success) {
-            toast({
-            title: 'Publicação Criada!',
-            description: 'A sua publicação foi submetida com sucesso.',
-            });
-            if(onPostCreated) {
-                onPostCreated();
+        if(isEditMode) {
+            const postData = { title, content, tags };
+            const result = await updatePost(post.id, postData);
+            if(result.success) {
+                 toast({ title: 'Publicação Atualizada!', description: 'A sua publicação foi atualizada com sucesso.'});
+                 if (onPostUpdated) onPostUpdated();
+                 router.refresh();
+            } else {
+                 toast({ title: 'Erro ao Atualizar', description: result.error, variant: 'destructive'});
             }
-            // Reset form
-            setTitle('');
-            setContent('');
-            setTags([]);
-            setSuggestedTags([]);
-            router.refresh(); // Refresh server components on the current route
         } else {
-            toast({
-                title: 'Erro ao Publicar',
-                description: result.error,
-                variant: 'destructive',
-            });
+            const postData = {
+                confrariaId,
+                authorId: user.uid,
+                authorName: user.displayName,
+                authorAvatar: user.photoURL,
+                title,
+                content,
+                tags,
+            };
+            const result = await createPost(postData);
+
+            if (result.success) {
+                toast({
+                title: 'Publicação Criada!',
+                description: 'A sua publicação foi submetida com sucesso.',
+                });
+                if(onPostCreated) {
+                    onPostCreated();
+                }
+                // Reset form
+                setTitle('');
+                setContent('');
+                setTags([]);
+                setSuggestedTags([]);
+                router.refresh(); // Refresh server components on the current route
+            } else {
+                toast({
+                    title: 'Erro ao Publicar',
+                    description: result.error,
+                    variant: 'destructive',
+                });
+            }
         }
     });
   }
@@ -137,7 +167,7 @@ export function NewPostForm({ confrariaId, onPostCreated }: NewPostFormProps) {
                     ))}
                 </div>
              </div>
-             {suggestedTags.length > 0 && <Separator className="my-4"/>}
+             {suggestedTags.length > 0 && <div className="my-4"/>}
             <div className="p-4 border rounded-md min-h-[6rem] bg-muted/50">
                 {isSuggesting && <p className="text-sm text-muted-foreground">A gerar sugestões...</p>}
                 {!isSuggesting && suggestedTags.length > 0 && (
@@ -159,7 +189,7 @@ export function NewPostForm({ confrariaId, onPostCreated }: NewPostFormProps) {
         <div className="flex justify-end pt-6">
             <Button type="submit" className="ml-auto" disabled={isSubmitting || !title || !content}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Publicar
+                {isEditMode ? 'Guardar Alterações' : 'Publicar'}
             </Button>
         </div>
       </div>
