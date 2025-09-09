@@ -9,6 +9,7 @@ import { ConfrariaEditForm } from '@/components/confraria-edit-form';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function AdminEditConfrariaPage({ params }: { params: { id: string } }) {
