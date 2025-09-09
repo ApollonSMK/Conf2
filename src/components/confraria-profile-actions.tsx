@@ -46,12 +46,7 @@ export function ConfrariaProfileActions({ confrariaId }: ConfrariaProfileActions
     return null;
   }
   
-  // For admins, the link goes to the admin edit page.
-  // For owners, it could go to a user-facing settings page.
-  // For simplicity here, we'll point both to the more powerful admin edit page,
-  // assuming owners might be granted similar editing rights in their own dashboard later.
-  // A more robust solution might have a separate /painel/perfil/editar page.
-  const editLink = `/painel/admin/confrarias/editar/${confrariaId}`;
+  const editLink = isAdmin ? `/painel/admin/confrarias/editar/${confrariaId}` : '/painel/minha-confraria';
 
   return (
     <Button asChild>

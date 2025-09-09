@@ -8,10 +8,8 @@ import { getUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BookOpen, Camera, Calendar, Info, Pencil, Newspaper, Image as ImageIcon, Utensils } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { ConfrariaEditForm } from '@/components/confraria-edit-form';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 
 export default function MinhaConfrariaPage() {
