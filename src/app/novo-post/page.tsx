@@ -1,3 +1,4 @@
+
 import { NewPostForm } from '@/components/new-post-form';
 
 export default function NovoPostPage() {

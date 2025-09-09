@@ -10,6 +10,7 @@ import { notFound } from 'next/navigation';
 import { getUserProfile } from "@/app/actions";
 import { ConfrariaProfileActions } from "@/components/confraria-profile-actions";
 import Link from "next/link";
+import { CreatePostWidget } from "@/components/create-post-widget";
 
 // Mock data for tabs content, to be replaced later
 const mockDetails = {
@@ -100,6 +101,7 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Coluna principal */}
                     <div className="lg:col-span-2 space-y-8">
+                        <CreatePostWidget confrariaId={confraria.id} />
                         {/* Publicações */}
                         <Card>
                              <CardHeader>
@@ -223,5 +225,3 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       </div>
   );
 }
-
-    
