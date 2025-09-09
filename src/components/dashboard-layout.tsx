@@ -51,10 +51,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
-                const userDocRef = doc(db, "users", currentUser.uid);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists()) {
-                    setUserRole(userDocSnap.data().role);
+                try {
+                    const userDocRef = doc(db, "users", currentUser.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) {
+                        setUserRole(userDocSnap.data().role);
+                    } else {
+                        setUserRole('Confrade'); // Default role if not found
+                    }
+                } catch (e) {
+                    console.error("Error fetching user role:", e);
+                    setUserRole('Confrade');
                 }
             } else {
                 setUser(null);
@@ -85,11 +92,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     
     const menuItems = React.useMemo(() => {
         let items = [...baseMenuItems];
+        if (userRole === 'Admin') {
+            items.splice(1, 0, adminMenuItem);
+        }
         if (userRole === 'Confraria') {
             items.push(confrariaMenuItem);
-        }
-        if (userRole === 'Admin') {
-            items.splice(1, 0, adminMenuItem); // Insert admin link after 'Início'
         }
         return items;
     }, [userRole]);
