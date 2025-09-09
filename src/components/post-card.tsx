@@ -1,18 +1,15 @@
-
 'use client';
 
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { Card, CardHeader, CardContent, CardFooter, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
+import { Card, CardHeader, CardContent, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import { MessageSquare, ThumbsUp, MoreHorizontal, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
@@ -174,16 +171,6 @@ export function PostCard({ post }: PostCardProps) {
                     </Dialog>
                 )}
             </CardContent>
-            <CardFooter className="flex justify-between border-t pt-4">
-                 <Button variant="ghost">
-                    <ThumbsUp className="mr-2"/>
-                    Gosto ({post.likes || 0})
-                </Button>
-                <Button variant="ghost">
-                     <MessageSquare className="mr-2"/>
-                    Comentar ({post.comments || 0})
-                </Button>
-            </CardFooter>
         </Card>
     );
 }
