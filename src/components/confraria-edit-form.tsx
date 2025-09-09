@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -23,7 +23,8 @@ type ConfrariaProfile = {
   email: string;
   photoURL?: string;
   description?: string;
-  region?: string;
+  region?: string; // Corresponds to district
+  council?: string;
   foundationYear?: number | string;
   bannerURL?: string;
   lema?: string;
@@ -36,9 +37,20 @@ type ConfrariaEditFormProps = {
 
 export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
   const [profile, setProfile] = useState<ConfrariaProfile>(confraria);
+  const [councils, setCouncils] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState<null | 'logo' | 'banner'>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (profile.region) {
+      const districtData = districts.find(d => d.name === profile.region);
+      setCouncils(districtData?.councils || []);
+    } else {
+      setCouncils([]);
+    }
+  }, [profile.region]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (!profile) return;
@@ -46,9 +58,15 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
     setProfile({ ...profile, [name]: value });
   };
   
-  const handleSelectChange = (value: string) => {
+  const handleSelectChange = (name: 'region' | 'council') => (value: string) => {
     if (!profile) return;
-    setProfile({ ...profile, region: value });
+    
+    if (name === 'region') {
+      // Reset council when district changes
+      setProfile({ ...profile, region: value, council: '' });
+    } else {
+      setProfile({ ...profile, [name]: value });
+    }
   };
 
   const handleSave = async () => {
@@ -60,6 +78,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
         name: profile.name,
         description: profile.description,
         region: profile.region,
+        council: profile.council,
         foundationYear: profile.foundationYear,
         photoURL: profile.photoURL,
         bannerURL: profile.bannerURL,
@@ -67,7 +86,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
         fundadores: profile.fundadores,
       };
       
-      const result = await updateUser(profile.id, dataToUpdate);
+      const result = await updateUser(profile.id, dataToUpdate as any); // Cast to any to handle council addition
 
       if (result.success) {
         toast({ title: 'Sucesso!', description: 'Perfil da confraria atualizado.' });
@@ -182,16 +201,31 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
                   <Input id="foundationYear" name="foundationYear" type="number" value={profile.foundationYear || ''} onChange={handleInputChange} placeholder="Ex: 1998" />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="region">Região</Label>
-               <Select value={profile.region} onValueChange={handleSelectChange}>
-                  <SelectTrigger id="region">
-                      <SelectValue placeholder="Selecione a região/distrito" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      {districts.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
-                  </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                <Label htmlFor="region">Região (Distrito)</Label>
+                <Select value={profile.region || ''} onValueChange={handleSelectChange('region')}>
+                    <SelectTrigger id="region">
+                        <SelectValue placeholder="Selecione o distrito" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {districts.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="council">Concelho</Label>
+                    <Select value={profile.council || ''} onValueChange={handleSelectChange('council')} disabled={councils.length === 0}>
+                        <SelectTrigger id="council">
+                            <SelectValue placeholder="Selecione o concelho" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {councils.map(c => (
+                                <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
           </CardContent>
         </Card>
