@@ -36,7 +36,7 @@ export default function AdminEditConfrariaPage({ params }: { params: { id: strin
   const [isUploading, setIsUploading] = useState<null | 'logo' | 'banner'>(null);
   const { toast } = useToast();
   const router = useRouter();
-  const { id: confrariaId } = params;
+  const confrariaId = params.id;
 
   useEffect(() => {
     if (!confrariaId) return;
