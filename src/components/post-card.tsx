@@ -23,6 +23,7 @@ import { getUserProfile, deletePost } from '@/app/actions';
 import { NewPostForm } from './new-post-form';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 interface Post {
     id: string;
@@ -32,7 +33,7 @@ interface Post {
     authorAvatar?: string;
     title: string;
     content: string;
-    tags?: string[];
+    imageUrl?: string;
     createdAt: string;
     likes?: number;
     comments?: number;
@@ -153,12 +154,12 @@ export function PostCard({ post }: PostCardProps) {
                     </Dialog>
                 )}
             </CardHeader>
-            <CardContent>
-                <CardTitle className="text-xl mb-2 text-primary">{post.title}</CardTitle>
+            <CardContent className="space-y-4">
+                <CardTitle className="text-xl text-primary">{post.title}</CardTitle>
                 <p className="text-foreground/90 whitespace-pre-wrap">{post.content}</p>
-                 {post.tags && post.tags.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                        {post.tags.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
+                 {post.imageUrl && (
+                    <div className="relative aspect-video w-full mt-4 rounded-lg overflow-hidden border">
+                       <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
                     </div>
                 )}
             </CardContent>

@@ -1,7 +1,6 @@
 
 'use server';
 
-import { suggestTagsForPost } from '@/ai/flows/suggest-tags-for-post';
 import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, query, where, Timestamp, getDoc, arrayUnion, arrayRemove, increment, addDoc, orderBy } from 'firebase/firestore';
 import { r2Client } from '@/lib/r2';
@@ -90,19 +89,6 @@ export async function uploadImage(formData: FormData): Promise<{ success: boolea
     }
 }
 
-
-export async function getTagSuggestions(content: string) {
-  if (!content) {
-    return { tags: [] };
-  }
-  try {
-    const result = await suggestTagsForPost({ content });
-    return result;
-  } catch (error) {
-    console.error('Error suggesting tags:', error);
-    return { tags: [], error: 'Falha ao sugerir tags. Tente novamente.' };
-  }
-}
 
 export async function addOrUpdateUser(uid: string, data: { name: string, email: string, role?: string, status?: string, photoURL?: string }) {
     try {
@@ -420,26 +406,17 @@ export async function createPost(data: any) {
 export async function getPostsByConfraria(confrariaId: string) {
     try {
         const postsRef = collection(db, 'posts');
-        const q = query(postsRef, where("confrariaId", "==", confrariaId));
+        const q = query(postsRef, where("confrariaId", "==", confrariaId), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
         let postList = querySnapshot.docs.map(doc => {
             const data = doc.data();
             return { 
                 id: doc.id, 
                 ...data,
-                // Ensure createdAt is a Date object for sorting
-                createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt)
+                createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : new Date(data.createdAt).toISOString()
             };
         });
-
-        // Sort in-memory after fetching
-        postList.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-        // Convert date to ISO string for serialization after sorting
-        return postList.map(post => ({
-            ...post,
-            createdAt: post.createdAt.toISOString()
-        }));
+        return postList;
 
     } catch (error) {
         console.error("Error fetching posts by confraria:", error);

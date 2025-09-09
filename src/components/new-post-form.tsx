@@ -6,18 +6,19 @@ import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { getTagSuggestions, createPost, updatePost } from '@/app/actions';
-import { Wand2, Loader2 } from 'lucide-react';
+import { createPost, updatePost, uploadImage } from '@/app/actions';
+import { Wand2, Loader2, ImageUp, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAuth } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import imageCompression from 'browser-image-compression';
+import Image from 'next/image';
 
 interface Post {
     id: string;
     title: string;
     content: string;
-    tags?: string[];
+    imageUrl?: string;
 }
 
 interface NewPostFormProps {
@@ -31,9 +32,9 @@ export function NewPostForm({ confrariaId, post, onPostCreated, onPostUpdated }:
   const isEditMode = !!post;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
-  const [isSuggesting, startSuggestion] = useTransition();
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
   const [isSubmitting, startSubmission] = useTransition();
   const { toast } = useToast();
   const auth = getAuth();
@@ -43,37 +44,26 @@ export function NewPostForm({ confrariaId, post, onPostCreated, onPostUpdated }:
     if (isEditMode) {
         setTitle(post.title);
         setContent(post.content);
-        setTags(post.tags || []);
+        if (post.imageUrl) {
+            setImagePreview(post.imageUrl);
+        }
     }
   }, [post, isEditMode]);
 
-
-  const handleSuggestTags = () => {
-    startSuggestion(async () => {
-      const result = await getTagSuggestions(content);
-      if (result.error) {
-        toast({
-          title: "Erro",
-          description: result.error,
-          variant: "destructive"
-        })
-        setSuggestedTags([]);
-      } else {
-        setSuggestedTags(result.tags);
-      }
-    });
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+        setImagePreview(URL.createObjectURL(file));
+    } else {
+        setImagePreview(null);
+    }
   };
 
-  const handleAddTag = (tag: string) => {
-    if (!tags.includes(tag)) {
-        setTags([...tags, tag]);
-    }
-    setSuggestedTags(current => current.filter(t => t !== tag));
-  }
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(current => current.filter(t => t !== tagToRemove));
-  }
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
 
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -85,49 +75,83 @@ export function NewPostForm({ confrariaId, post, onPostCreated, onPostUpdated }:
     }
 
     startSubmission(async () => {
-        if(isEditMode) {
-            const postData = { title, content, tags };
-            const result = await updatePost(post.id, postData);
-            if(result.success) {
-                 toast({ title: 'Publicação Atualizada!', description: 'A sua publicação foi atualizada com sucesso.'});
-                 if (onPostUpdated) onPostUpdated();
-                 router.refresh();
-            } else {
-                 toast({ title: 'Erro ao Atualizar', description: result.error, variant: 'destructive'});
+        try {
+            let imageUrl = isEditMode ? post.imageUrl : undefined;
+
+            // If there's a new file, upload it.
+            // In edit mode, this will replace the old image.
+            if (imageFile) {
+                 const compressedFile = await imageCompression(imageFile, {
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true,
+                });
+                const formData = new FormData();
+                formData.append('file', compressedFile);
+                const uploadResult = await uploadImage(formData);
+                if (uploadResult.success && uploadResult.url) {
+                    imageUrl = uploadResult.url;
+                } else {
+                    throw new Error(uploadResult.error || 'Falha no upload da imagem.');
+                }
+            } else if (!imagePreview && isEditMode) {
+              // If preview is null in edit mode, it means user removed the image
+              imageUrl = undefined;
             }
-        } else {
+
             const postData = {
-                confrariaId,
-                authorId: user.uid,
-                authorName: user.displayName,
-                authorAvatar: user.photoURL,
                 title,
                 content,
-                tags,
+                imageUrl,
             };
-            const result = await createPost(postData);
 
-            if (result.success) {
-                toast({
-                title: 'Publicação Criada!',
-                description: 'A sua publicação foi submetida com sucesso.',
-                });
-                if(onPostCreated) {
-                    onPostCreated();
+            if(isEditMode) {
+                const result = await updatePost(post.id, postData);
+                if(result.success) {
+                     toast({ title: 'Publicação Atualizada!', description: 'A sua publicação foi atualizada com sucesso.'});
+                     if (onPostUpdated) onPostUpdated();
+                     router.refresh();
+                } else {
+                     toast({ title: 'Erro ao Atualizar', description: result.error, variant: 'destructive'});
                 }
-                // Reset form
-                setTitle('');
-                setContent('');
-                setTags([]);
-                setSuggestedTags([]);
-                router.refresh(); // Refresh server components on the current route
             } else {
-                toast({
-                    title: 'Erro ao Publicar',
-                    description: result.error,
-                    variant: 'destructive',
-                });
+                const newPostData = {
+                    ...postData,
+                    confrariaId,
+                    authorId: user.uid,
+                    authorName: user.displayName,
+                    authorAvatar: user.photoURL,
+                };
+                const result = await createPost(newPostData);
+
+                if (result.success) {
+                    toast({
+                    title: 'Publicação Criada!',
+                    description: 'A sua publicação foi submetida com sucesso.',
+                    });
+                    if(onPostCreated) {
+                        onPostCreated();
+                    }
+                    // Reset form
+                    setTitle('');
+                    setContent('');
+                    setImageFile(null);
+                    setImagePreview(null);
+                    router.refresh(); // Refresh server components on the current route
+                } else {
+                    toast({
+                        title: 'Erro ao Publicar',
+                        description: result.error,
+                        variant: 'destructive',
+                    });
+                }
             }
+        } catch (error: any) {
+            toast({
+                title: 'Erro',
+                description: error.message,
+                variant: 'destructive'
+            });
         }
     });
   }
@@ -150,43 +174,30 @@ export function NewPostForm({ confrariaId, post, onPostCreated, onPostUpdated }:
             required
             />
         </div>
-        <div className="space-y-2">
-            <div className="flex items-center justify-between mb-2">
-            <Label htmlFor="tags">Tags</Label>
-            <Button type="button" variant="outline" size="sm" onClick={handleSuggestTags} disabled={isSuggesting || !content}>
-                {isSuggesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                Sugerir Tags
+
+        {imagePreview && (
+          <div className="relative">
+            <Image 
+              src={imagePreview}
+              alt="Pré-visualização da imagem"
+              width={500}
+              height={300}
+              className="w-full h-auto max-h-80 object-contain rounded-lg border"
+            />
+            <Button type="button" variant="destructive" size="icon" onClick={removeImage} className="absolute top-2 right-2 h-7 w-7">
+              <X className="h-4 w-4" />
             </Button>
+          </div>
+        )}
+
+        <div className="flex justify-between items-center pt-6">
+            <div>
+              <Label htmlFor="image-upload" className="inline-flex items-center gap-2 cursor-pointer text-muted-foreground hover:text-primary">
+                <ImageUp />
+                <span>Adicionar Foto</span>
+                <Input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              </Label>
             </div>
-             <div className="p-4 border rounded-md min-h-[6rem] bg-muted/50">
-                <div className="flex flex-wrap gap-2">
-                    {tags.map((tag, index) => (
-                        <Badge key={index} variant="default" className="cursor-pointer text-sm font-normal" onClick={() => handleRemoveTag(tag)}>
-                            {tag} &times;
-                        </Badge>
-                    ))}
-                </div>
-             </div>
-             {suggestedTags.length > 0 && <div className="my-4"/>}
-            <div className="p-4 border rounded-md min-h-[6rem] bg-muted/50">
-                {isSuggesting && <p className="text-sm text-muted-foreground">A gerar sugestões...</p>}
-                {!isSuggesting && suggestedTags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                        {suggestedTags.map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="cursor-pointer text-sm font-normal" onClick={() => handleAddTag(tag)}>
-                                + {tag}
-                            </Badge>
-                        ))}
-                    </div>
-                )}
-                {!isSuggesting && suggestedTags.length === 0 && (
-                    <p className="text-sm text-muted-foreground">
-                        Escreva algum conteúdo e clique em "Sugerir Tags" para ver a magia acontecer.
-                    </p>
-                )}
-            </div>
-        </div>
-        <div className="flex justify-end pt-6">
             <Button type="submit" className="ml-auto" disabled={isSubmitting || !title || !content}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEditMode ? 'Guardar Alterações' : 'Publicar'}
