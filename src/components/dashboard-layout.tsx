@@ -35,6 +35,8 @@ const baseMenuItems = [
 ];
 
 const confrariaMenuItem = { href: '/painel/minha-confraria', label: 'Minha Confraria', icon: UtensilsCrossed };
+const adminMenuItem = { href: '/painel/admin', label: 'Painel Admin', icon: Shield };
+
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -86,7 +88,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         if (userRole === 'Confraria') {
             items.push(confrariaMenuItem);
         }
-        // Admin link is removed, as requested. Admin must navigate directly.
+        if (userRole === 'Admin') {
+            items.splice(1, 0, adminMenuItem); // Insert admin link after 'Início'
+        }
         return items;
     }, [userRole]);
 
