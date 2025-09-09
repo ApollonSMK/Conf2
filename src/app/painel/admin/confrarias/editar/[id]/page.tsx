@@ -3,8 +3,6 @@
 
 import { useEffect, useState } from 'react';
 import { notFound, useRouter } from 'next/navigation';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -14,14 +12,17 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { updateUser } from '@/app/actions';
+import { getUserProfile, updateUser } from '@/app/actions';
+import { districts } from '@/lib/regions';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type ConfrariaProfile = {
   name: string;
   email: string;
-  photoURL: string;
+  photoURL?: string;
+  description?: string;
+  region?: string;
   // Add other profile fields here as they are created
-  // e.g. description, region, etc.
 };
 
 export default function AdminEditConfrariaPage({ params }: { params: { id: string } }) {
@@ -38,11 +39,10 @@ export default function AdminEditConfrariaPage({ params }: { params: { id: strin
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const userDocRef = doc(db, 'users', confrariaId);
-        const userDocSnap = await getDoc(userDocRef);
+        const profileData = await getUserProfile(confrariaId);
 
-        if (userDocSnap.exists()) {
-          setProfile(userDocSnap.data() as ConfrariaProfile);
+        if (profileData) {
+          setProfile(profileData as ConfrariaProfile);
         } else {
           notFound();
         }
@@ -66,6 +66,11 @@ export default function AdminEditConfrariaPage({ params }: { params: { id: strin
     const { name, value } = e.target;
     setProfile({ ...profile, [name]: value });
   };
+  
+  const handleSelectChange = (value: string) => {
+    if (!profile) return;
+    setProfile({ ...profile, region: value });
+  };
 
   const handleSave = async () => {
     if (!profile) return;
@@ -74,7 +79,8 @@ export default function AdminEditConfrariaPage({ params }: { params: { id: strin
     try {
       const result = await updateUser(confrariaId, {
         name: profile.name,
-        // photoURL: profile.photoURL, // Add logic for image upload if needed
+        description: profile.description,
+        region: profile.region,
       });
 
       if (result.success) {
@@ -82,7 +88,7 @@ export default function AdminEditConfrariaPage({ params }: { params: { id: strin
           title: 'Sucesso!',
           description: 'Perfil da confraria atualizado.',
         });
-        router.back();
+        router.push('/painel/admin/confrarias');
       } else {
         throw new Error(result.error);
       }
@@ -100,7 +106,7 @@ export default function AdminEditConfrariaPage({ params }: { params: { id: strin
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-8 w-full">
         <Skeleton className="h-8 w-48 mb-4" />
         <Skeleton className="h-6 w-64 mb-8" />
         <Card>
@@ -144,7 +150,7 @@ export default function AdminEditConfrariaPage({ params }: { params: { id: strin
         <CardHeader>
           <CardTitle>Informações do Perfil</CardTitle>
           <CardDescription>
-            Altere as informações públicas da confraria aqui.
+            Altere as informações públicas da confraria aqui. Estas informações serão visíveis na página de perfil.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -157,7 +163,19 @@ export default function AdminEditConfrariaPage({ params }: { params: { id: strin
               onChange={handleInputChange}
             />
           </div>
-          {/* Add other editable fields here, e.g., Textarea for description */}
+           <div className="space-y-2">
+            <Label htmlFor="region">Região</Label>
+             <Select value={profile.region} onValueChange={handleSelectChange}>
+                <SelectTrigger id="region">
+                    <SelectValue placeholder="Selecione a região/distrito" />
+                </SelectTrigger>
+                <SelectContent>
+                    {districts.map(d => (
+                        <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+          </div>
            <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
             <Textarea
@@ -165,8 +183,8 @@ export default function AdminEditConfrariaPage({ params }: { params: { id: strin
               name="description"
               placeholder="Descreva a missão e os valores da confraria..."
               className="min-h-[150px]"
-              // value={profile.description}
-              // onChange={handleInputChange}
+              value={profile.description}
+              onChange={handleInputChange}
             />
           </div>
         </CardContent>

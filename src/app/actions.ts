@@ -116,7 +116,7 @@ export async function addOrUpdateUser(uid: string, data: { name: string, email: 
     }
 }
 
-export async function updateUser(uid: string, data: Partial<{ name: string; email: string; role: string; status: string; photoURL: string }>) {
+export async function updateUser(uid: string, data: Partial<{ name: string; email: string; role: string; status: string; photoURL: string; description: string; region: string }>) {
     try {
         const userRef = doc(db, "users", uid);
         await updateDoc(userRef, data);
@@ -386,3 +386,22 @@ export async function getConfrarias() {
         return [];
     }
 }
+
+
+export async function getUserProfile(id: string) {
+    try {
+        if (!id) return null;
+        const userRef = doc(db, 'users', id);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() };
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        return null;
+    }
+}
+
+    
