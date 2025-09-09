@@ -31,6 +31,14 @@ const menuItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
+    // Check if the current path is the confraria edit page
+    const isEditPage = pathname.includes('/painel/admin/confrarias/editar');
+
+    if (isEditPage) {
+        // For the edit page, render children directly without the sidebar layout
+        return <div className="flex-1 flex">{children}</div>;
+    }
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -80,13 +88,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        {/* Remove the mobile header to make the edit page feel standalone */}
-        {pathname.includes('/painel/admin/confrarias/editar') ? null : (
-             <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:hidden">
-                <h1 className="text-lg font-medium text-foreground">Painel Admin</h1>
-                <SidebarTrigger />
-            </header>
-        )}
+        <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:hidden">
+            <h1 className="text-lg font-medium text-foreground">Painel Admin</h1>
+            <SidebarTrigger />
+        </header>
         {children}
       </SidebarInset>
     </SidebarProvider>
