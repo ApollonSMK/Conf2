@@ -4,11 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Calendar, Camera, Info, Mail, MapPin, Pencil } from "lucide-react";
+import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram } from "lucide-react";
 import Image from "next/image";
 import { notFound } from 'next/navigation';
 import { getUserProfile } from "@/app/actions";
 import { ConfrariaProfileActions } from "@/components/confraria-profile-actions";
+import Link from "next/link";
 
 // Mock data for tabs content, to be replaced later
 const mockDetails = {
@@ -26,8 +27,8 @@ const mockDetails = {
   ]
 };
 
-export default async function ConfrariaProfilePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function ConfrariaProfilePage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
   const confrariaData = await getUserProfile(slug);
 
   if (!confrariaData || confrariaData.role !== 'Confraria') {
@@ -45,6 +46,9 @@ export default async function ConfrariaProfilePage({ params }: { params: Promise
       about: confrariaData.description || 'Nenhuma descrição sobre esta confraria ainda.',
       foundationYear: confrariaData.foundationYear || null,
       members: confrariaData.members || [],
+      website: confrariaData.website,
+      facebook: confrariaData.facebook,
+      instagram: confrariaData.instagram,
       ...mockDetails
   }
 
@@ -68,7 +72,10 @@ export default async function ConfrariaProfilePage({ params }: { params: Promise
               </div>
               <div className="mt-4 md:mt-0 md:pb-4 flex items-center gap-2 flex-wrap">
                 <ConfrariaProfileActions confrariaId={confraria.id} />
-                <Button variant="secondary" asChild><a href={`mailto:${confraria.contact}`}><Mail className="mr-2" /> Contactar</a></Button>
+                {confraria.contact && <Button variant="secondary" asChild><a href={`mailto:${confraria.contact}`}><Mail className="mr-2" /> Contactar</a></Button>}
+                {confraria.website && <Button variant="ghost" size="icon" asChild><Link href={confraria.website} target="_blank"><Globe /></Link></Button>}
+                {confraria.facebook && <Button variant="ghost" size="icon" asChild><Link href={confraria.facebook} target="_blank"><Facebook /></Link></Button>}
+                {confraria.instagram && <Button variant="ghost" size="icon" asChild><Link href={confraria.instagram} target="_blank"><Instagram /></Link></Button>}
               </div>
             </div>
           </div>

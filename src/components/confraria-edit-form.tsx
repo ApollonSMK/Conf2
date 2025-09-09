@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils, Pencil } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils, Pencil, Globe, Facebook, Instagram } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { updateUser, uploadImage } from '@/app/actions';
 import { districts } from '@/lib/regions';
@@ -29,6 +29,9 @@ type ConfrariaProfile = {
   bannerURL?: string;
   lema?: string;
   fundadores?: string;
+  website?: string;
+  facebook?: string;
+  instagram?: string;
 };
 
 type ConfrariaEditFormProps = {
@@ -84,9 +87,12 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
         bannerURL: profile.bannerURL,
         lema: profile.lema,
         fundadores: profile.fundadores,
+        website: profile.website,
+        facebook: profile.facebook,
+        instagram: profile.instagram,
       };
       
-      const result = await updateUser(profile.id, dataToUpdate as any); // Cast to any to handle council addition
+      const result = await updateUser(profile.id, dataToUpdate as any);
 
       if (result.success) {
         toast({ title: 'Sucesso!', description: 'Perfil da confraria atualizado.' });
@@ -226,6 +232,20 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
                         </SelectContent>
                     </Select>
                 </div>
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="website">Website</Label>
+                <Input id="website" name="website" type="url" value={profile.website || ''} onChange={handleInputChange} placeholder="https://asua-confraria.pt" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                  <Label htmlFor="facebook">Facebook</Label>
+                  <Input id="facebook" name="facebook" type="url" value={profile.facebook || ''} onChange={handleInputChange} placeholder="https://facebook.com/asuaconfraria" />
+              </div>
+              <div className="space-y-2">
+                  <Label htmlFor="instagram">Instagram</Label>
+                  <Input id="instagram" name="instagram" type="url" value={profile.instagram || ''} onChange={handleInputChange} placeholder="https://instagram.com/asuaconfraria" />
+              </div>
             </div>
           </CardContent>
         </Card>
