@@ -475,20 +475,33 @@ export async function createEvent(data: any) {
 export async function getEventsByConfraria(confrariaId: string) {
   try {
     const eventsRef = collection(db, 'events');
-    const q = query(eventsRef, where("confrariaId", "==", confrariaId), orderBy("date", "asc"));
+    const q = query(eventsRef, where("confrariaId", "==", confrariaId));
     const querySnapshot = await getDocs(q);
     
-    return querySnapshot.docs.map(doc => {
+    let eventList = querySnapshot.docs.map(doc => {
         const data = doc.data();
-        // Firestore Timestamps need to be converted to be serializable
-        if (data.date && data.date instanceof Timestamp) {
-            data.date = data.date.toDate().toISOString();
-        }
-         if (data.createdAt && data.createdAt instanceof Timestamp) {
-            data.createdAt = data.createdAt.toDate().toISOString();
-        }
-        return { id: doc.id, ...data };
+        return { 
+            id: doc.id, 
+            ...data,
+            // Keep the original timestamp for sorting
+            dateObj: data.date instanceof Timestamp ? data.date.toDate() : new Date(data.date)
+        };
     });
+    
+    // Sort in application code
+    eventList.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+
+    // Convert timestamps to string for serialization after sorting
+    return eventList.map(({ dateObj, ...rest }) => {
+        if (rest.date && rest.date instanceof Timestamp) {
+            rest.date = rest.date.toDate().toISOString();
+        }
+        if (rest.createdAt && rest.createdAt instanceof Timestamp) {
+            rest.createdAt = rest.createdAt.toDate().toISOString();
+        }
+        return rest;
+    });
+
   } catch (error) {
     console.error("Error fetching events by confraria:", error);
     return [];
@@ -515,3 +528,5 @@ export async function deleteEvent(eventId: string) {
     return { success: false, error: "Falha ao eliminar o evento." };
   }
 }
+
+    
