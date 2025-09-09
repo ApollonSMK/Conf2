@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { BookOpen, Home, LogOut, Settings, Shield, Camera } from 'lucide-react';
+import { BookOpen, Home, LogOut, Settings, Shield, Camera, UtensilsCrossed } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, redirect } from 'next/navigation';
 import { getAuth, onAuthStateChanged, User, signOut, updateProfile } from 'firebase/auth';
@@ -34,6 +34,7 @@ const baseMenuItems = [
     { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: false, adminOnly: false },
 ];
 
+const confrariaMenuItem = { href: '/painel/minha-confraria', label: 'Minha Confraria', icon: UtensilsCrossed, disabled: false, adminOnly: false };
 const adminMenuItem = { href: '/painel/admin', label: 'Admin', icon: Shield, disabled: false, adminOnly: true };
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -81,7 +82,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         }
     };
     
-    const menuItems = userRole === 'Admin' ? [...baseMenuItems, adminMenuItem] : baseMenuItems;
+    const menuItems = React.useMemo(() => {
+        let items = [...baseMenuItems];
+        if (userRole === 'Confraria') {
+            items.push(confrariaMenuItem);
+        }
+        if (userRole === 'Admin') {
+            items.push(adminMenuItem);
+        }
+        return items;
+    }, [userRole]);
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -117,12 +127,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
             const photoURL = uploadResult.url;
 
-            await updateProfile(user, { photoURL });
-            await updateUser(user.uid, { photoURL });
+            await updateProfile(user, { photoURL: photoURL });
+            await updateUser(user.uid, { photoURL: photoURL });
 
             // To refresh the UI with the new photo
-            const refreshedUser = { ...user, photoURL };
-            setUser(refreshedUser);
+            setUser(prevUser => prevUser ? { ...prevUser, photoURL } : null);
 
             toast({
                 title: 'Foto de Perfil Atualizada!',
