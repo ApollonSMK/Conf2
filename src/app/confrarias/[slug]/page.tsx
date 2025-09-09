@@ -59,7 +59,7 @@ export default async function ConfrariaProfilePage({ params }: { params: Promise
           <div className="relative -mt-16 md:-mt-24">
             <div className="flex flex-col md:flex-row md:items-end md:gap-8">
               <Avatar className="h-32 w-32 md:h-48 md:w-48 border-4 border-background shadow-lg shrink-0">
-                {confraria.logo && <AvatarImage src={confraria.logo} alt={`Logótipo da ${confraria.name}`} data-ai-hint={'logo'} />}
+                {confraria.logo && <AvatarImage src={confraria.logo} alt={`Logótipo da ${confraria.name}`} />}
                 <AvatarFallback>{confraria.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="mt-4 md:mt-0 md:pb-4 flex-grow">
