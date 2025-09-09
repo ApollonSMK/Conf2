@@ -158,9 +158,16 @@ export function PostCard({ post }: PostCardProps) {
                 <CardTitle className="text-xl text-primary">{post.title}</CardTitle>
                 <p className="text-foreground/90 whitespace-pre-wrap">{post.content}</p>
                  {post.imageUrl && (
-                    <div className="relative aspect-video w-full mt-4 rounded-lg overflow-hidden border">
-                       <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
-                    </div>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                             <div className="relative aspect-video w-full mt-4 rounded-lg overflow-hidden border cursor-pointer">
+                               <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
+                            </div>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl p-2 bg-transparent border-none">
+                            <Image src={post.imageUrl} alt={post.title} width={1920} height={1080} className="w-full h-auto object-contain rounded-lg max-h-[90vh]" />
+                        </DialogContent>
+                    </Dialog>
                 )}
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
