@@ -84,9 +84,8 @@ function ConfrariaCard({ confraria }: { confraria: Confraria }) {
 export default async function ConfrariasPage() {
   const confrarias = (await getConfrarias()).map(c => ({
       ...c,
-      // Add mock data for fields that don't exist yet
-      events: Math.floor(Math.random() * 50),
-      recipes: Math.floor(Math.random() * 50)
+      events: 0,
+      recipes: 0
   })) as Confraria[];
 
   return (
