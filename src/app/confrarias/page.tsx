@@ -22,8 +22,11 @@ import {
   BookOpen,
   Filter,
   Search,
+  MapPin,
+  Newspaper,
 } from 'lucide-react';
 import { getConfrarias } from '../actions';
+import { Badge } from '@/components/ui/badge';
 
 type Confraria = {
   id: string;
@@ -33,31 +36,44 @@ type Confraria = {
   // These are mock for now
   events: number;
   recipes: number;
+  posts: number;
 };
 
 function ConfrariaCard({ confraria }: { confraria: Confraria }) {
   return (
     <Card className="hover:shadow-xl transition-shadow duration-300 flex flex-col bg-card">
-      <CardHeader className="flex flex-row items-center gap-4 p-4">
-        <Image
-          src={confraria.photoURL || 'https://picsum.photos/100/100'}
-          alt={`Logótipo da ${confraria.name}`}
-          width={80}
-          height={80}
-          className="rounded-full border-2 border-secondary"
-          data-ai-hint={'logo'}
-        />
-        <div>
-          <CardTitle className="font-headline text-lg leading-tight text-primary">
-            <Link href={`/confrarias/${confraria.id}`} className="hover:underline">
-              {confraria.name}
-            </Link>
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">{confraria.region || 'Região não definida'}</p>
+      <CardHeader className="p-4">
+        <div className="flex items-start gap-4">
+            <Image
+            src={confraria.photoURL || 'https://picsum.photos/100/100'}
+            alt={`Logótipo da ${confraria.name}`}
+            width={80}
+            height={80}
+            className="rounded-lg border-2 border-secondary"
+            data-ai-hint={'logo'}
+            />
+            <div className="flex-grow">
+            <CardTitle className="font-headline text-lg leading-tight text-primary mb-1">
+                <Link href={`/confrarias/${confraria.id}`} className="hover:underline">
+                {confraria.name}
+                </Link>
+            </CardTitle>
+            {confraria.region && 
+                <Badge variant="secondary" className="font-normal">
+                    <MapPin className="mr-1.5" /> {confraria.region}
+                </Badge>
+            }
+            </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow p-4">
-        <div className="flex justify-around text-muted-foreground text-sm">
+      <CardContent className="flex-grow p-4 pt-0">
+        <div className="flex justify-around text-muted-foreground text-sm border-t pt-4">
+          <div className="text-center">
+            <Newspaper className="h-5 w-5 mx-auto mb-1 text-accent" />
+            <p>
+              <span className="font-bold text-foreground">{confraria.posts}</span> Publicações
+            </p>
+          </div>
           <div className="text-center">
             <Calendar className="h-5 w-5 mx-auto mb-1 text-accent" />
             <p>
@@ -85,7 +101,8 @@ export default async function ConfrariasPage() {
   const confrarias = (await getConfrarias()).map(c => ({
       ...c,
       events: 0,
-      recipes: 0
+      recipes: 0,
+      posts: 0, // Mock value for now
   })) as Confraria[];
 
   return (
