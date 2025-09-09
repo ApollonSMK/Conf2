@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram } from "lucide-react";
+import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram, Newspaper, Users, Clock } from "lucide-react";
 import Image from "next/image";
 import { notFound } from 'next/navigation';
 import { getUserProfile } from "@/app/actions";
@@ -13,6 +13,7 @@ import Link from "next/link";
 
 // Mock data for tabs content, to be replaced later
 const mockDetails = {
+  publications: [],
   events: [
     { id: 1, name: 'Grande Prova de Vintages', date: '2024-11-15', location: 'Palácio da Bolsa, Porto' },
   ],
@@ -39,13 +40,15 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       id: confrariaData.id,
       name: confrariaData.name || 'Nome Indisponível',
       region: confrariaData.region || 'Região não definida',
+      council: confrariaData.council || null,
       banner: confrariaData.bannerURL || 'https://picsum.photos/1200/400?random=10',
       data_ai_hint_banner: 'wine vineyard',
       logo: confrariaData.photoURL || null,
       contact: confrariaData.email || '',
       about: confrariaData.description || 'Nenhuma descrição sobre esta confraria ainda.',
       foundationYear: confrariaData.foundationYear || null,
-      members: confrariaData.members || [],
+      fundadores: confrariaData.fundadores || null,
+      lema: confrariaData.lema || null,
       website: confrariaData.website,
       facebook: confrariaData.facebook,
       instagram: confrariaData.instagram,
@@ -56,57 +59,96 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       <div className="w-full">
         <header className="relative h-64 md:h-80 w-full">
           <Image src={confraria.banner} alt={`Banner da ${confraria.name}`} fill className="object-cover" data-ai-hint={confraria.data_ai_hint_banner} />
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 p-8 container mx-auto">
+             <div className="flex flex-col md:flex-row md:items-end md:gap-8">
+                <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-background shadow-lg shrink-0 -mb-16 md:-mb-8 bg-card">
+                  {confraria.logo && <AvatarImage src={confraria.logo} alt={`Logótipo da ${confraria.name}`} />}
+                  <AvatarFallback className="text-4xl">{confraria.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+             </div>
+          </div>
         </header>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative -mt-16 md:-mt-24">
-            <div className="flex flex-col md:flex-row md:items-end md:gap-8">
-              <Avatar className="h-32 w-32 md:h-48 md:w-48 border-4 border-background shadow-lg shrink-0">
-                {confraria.logo && <AvatarImage src={confraria.logo} alt={`Logótipo da ${confraria.name}`} />}
-                <AvatarFallback>{confraria.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div className="mt-4 md:mt-0 md:pb-4 flex-grow">
-                <h1 className="font-headline font-bold text-3xl md:text-4xl text-primary">{confraria.name}</h1>
-                <p className="text-lg text-muted-foreground flex items-center gap-2 mt-1"><MapPin className="h-5 w-5" /> {confraria.region}</p>
-              </div>
-              <div className="mt-4 md:mt-0 md:pb-4 flex items-center gap-2 flex-wrap">
-                <ConfrariaProfileActions confrariaId={confraria.id} />
-                {confraria.contact && <Button variant="secondary" asChild><a href={`mailto:${confraria.contact}`}><Mail className="mr-2" /> Contactar</a></Button>}
-                {confraria.website && <Button variant="ghost" size="icon" asChild><Link href={confraria.website} target="_blank"><Globe /></Link></Button>}
-                {confraria.facebook && <Button variant="ghost" size="icon" asChild><Link href={confraria.facebook} target="_blank"><Facebook /></Link></Button>}
-                {confraria.instagram && <Button variant="ghost" size="icon" asChild><Link href={confraria.instagram} target="_blank"><Instagram /></Link></Button>}
-              </div>
+          <div className="relative pt-20 md:pt-12">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                <div className="flex-grow">
+                    <h1 className="font-headline font-bold text-3xl md:text-4xl text-primary">{confraria.name}</h1>
+                    {confraria.lema && <p className="text-lg text-muted-foreground italic mt-1">"{confraria.lema}"</p>}
+                    <p className="text-md text-muted-foreground flex items-center gap-2 mt-2"><MapPin className="h-5 w-5" /> {confraria.council ? `${confraria.council}, ${confraria.region}` : confraria.region}</p>
+                </div>
+                <div className="mt-4 md:mt-0 flex items-center gap-2 flex-wrap shrink-0">
+                  <ConfrariaProfileActions confrariaId={confraria.id} />
+                  {confraria.contact && <Button variant="secondary" asChild><a href={`mailto:${confraria.contact}`}><Mail className="mr-2" /> Contactar</a></Button>}
+                  {confraria.website && <Button variant="ghost" size="icon" asChild><Link href={confraria.website} target="_blank"><Globe /></Link></Button>}
+                  {confraria.facebook && <Button variant="ghost" size="icon" asChild><Link href={confraria.facebook} target="_blank"><Facebook /></Link></Button>}
+                  {confraria.instagram && <Button variant="ghost" size="icon" asChild><Link href={confraria.instagram} target="_blank"><Instagram /></Link></Button>}
+                </div>
             </div>
           </div>
 
-          <Tabs defaultValue="about" className="mt-8">
+          <Tabs defaultValue="inicio" className="mt-8">
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
-              <TabsTrigger value="about">Sobre</TabsTrigger>
-              <TabsTrigger value="events">Eventos</TabsTrigger>
-              <TabsTrigger value="recipes">Receitas</TabsTrigger>
+              <TabsTrigger value="inicio">Início</TabsTrigger>
+              <TabsTrigger value="eventos">Eventos</TabsTrigger>
+              <TabsTrigger value="receitas">Receitas</TabsTrigger>
               <TabsTrigger value="gallery">Galeria</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="about" className="mt-6">
-              <Card>
-                <CardHeader><CardTitle>Sobre a Confraria</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-lg leading-relaxed text-foreground/90">{confraria.about}</p>
-                  {confraria.foundationYear && <p><span className="font-bold text-foreground">Ano de Fundação:</span> {confraria.foundationYear}</p>}
-                  {confraria.members.length > 0 && (
-                    <div>
-                        <h3 className="font-bold text-foreground mb-2">Membros</h3>
-                        <div className="flex flex-wrap gap-2">
-                        {confraria.members.map((member: string) => <Badge key={member} variant="secondary">{member}</Badge>)}
-                        </div>
+            
+            <TabsContent value="inicio" className="mt-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Coluna principal */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Publicações */}
+                        <Card>
+                             <CardHeader>
+                                <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><Newspaper /> Publicações</CardTitle>
+                             </CardHeader>
+                             <CardContent>
+                                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                                    <p>Esta confraria ainda não tem publicações.</p>
+                                </div>
+                             </CardContent>
+                        </Card>
+                         {/* Próximos Eventos */}
+                        <Card>
+                             <CardHeader>
+                                <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><Calendar /> Próximos Eventos</CardTitle>
+                             </CardHeader>
+                             <CardContent>
+                                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                                    <p>De momento, não existem eventos agendados.</p>
+                                </div>
+                             </CardContent>
+                        </Card>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                    {/* Coluna lateral */}
+                    <div className="lg:col-span-1 space-y-8">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 font-headline text-xl text-primary"><Clock /> A Nossa História</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3 text-sm">
+                                <p className="text-foreground/90">{confraria.about}</p>
+                                {confraria.foundationYear && <p><span className="font-bold text-foreground">Ano de Fundação:</span> {confraria.foundationYear}</p>}
+                            </CardContent>
+                        </Card>
+                        {confraria.fundadores && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 font-headline text-xl text-primary"><Users /> Fundadores</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm text-foreground/90">{confraria.fundadores}</p>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+                </div>
             </TabsContent>
 
-            <TabsContent value="events" className="mt-6">
+            <TabsContent value="eventos" className="mt-6">
               <Card>
                 <CardHeader><CardTitle>Próximos Eventos</CardTitle></CardHeader>
                 <CardContent>
@@ -119,13 +161,17 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                             <Button variant="outline"><Calendar className="mr-2" /> Adicionar</Button>
                         </div>
                     ) : (
-                        <p className="text-muted-foreground">De momento, não existem eventos agendados.</p>
+                        <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
+                            <Calendar className="h-12 w-12 mb-4" />
+                            <p className="font-bold">Sem Eventos Agendados</p>
+                            <p className="text-sm">De momento, não existem eventos agendados.</p>
+                        </div>
                     )}
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="recipes" className="mt-6">
+            <TabsContent value="receitas" className="mt-6">
               <Card>
                 <CardHeader><CardTitle>Receitas da Confraria</CardTitle></CardHeader>
                 <CardContent>
@@ -139,7 +185,11 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                         </div>
                       </div>
                     ) : (
-                        <p className="text-muted-foreground">Ainda não foram publicadas receitas.</p>
+                         <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
+                            <BookOpen className="h-12 w-12 mb-4" />
+                            <p className="font-bold">Sem Receitas</p>
+                            <p className="text-sm">Ainda não foram publicadas receitas.</p>
+                        </div>
                     )}
                 </CardContent>
               </Card>
@@ -173,3 +223,5 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       </div>
   );
 }
+
+    
