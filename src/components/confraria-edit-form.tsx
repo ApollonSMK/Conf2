@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -111,55 +112,66 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
     }
   };
 
-  const handleImageUpload = async (file: File, type: 'logo' | 'banner' | 'gallery') => {
+  const handleImageUpload = async (files: File[], type: 'logo' | 'banner' | 'gallery') => {
     if (!profile) return;
 
     setIsUploading(type);
     try {
-        let options = {};
-        if (type === 'logo') {
-            options = { maxSizeMB: 0.5, maxWidthOrHeight: 400, useWebWorker: true };
-        } else if (type === 'banner') {
-            options = { maxSizeMB: 1.5, maxWidthOrHeight: 1920, useWebWorker: true };
-        } else {
-            options = { maxSizeMB: 1.5, maxWidthOrHeight: 1280, useWebWorker: true };
-        }
+        const uploadPromises = files.map(async (file) => {
+            let options = {};
+             if (type === 'logo') {
+                options = { maxSizeMB: 0.5, maxWidthOrHeight: 400, useWebWorker: true, fileType: 'image/webp' };
+            } else if (type === 'banner') {
+                options = { maxSizeMB: 1.5, maxWidthOrHeight: 1920, useWebWorker: true, fileType: 'image/webp' };
+            } else { // gallery
+                options = { maxSizeMB: 1.5, maxWidthOrHeight: 1280, useWebWorker: true, fileType: 'image/webp' };
+            }
 
-      const compressedFile = await imageCompression(file, options);
+            const compressedFile = await imageCompression(file, options);
+            const formData = new FormData();
+            formData.append('file', compressedFile, compressedFile.name);
+            const uploadResult = await uploadImage(formData);
 
-      const formData = new FormData();
-      formData.append('file', compressedFile);
-      const uploadResult = await uploadImage(formData);
+            if (uploadResult.success && uploadResult.url) {
+                return uploadResult.url;
+            } else {
+                throw new Error(uploadResult.error || `Falha no upload de ${file.name}.`);
+            }
+        });
 
-      if (uploadResult.success && uploadResult.url) {
-        if(type === 'gallery') {
-            const newImage = { id: Date.now().toString(), url: uploadResult.url, data_ai_hint: 'food drink' };
+        const urls = await Promise.all(uploadPromises);
+
+        if (type === 'gallery') {
+            const newImages = urls.map(url => ({ id: Date.now().toString() + Math.random(), url, data_ai_hint: 'food drink' }));
             setProfile(prev => ({
                 ...prev,
-                gallery: [...(prev.gallery || []), newImage]
+                gallery: [...(prev.gallery || []), ...newImages]
             }));
-        } else {
+        } else { // logo or banner
             const fieldToUpdate = type === 'logo' ? 'photoURL' : 'bannerURL';
-            setProfile(prevProfile => ({ ...prevProfile, [fieldToUpdate]: uploadResult.url }));
+            setProfile(prevProfile => ({ ...prevProfile, [fieldToUpdate]: urls[0] }));
         }
-        
-        toast({ title: 'Sucesso!', description: `Imagem carregada. Clique em "Guardar Alterações" para aplicar.` });
-      } else {
-        throw new Error(uploadResult.error || 'Falha no upload da imagem.');
-      }
-    } catch (error) {
-      console.error(`Error uploading ${type}:`, error);
-      toast({ title: 'Erro de Upload', description: `Não foi possível carregar a imagem.`, variant: 'destructive' });
+
+        toast({ title: 'Sucesso!', description: `${files.length} imagem(ns) carregada(s). Clique em "Guardar Alterações" para aplicar.` });
+    } catch (error: any) {
+        console.error(`Error uploading ${type}:`, error);
+        toast({ title: 'Erro de Upload', description: error.message || 'Não foi possível carregar as imagens.', variant: 'destructive' });
     } finally {
-      setIsUploading(null);
+        setIsUploading(null);
     }
   };
 
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'banner') => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleImageUpload([e.target.files[0]], type);
+    }
+  };
+
+
   const handleGalleryFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      for (const file of Array.from(e.target.files)) {
-        handleImageUpload(file, 'gallery');
-      }
+    if (e.target.files && e.target.files.length > 0) {
+      handleImageUpload(Array.from(e.target.files), 'gallery');
     }
   };
 
@@ -296,7 +308,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
                   <AvatarImage src={profile.photoURL ?? undefined} alt="Logótipo preview" />
                   <AvatarFallback className="rounded-lg"><Camera/></AvatarFallback>
                 </Avatar>
-                <Input id="logo-upload" type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'logo')} disabled={isUploading === 'logo'}/>
+                <Input id="logo-upload" type="file" accept="image/*" className="hidden" onChange={(e) => handleFileChange(e, 'logo')} disabled={isUploading === 'logo'}/>
                 <Button asChild variant="outline">
                   <Label htmlFor="logo-upload" className="cursor-pointer">
                     {isUploading === 'logo' ? <Loader2 className="mr-2 animate-spin" /> : <ImageIcon className="mr-2"/>}
@@ -317,7 +329,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
                       </div>
                    )}
                 </div>
-                 <Input id="banner-upload" type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'banner')} disabled={isUploading === 'banner'}/>
+                 <Input id="banner-upload" type="file" accept="image/*" className="hidden" onChange={(e) => handleFileChange(e, 'banner')} disabled={isUploading === 'banner'}/>
                  <Button asChild variant="outline">
                   <Label htmlFor="banner-upload" className="cursor-pointer">
                     {isUploading === 'banner' ? <Loader2 className="mr-2 animate-spin" /> : <ImageIcon className="mr-2"/>}
