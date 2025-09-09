@@ -116,7 +116,7 @@ export async function addOrUpdateUser(uid: string, data: { name: string, email: 
     }
 }
 
-export async function updateUser(uid: string, data: Partial<{ name: string; email: string; role: string; status: string; photoURL: string; description: string; region: string }>) {
+export async function updateUser(uid: string, data: Partial<{ name: string; email: string; role: string; status: string; photoURL: string; description: string; region: string; foundationYear: string | number; bannerURL: string; }>) {
     try {
         const userRef = doc(db, "users", uid);
         await updateDoc(userRef, data);
