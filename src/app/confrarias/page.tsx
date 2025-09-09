@@ -1,4 +1,6 @@
 
+'use client';
+
 import {
   Card,
   CardContent,
@@ -27,13 +29,14 @@ import {
 } from 'lucide-react';
 import { getConfrarias, getPostsByConfraria } from '../actions';
 import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Confraria = {
   id: string;
   name: string;
   region: string;
   photoURL?: string | null;
-  // These are mock for now
   events: number;
   recipes: number;
   posts: number;
@@ -97,20 +100,66 @@ function ConfrariaCard({ confraria }: { confraria: Confraria }) {
   );
 }
 
-export default async function ConfrariasPage() {
-  const confrariasData = await getConfrarias();
+function CardSkeleton() {
+    return (
+        <Card className="flex flex-col bg-card">
+            <CardHeader className="p-4">
+                <div className="flex items-start gap-4">
+                    <Skeleton className="h-20 w-20 rounded-lg" />
+                    <div className="flex-grow space-y-2">
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-5 w-1/2" />
+                    </div>
+                </div>
+            </CardHeader>
+             <CardContent className="flex-grow p-4 pt-0">
+                 <div className="flex justify-around text-muted-foreground text-sm border-t pt-4">
+                    <div className="text-center space-y-1">
+                        <Skeleton className="h-5 w-5 mx-auto" />
+                        <Skeleton className="h-4 w-20" />
+                    </div>
+                    <div className="text-center space-y-1">
+                        <Skeleton className="h-5 w-5 mx-auto" />
+                        <Skeleton className="h-4 w-16" />
+                    </div>
+                    <div className="text-center space-y-1">
+                        <Skeleton className="h-5 w-5 mx-auto" />
+                        <Skeleton className="h-4 w-16" />
+                    </div>
+                 </div>
+             </CardContent>
+             <CardFooter className="p-4">
+                <Skeleton className="h-10 w-full" />
+             </CardFooter>
+        </Card>
+    )
+}
+
+export default function ConfrariasPage() {
+  const [confrarias, setConfrarias] = useState<Confraria[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchConfrarias = async () => {
+        setLoading(true);
+        const confrariasData = await getConfrarias();
   
-  const confrarias = await Promise.all(
-      confrariasData.map(async (c) => {
-          const posts = await getPostsByConfraria(c.id);
-          return {
-              ...c,
-              events: 0,
-              recipes: 0,
-              posts: posts.length,
-          }
-      })
-  ) as Confraria[];
+        const confrariasWithPosts = await Promise.all(
+            confrariasData.map(async (c) => {
+                const posts = await getPostsByConfraria(c.id);
+                return {
+                    ...c,
+                    events: 0,
+                    recipes: 0,
+                    posts: posts.length,
+                }
+            })
+        ) as Confraria[];
+        setConfrarias(confrariasWithPosts);
+        setLoading(false);
+    }
+    fetchConfrarias();
+  }, []);
 
   return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -172,9 +221,13 @@ export default async function ConfrariasPage() {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {confrarias.map((confraria) => (
-            <ConfrariaCard key={confraria.id} confraria={confraria} />
-          ))}
+          {loading ? (
+             Array.from({ length: 3 }).map((_, index) => <CardSkeleton key={index} />)
+          ) : (
+             confrarias.map((confraria) => (
+                <ConfrariaCard key={confraria.id} confraria={confraria} />
+            ))
+          )}
         </div>
       </div>
   );
