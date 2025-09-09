@@ -158,7 +158,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <div className="relative group">
                     <label htmlFor="avatar-upload" className="cursor-pointer">
                         <Avatar className="h-12 w-12">
-                            <AvatarImage src={user?.photoURL ?? ""} alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
+                            <AvatarImage src={user?.photoURL ?? undefined} alt="Avatar do Utilizador" data-ai-hint="user avatar"/>
                             <AvatarFallback>{user?.displayName?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
                         </Avatar>
                          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
