@@ -4,10 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Calendar, Camera, Info, Mail, MapPin } from "lucide-react";
+import { BookOpen, Calendar, Camera, Info, Mail, MapPin, Pencil } from "lucide-react";
 import Image from "next/image";
 import { notFound } from 'next/navigation';
 import { getUserProfile } from "@/app/actions";
+import { ConfrariaProfileActions } from "@/components/confraria-profile-actions";
 
 // Mock data for tabs content, to be replaced later
 const mockDetails = {
@@ -33,6 +34,7 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
   }
 
   const confraria = {
+      id: confrariaData.id,
       name: confrariaData.name || 'Nome Indisponível',
       region: confrariaData.region || 'Região não definida',
       banner: confrariaData.bannerURL || 'https://picsum.photos/1200/400?random=10',
@@ -64,6 +66,7 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                 <p className="text-lg text-muted-foreground flex items-center gap-2 mt-1"><MapPin className="h-5 w-5" /> {confraria.region}</p>
               </div>
               <div className="mt-4 md:mt-0 md:pb-4 flex items-center gap-2 flex-wrap">
+                <ConfrariaProfileActions confrariaId={confraria.id} />
                 <Button variant="secondary" asChild><a href={`mailto:${confraria.contact}`}><Mail className="mr-2" /> Contactar</a></Button>
               </div>
             </div>
@@ -162,5 +165,3 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       </div>
   );
 }
-
-    
