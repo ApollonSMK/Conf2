@@ -26,8 +26,9 @@ const mockDetails = {
   ]
 };
 
-export default async function ConfrariaProfilePage({ params }: { params: { slug: string } }) {
-  const confrariaData = await getUserProfile(params.slug);
+export default async function ConfrariaProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const confrariaData = await getUserProfile(slug);
 
   if (!confrariaData || confrariaData.role !== 'Confraria') {
     notFound();
