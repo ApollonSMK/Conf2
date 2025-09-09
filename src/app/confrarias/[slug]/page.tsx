@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram, Newspaper, Users, Clock } from "lucide-react";
 import Image from "next/image";
 import { notFound } from 'next/navigation';
-import { getUserProfile, getPostsByConfraria } from "@/app/actions";
+import { getUserProfile, getPostsByConfraria, getEventsByConfraria } from "@/app/actions";
 import { ConfrariaProfileActions } from "@/components/confraria-profile-actions";
 import Link from "next/link";
 import { CreatePostWidget } from "@/components/create-post-widget";
@@ -15,20 +15,25 @@ import { PostCard } from "@/components/post-card";
 
 // Mock data for tabs content, to be replaced later
 const mockDetails = {
-  publications: [],
-  events: [
-    { id: 1, name: 'Grande Prova de Vintages', date: '2024-11-15', location: 'Palácio da Bolsa, Porto' },
-  ],
   recipes: [
     { id: 1, name: 'Robalo ao molho de Vinho do Porto', difficulty: 'Média', time: '45 min', image: 'https://picsum.photos/400/300?random=12', data_ai_hint: 'fish dish' },
   ],
 };
 
+type Event = {
+  id: string;
+  title: string;
+  date: string;
+  location: string;
+};
+
+
 export default async function ConfrariaProfilePage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-  const [confrariaData, postsData] = await Promise.all([
+  const [confrariaData, postsData, eventsData] = await Promise.all([
       getUserProfile(slug),
-      getPostsByConfraria(slug)
+      getPostsByConfraria(slug),
+      getEventsByConfraria(slug),
   ]);
 
   if (!confrariaData || confrariaData.role !== 'Confraria') {
@@ -52,6 +57,7 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       facebook: confrariaData.facebook,
       instagram: confrariaData.instagram,
       gallery: confrariaData.gallery || [],
+      events: eventsData as Event[],
       ...mockDetails
   }
 
@@ -123,9 +129,23 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                                 <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><Calendar /> Próximos Eventos</CardTitle>
                              </CardHeader>
                              <CardContent>
-                                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-                                    <p>De momento, não existem eventos agendados.</p>
-                                </div>
+                                {confraria.events.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {confraria.events.map((event) => (
+                                            <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                                                <div>
+                                                    <p className="font-bold text-lg text-accent">{event.title}</p>
+                                                    <p className="text-sm text-muted-foreground">{new Date(event.date).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })} - {event.location}</p>
+                                                </div>
+                                                <Button variant="outline"><Calendar className="mr-2" /> Adicionar</Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                                        <p>De momento, não existem eventos agendados.</p>
+                                    </div>
+                                )}
                              </CardContent>
                         </Card>
                     </div>
@@ -159,12 +179,16 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                 <CardHeader><CardTitle>Próximos Eventos</CardTitle></CardHeader>
                 <CardContent>
                     {confraria.events.length > 0 ? (
-                        <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                            <div>
-                            <p className="font-bold text-lg text-accent">{confraria.events[0].name}</p>
-                            <p className="text-sm text-muted-foreground">{confraria.events[0].date} - {confraria.events[0].location}</p>
-                            </div>
-                            <Button variant="outline"><Calendar className="mr-2" /> Adicionar</Button>
+                        <div className="space-y-4">
+                            {confraria.events.map((event) => (
+                                <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                                    <div>
+                                    <p className="font-bold text-lg text-accent">{event.title}</p>
+                                    <p className="text-sm text-muted-foreground">{new Date(event.date).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })} - {event.location}</p>
+                                    </div>
+                                    <Button variant="outline"><Calendar className="mr-2" /> Adicionar</Button>
+                                </div>
+                            ))}
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
