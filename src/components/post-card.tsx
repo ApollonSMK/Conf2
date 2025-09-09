@@ -165,6 +165,10 @@ export function PostCard({ post }: PostCardProps) {
                             </div>
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl p-2 bg-transparent border-none">
+                            <DialogHeader>
+                                <DialogTitle className="sr-only">{post.title}</DialogTitle>
+                                <DialogDescription className="sr-only">Imagem da publicação: {post.title}</DialogDescription>
+                            </DialogHeader>
                             <Image src={post.imageUrl} alt={post.title} width={1920} height={1080} className="w-full h-auto object-contain rounded-lg max-h-[90vh]" />
                         </DialogContent>
                     </Dialog>
