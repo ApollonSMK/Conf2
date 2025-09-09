@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils, Pencil } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { updateUser, uploadImage } from '@/app/actions';
 import { districts } from '@/lib/regions';
