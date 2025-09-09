@@ -7,10 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram, Newspaper, Users, Clock } from "lucide-react";
 import Image from "next/image";
 import { notFound } from 'next/navigation';
-import { getUserProfile } from "@/app/actions";
+import { getUserProfile, getPostsByConfraria } from "@/app/actions";
 import { ConfrariaProfileActions } from "@/components/confraria-profile-actions";
 import Link from "next/link";
 import { CreatePostWidget } from "@/components/create-post-widget";
+import { PostCard } from "@/components/post-card";
 
 // Mock data for tabs content, to be replaced later
 const mockDetails = {
@@ -31,7 +32,10 @@ const mockDetails = {
 
 export default async function ConfrariaProfilePage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-  const confrariaData = await getUserProfile(slug);
+  const [confrariaData, postsData] = await Promise.all([
+      getUserProfile(slug),
+      getPostsByConfraria(slug)
+  ]);
 
   if (!confrariaData || confrariaData.role !== 'Confraria') {
     notFound();
@@ -107,10 +111,16 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                              <CardHeader>
                                 <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><Newspaper /> Publicações</CardTitle>
                              </CardHeader>
-                             <CardContent>
-                                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-                                    <p>Esta confraria ainda não tem publicações.</p>
-                                </div>
+                             <CardContent className="space-y-6">
+                                {postsData.length > 0 ? (
+                                    postsData.map((post: any) => (
+                                        <PostCard key={post.id} post={post} />
+                                    ))
+                                ) : (
+                                    <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                                        <p>Esta confraria ainda não tem publicações.</p>
+                                    </div>
+                                )}
                              </CardContent>
                         </Card>
                          {/* Próximos Eventos */}

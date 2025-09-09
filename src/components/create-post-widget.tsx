@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -96,7 +97,7 @@ export function CreatePostWidget({ confrariaId }: CreatePostWidgetProps) {
                     Partilhe algo com a comunidade. O que está a pensar?
                 </DialogDescription>
             </DialogHeader>
-            <NewPostForm onPostCreated={() => setIsModalOpen(false)} />
+            <NewPostForm confrariaId={confrariaId} onPostCreated={() => setIsModalOpen(false)} />
         </DialogContent>
      </Dialog>
   );

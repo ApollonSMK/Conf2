@@ -3,7 +3,7 @@
 
 import { suggestTagsForPost } from '@/ai/flows/suggest-tags-for-post';
 import { db, auth } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, query, where, Timestamp, getDoc, arrayUnion, arrayRemove, increment } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, query, where, Timestamp, getDoc, arrayUnion, arrayRemove, increment, addDoc, orderBy } from 'firebase/firestore';
 import { r2Client } from '@/lib/r2';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
@@ -404,4 +404,35 @@ export async function getUserProfile(id: string) {
     }
 }
 
+export async function createPost(data: any) {
+  try {
+    const docRef = await addDoc(collection(db, "posts"), {
+      ...data,
+      createdAt: new Date(),
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("Error creating post: ", error);
+    return { success: false, error: "Falha ao criar a publicação." };
+  }
+}
+
+export async function getPostsByConfraria(confrariaId: string) {
+    try {
+        const postsRef = collection(db, 'posts');
+        const q = query(postsRef, where("confrariaId", "==", confrariaId), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        const postList = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            if (data.createdAt && data.createdAt.toDate) {
+                data.createdAt = data.createdAt.toDate().toISOString();
+            }
+            return { id: doc.id, ...data };
+        });
+        return postList;
+    } catch (error) {
+        console.error("Error fetching posts by confraria:", error);
+        return [];
+    }
+}
     
