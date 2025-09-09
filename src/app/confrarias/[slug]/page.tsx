@@ -25,6 +25,7 @@ type Event = {
   title: string;
   date: string;
   location: string;
+  imageUrl?: string;
 };
 
 
@@ -132,10 +133,15 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                                 {confraria.events.length > 0 ? (
                                     <div className="space-y-4">
                                         {confraria.events.map((event) => (
-                                            <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                                                <div>
-                                                    <p className="font-bold text-lg text-accent">{event.title}</p>
-                                                    <p className="text-sm text-muted-foreground">{new Date(event.date).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })} - {event.location}</p>
+                                            <div key={event.id} className="flex items-start md:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4">
+                                                <div className="flex items-start md:items-center gap-4 flex-1">
+                                                    {event.imageUrl && (
+                                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover w-20 h-20" />
+                                                    )}
+                                                    <div className="flex-1">
+                                                        <p className="font-bold text-lg text-accent">{event.title}</p>
+                                                        <p className="text-sm text-muted-foreground">{new Date(event.date).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })} - {event.location}</p>
+                                                    </div>
                                                 </div>
                                                 <Button variant="outline"><Calendar className="mr-2" /> Adicionar</Button>
                                             </div>
