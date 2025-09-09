@@ -27,7 +27,7 @@ import {
   MapPin,
   Newspaper,
 } from 'lucide-react';
-import { getConfrarias, getPostsByConfraria } from '../actions';
+import { getConfrarias, getPostsByConfraria, getEventsByConfraria } from '../actions';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -144,18 +144,21 @@ export default function ConfrariasPage() {
         setLoading(true);
         const confrariasData = await getConfrarias();
   
-        const confrariasWithPosts = await Promise.all(
+        const confrariasWithDetails = await Promise.all(
             confrariasData.map(async (c) => {
-                const posts = await getPostsByConfraria(c.id);
+                const [posts, events] = await Promise.all([
+                    getPostsByConfraria(c.id),
+                    getEventsByConfraria(c.id)
+                ]);
                 return {
                     ...c,
-                    events: 0,
-                    recipes: 0,
+                    events: events.length,
+                    recipes: 0, // Still placeholder
                     posts: posts.length,
                 }
             })
         ) as Confraria[];
-        setConfrarias(confrariasWithPosts);
+        setConfrarias(confrariasWithDetails);
         setLoading(false);
     }
     fetchConfrarias();
