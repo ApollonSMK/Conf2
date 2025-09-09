@@ -420,19 +420,32 @@ export async function createPost(data: any) {
 export async function getPostsByConfraria(confrariaId: string) {
     try {
         const postsRef = collection(db, 'posts');
-        const q = query(postsRef, where("confrariaId", "==", confrariaId), orderBy("createdAt", "desc"));
+        const q = query(postsRef, where("confrariaId", "==", confrariaId));
         const querySnapshot = await getDocs(q);
-        const postList = querySnapshot.docs.map(doc => {
+        let postList = querySnapshot.docs.map(doc => {
             const data = doc.data();
-            if (data.createdAt && data.createdAt.toDate) {
-                data.createdAt = data.createdAt.toDate().toISOString();
-            }
-            return { id: doc.id, ...data };
+            return { 
+                id: doc.id, 
+                ...data,
+                // Ensure createdAt is a Date object for sorting
+                createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt)
+            };
         });
-        return postList;
+
+        // Sort in-memory after fetching
+        postList.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+        // Convert date to ISO string for serialization after sorting
+        return postList.map(post => ({
+            ...post,
+            createdAt: post.createdAt.toISOString()
+        }));
+
     } catch (error) {
         console.error("Error fetching posts by confraria:", error);
         return [];
     }
 }
+    
+
     
