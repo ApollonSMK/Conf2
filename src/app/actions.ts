@@ -406,17 +406,29 @@ export async function createPost(data: any) {
 export async function getPostsByConfraria(confrariaId: string) {
     try {
         const postsRef = collection(db, 'posts');
-        const q = query(postsRef, where("confrariaId", "==", confrariaId), orderBy("createdAt", "desc"));
+        // The query now only filters by confrariaId, avoiding the composite index error.
+        const q = query(postsRef, where("confrariaId", "==", confrariaId));
         const querySnapshot = await getDocs(q);
+        
         let postList = querySnapshot.docs.map(doc => {
             const data = doc.data();
+            const createdAtDate = data.createdAt instanceof Timestamp 
+                ? data.createdAt.toDate() 
+                : new Date(data.createdAt); // Fallback for different timestamp formats
+
             return { 
                 id: doc.id, 
                 ...data,
-                createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : new Date(data.createdAt).toISOString()
+                createdAt: createdAtDate.toISOString(),
+                createdAtDate: createdAtDate // Keep the date object for sorting
             };
         });
-        return postList;
+
+        // Sort the posts in descending order (newest first) in the application code.
+        postList.sort((a, b) => b.createdAtDate.getTime() - a.createdAtDate.getTime());
+
+        // Remove the temporary date object before returning
+        return postList.map(({ createdAtDate, ...rest }) => rest);
 
     } catch (error) {
         console.error("Error fetching posts by confraria:", error);
@@ -445,4 +457,6 @@ export async function deletePost(postId: string) {
     return { success: false, error: "Falha ao eliminar a publicação." };
   }
 }
+    
+
     
