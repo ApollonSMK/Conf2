@@ -458,5 +458,60 @@ export async function deletePost(postId: string) {
   }
 }
     
+// Event Actions
+export async function createEvent(data: any) {
+  try {
+    const docRef = await addDoc(collection(db, "events"), {
+      ...data,
+      createdAt: new Date(),
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("Error creating event: ", error);
+    return { success: false, error: "Falha ao criar o evento." };
+  }
+}
 
+export async function getEventsByConfraria(confrariaId: string) {
+  try {
+    const eventsRef = collection(db, 'events');
+    const q = query(eventsRef, where("confrariaId", "==", confrariaId), orderBy("date", "asc"));
+    const querySnapshot = await getDocs(q);
     
+    return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        // Firestore Timestamps need to be converted to be serializable
+        if (data.date && data.date instanceof Timestamp) {
+            data.date = data.date.toDate().toISOString();
+        }
+         if (data.createdAt && data.createdAt instanceof Timestamp) {
+            data.createdAt = data.createdAt.toDate().toISOString();
+        }
+        return { id: doc.id, ...data };
+    });
+  } catch (error) {
+    console.error("Error fetching events by confraria:", error);
+    return [];
+  }
+}
+
+export async function updateEvent(eventId: string, data: any) {
+  try {
+    const eventRef = doc(db, "events", eventId);
+    await updateDoc(eventRef, data);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating event: ", error);
+    return { success: false, error: "Falha ao atualizar o evento." };
+  }
+}
+
+export async function deleteEvent(eventId: string) {
+  try {
+    await deleteDoc(doc(db, "events", eventId));
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting event: ", error);
+    return { success: false, error: "Falha ao eliminar o evento." };
+  }
+}

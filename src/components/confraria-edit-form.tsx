@@ -8,15 +8,19 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils, Pencil, Globe, Facebook, Instagram, X, PlusCircle } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils, Pencil, Globe, Facebook, Instagram, X, PlusCircle, Trash2, Edit } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { updateUser, uploadImage } from '@/app/actions';
+import { updateUser, uploadImage, getEventsByConfraria, deleteEvent } from '@/app/actions';
 import { districts } from '@/lib/regions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { EventForm } from './event-form';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 type ConfrariaProfile = {
   id: string;
@@ -36,6 +40,14 @@ type ConfrariaProfile = {
   gallery?: { id: string; url: string; data_ai_hint: string }[];
 };
 
+type Event = {
+  id: string;
+  title: string;
+  date: string;
+  location: string;
+  imageUrl?: string;
+};
+
 type ConfrariaEditFormProps = {
   confraria: ConfrariaProfile;
 };
@@ -45,8 +57,28 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
   const [councils, setCouncils] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState<null | 'logo' | 'banner' | 'gallery'>(null);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+  const [isDeleting, startDeleteTransition] = useTransition();
+
   const { toast } = useToast();
   const router = useRouter();
+
+   const fetchEvents = async () => {
+    setLoadingEvents(true);
+    try {
+      const eventList = await getEventsByConfraria(confraria.id);
+      setEvents(eventList as Event[]);
+    } catch (error) {
+      toast({ title: 'Erro ao carregar eventos', variant: 'destructive'});
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
+
 
   useEffect(() => {
     if (profile.region) {
@@ -55,6 +87,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
     } else {
       setCouncils([]);
     }
+    fetchEvents();
   }, [profile.region]);
 
 
@@ -182,6 +215,20 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
     }));
   };
   
+   const handleDeleteEvent = () => {
+    if (!eventToDelete) return;
+    startDeleteTransition(async () => {
+      const result = await deleteEvent(eventToDelete.id);
+      if (result.success) {
+        toast({ title: 'Sucesso', description: 'Evento eliminado com sucesso.' });
+        setEventToDelete(null);
+        fetchEvents(); // Refresh list
+      } else {
+        toast({ title: 'Erro', description: result.error, variant: 'destructive' });
+      }
+    });
+  };
+
    const icons = {
     details: <Info />,
     images: <ImageIcon />,
@@ -192,6 +239,14 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
   };
 
   return (
+    <Dialog open={isEventModalOpen} onOpenChange={(open) => {
+      setIsEventModalOpen(open);
+      if (!open) {
+        setSelectedEvent(null);
+      }
+    }}>
+    <AlertDialog open={!!eventToDelete} onOpenChange={(isOpen) => !isOpen && setEventToDelete(null)}>
+
     <Tabs defaultValue="details" className="w-full">
       <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto">
         <TabsTrigger value="details">
@@ -206,7 +261,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
             {icons.gallery}
             <span className="ml-2 hidden sm:inline">Galeria</span>
         </TabsTrigger>
-        <TabsTrigger value="events" disabled>
+        <TabsTrigger value="events">
             {icons.events}
             <span className="ml-2 hidden sm:inline">Eventos</span>
         </TabsTrigger>
@@ -383,6 +438,54 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
           </CardContent>
         </Card>
       </TabsContent>
+
+      <TabsContent value="events" className="mt-6">
+        <Card>
+          <CardHeader className="flex flex-row justify-between items-center">
+            <div>
+                <CardTitle>Gestão de Eventos</CardTitle>
+                <CardDescription>Crie e gira os eventos da sua confraria.</CardDescription>
+            </div>
+            <DialogTrigger asChild>
+                <Button>
+                    <PlusCircle className="mr-2" />
+                    Novo Evento
+                </Button>
+            </DialogTrigger>
+          </CardHeader>
+          <CardContent>
+            {loadingEvents ? (
+                <p>A carregar eventos...</p>
+            ) : events.length === 0 ? (
+                 <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                    <p>Ainda não criou nenhum evento.</p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {events.map(event => (
+                        <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-4">
+                                {event.imageUrl && <Image src={event.imageUrl} alt={event.title} width={64} height={64} className="rounded-md object-cover h-16 w-16" />}
+                                <div>
+                                    <p className="font-bold text-lg text-foreground">{event.title}</p>
+                                    <p className="text-sm text-muted-foreground">{new Date(event.date).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })} - {event.location}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="icon" onClick={() => { setSelectedEvent(event); setIsEventModalOpen(true); }}>
+                                    <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => setEventToDelete(event)}>
+                                    <Trash2 className="text-destructive h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
       
        <div className="mt-8 flex justify-end">
           <Button onClick={handleSave} disabled={isSaving || !!isUploading}>
@@ -392,5 +495,40 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
         </div>
 
     </Tabs>
+    
+    {/* Delete Confirmation Dialog */}
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>Tem a certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+                Esta ação não pode ser desfeita. O evento <span className="font-bold">{eventToDelete?.title}</span> será eliminado permanentemente.
+            </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteEvent} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Sim, eliminar
+            </AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+    </AlertDialog>
+
+     {/* Event Form Dialog */}
+    <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{selectedEvent ? 'Editar Evento' : 'Criar Novo Evento'}</DialogTitle>
+          <DialogDescription>
+            {selectedEvent ? 'Atualize os detalhes do seu evento.' : 'Preencha os detalhes para criar um novo evento para a sua confraria.'}
+          </DialogDescription>
+        </DialogHeader>
+        <EventForm
+          confrariaId={confraria.id}
+          event={selectedEvent}
+          onEventCreated={() => { setIsEventModalOpen(false); fetchEvents(); }}
+          onEventUpdated={() => { setIsEventModalOpen(false); fetchEvents(); }}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }
