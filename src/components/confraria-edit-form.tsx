@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 import imageCompression from 'browser-image-compression';
+import { useRouter } from 'next/navigation';
 
 type ConfrariaProfile = {
   id: string;
@@ -44,6 +45,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState<null | 'logo' | 'banner'>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     if (profile.region) {
@@ -96,6 +98,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
 
       if (result.success) {
         toast({ title: 'Sucesso!', description: 'Perfil da confraria atualizado.' });
+        router.refresh();
       } else {
         throw new Error(result.error);
       }
