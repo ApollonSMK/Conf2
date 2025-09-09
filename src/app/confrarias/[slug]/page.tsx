@@ -97,9 +97,9 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
           <Tabs defaultValue="inicio" className="mt-8">
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
               <TabsTrigger value="inicio">Início</TabsTrigger>
+              <TabsTrigger value="gallery">Galeria</TabsTrigger>
               <TabsTrigger value="eventos">Eventos</TabsTrigger>
               <TabsTrigger value="receitas">Receitas</TabsTrigger>
-              <TabsTrigger value="gallery">Galeria</TabsTrigger>
             </TabsList>
             
             <TabsContent value="inicio" className="mt-6">
@@ -180,6 +180,29 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                 </div>
             </TabsContent>
 
+            <TabsContent value="gallery" className="mt-6">
+              <Card>
+                <CardHeader><CardTitle>Galeria</CardTitle></CardHeader>
+                <CardContent>
+                   {confraria.gallery.length > 0 ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {confraria.gallery.map((item: any) => (
+                                <div key={item.id} className="overflow-hidden rounded-lg group">
+                                <Image src={item.url} alt="Foto da galeria" width={400} height={300} className="rounded-lg object-cover aspect-square transition-transform duration-300 group-hover:scale-110" data-ai-hint={item.data_ai_hint || 'gallery image'} />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                         <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
+                            <Camera className="h-12 w-12 mb-4" />
+                            <p className="font-bold">Galeria Vazia</p>
+                            <p className="text-sm">Esta confraria ainda não adicionou fotos à sua galeria.</p>
+                        </div>
+                    )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="eventos" className="mt-6">
               <Card>
                 <CardHeader><CardTitle>Próximos Eventos</CardTitle></CardHeader>
@@ -225,29 +248,6 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                             <BookOpen className="h-12 w-12 mb-4" />
                             <p className="font-bold">Sem Receitas</p>
                             <p className="text-sm">Ainda não foram publicadas receitas.</p>
-                        </div>
-                    )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="gallery" className="mt-6">
-              <Card>
-                <CardHeader><CardTitle>Galeria</CardTitle></CardHeader>
-                <CardContent>
-                   {confraria.gallery.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {confraria.gallery.map((item: any) => (
-                                <div key={item.id} className="overflow-hidden rounded-lg group">
-                                <Image src={item.url} alt="Foto da galeria" width={400} height={300} className="rounded-lg object-cover aspect-square transition-transform duration-300 group-hover:scale-110" data-ai-hint={item.data_ai_hint || 'gallery image'} />
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                         <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
-                            <Camera className="h-12 w-12 mb-4" />
-                            <p className="font-bold">Galeria Vazia</p>
-                            <p className="text-sm">Esta confraria ainda não adicionou fotos à sua galeria.</p>
                         </div>
                     )}
                 </CardContent>
