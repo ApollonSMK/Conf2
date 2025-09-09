@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -8,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils, Pencil, Globe, Facebook, Instagram } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils, Pencil, Globe, Facebook, Instagram, X, PlusCircle } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { updateUser, uploadImage } from '@/app/actions';
 import { districts } from '@/lib/regions';
@@ -33,6 +32,7 @@ type ConfrariaProfile = {
   website?: string;
   facebook?: string;
   instagram?: string;
+  gallery?: { id: string; url: string; data_ai_hint: string }[];
 };
 
 type ConfrariaEditFormProps = {
@@ -43,7 +43,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
   const [profile, setProfile] = useState<ConfrariaProfile>(confraria);
   const [councils, setCouncils] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState<null | 'logo' | 'banner'>(null);
+  const [isUploading, setIsUploading] = useState<null | 'logo' | 'banner' | 'gallery'>(null);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -92,6 +92,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
         website: profile.website,
         facebook: profile.facebook,
         instagram: profile.instagram,
+        gallery: profile.gallery,
       };
       
       const result = await updateUser(profile.id, dataToUpdate as any);
@@ -110,36 +111,63 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
     }
   };
 
-  const handleImageUpload = async (file: File, type: 'logo' | 'banner') => {
+  const handleImageUpload = async (file: File, type: 'logo' | 'banner' | 'gallery') => {
     if (!profile) return;
 
     setIsUploading(type);
     try {
-      const compressedFile = await imageCompression(file, {
-        maxSizeMB: type === 'logo' ? 0.5 : 1.5,
-        maxWidthOrHeight: type === 'logo' ? 400 : 1920,
-        useWebWorker: true,
-      });
+        let options = {};
+        if (type === 'logo') {
+            options = { maxSizeMB: 0.5, maxWidthOrHeight: 400, useWebWorker: true };
+        } else if (type === 'banner') {
+            options = { maxSizeMB: 1.5, maxWidthOrHeight: 1920, useWebWorker: true };
+        } else {
+            options = { maxSizeMB: 1.5, maxWidthOrHeight: 1280, useWebWorker: true };
+        }
+
+      const compressedFile = await imageCompression(file, options);
 
       const formData = new FormData();
       formData.append('file', compressedFile);
       const uploadResult = await uploadImage(formData);
 
       if (uploadResult.success && uploadResult.url) {
-        const fieldToUpdate = type === 'logo' ? 'photoURL' : 'bannerURL';
-        // Immediately update state to show preview
-        setProfile(prevProfile => ({ ...prevProfile, [fieldToUpdate]: uploadResult.url }));
-        // No need for a separate save for images, it will be saved with the main form
-        toast({ title: 'Sucesso!', description: `${type === 'logo' ? 'Logótipo' : 'Banner'} carregado. Clique em "Guardar Alterações" para aplicar.` });
+        if(type === 'gallery') {
+            const newImage = { id: Date.now().toString(), url: uploadResult.url, data_ai_hint: 'food drink' };
+            setProfile(prev => ({
+                ...prev,
+                gallery: [...(prev.gallery || []), newImage]
+            }));
+        } else {
+            const fieldToUpdate = type === 'logo' ? 'photoURL' : 'bannerURL';
+            setProfile(prevProfile => ({ ...prevProfile, [fieldToUpdate]: uploadResult.url }));
+        }
+        
+        toast({ title: 'Sucesso!', description: `Imagem carregada. Clique em "Guardar Alterações" para aplicar.` });
       } else {
         throw new Error(uploadResult.error || 'Falha no upload da imagem.');
       }
     } catch (error) {
       console.error(`Error uploading ${type}:`, error);
-      toast({ title: 'Erro de Upload', description: `Não foi possível carregar o ${type === 'logo' ? 'logótipo' : 'banner'}.`, variant: 'destructive' });
+      toast({ title: 'Erro de Upload', description: `Não foi possível carregar a imagem.`, variant: 'destructive' });
     } finally {
       setIsUploading(null);
     }
+  };
+
+  const handleGalleryFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      for (const file of Array.from(e.target.files)) {
+        handleImageUpload(file, 'gallery');
+      }
+    }
+  };
+
+  const removeGalleryImage = (id: string) => {
+    setProfile(prev => ({
+      ...prev,
+      gallery: prev.gallery?.filter(img => img.id !== id),
+    }));
   };
   
    const icons = {
@@ -162,6 +190,10 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
             {icons.images}
             <span className="ml-2 hidden sm:inline">Imagens</span>
         </TabsTrigger>
+         <TabsTrigger value="gallery">
+            {icons.gallery}
+            <span className="ml-2 hidden sm:inline">Galeria</span>
+        </TabsTrigger>
         <TabsTrigger value="events" disabled>
             {icons.events}
             <span className="ml-2 hidden sm:inline">Eventos</span>
@@ -169,10 +201,6 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
         <TabsTrigger value="publications" disabled>
              {icons.publications}
             <span className="ml-2 hidden sm:inline">Publicações</span>
-        </TabsTrigger>
-        <TabsTrigger value="gallery" disabled>
-            {icons.gallery}
-            <span className="ml-2 hidden sm:inline">Galeria</span>
         </TabsTrigger>
         <TabsTrigger value="recipes" disabled>
              {icons.recipes}
@@ -296,6 +324,49 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
                     {isUploading === 'banner' ? 'A carregar...' : 'Alterar Banner'}
                   </Label>
                 </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="gallery" className="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Galeria de Imagens</CardTitle>
+            <CardDescription>Carregue as fotos que melhor representam a sua confraria. Estas imagens aparecerão na sua página pública.</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {(profile.gallery || []).map((image) => (
+                    <div key={image.id} className="relative group aspect-square">
+                        <Image
+                            src={image.url}
+                            alt="Foto da galeria"
+                            fill
+                            className="object-cover rounded-lg border"
+                        />
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeGalleryImage(image.id)}
+                        >
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
+                ))}
+                <Label htmlFor="gallery-upload" className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
+                    <div className="flex flex-col items-center justify-center">
+                        {isUploading === 'gallery' ? (
+                          <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+                        ) : (
+                          <PlusCircle className="w-8 h-8 text-muted-foreground" />
+                        )}
+                        <span className="text-sm text-muted-foreground mt-2 text-center">Adicionar</span>
+                    </div>
+                    <Input id="gallery-upload" type="file" className="hidden" multiple onChange={handleGalleryFileChange} accept="image/png, image/jpeg, image/gif" disabled={isUploading === 'gallery'}/>
+                </Label>
             </div>
           </CardContent>
         </Card>

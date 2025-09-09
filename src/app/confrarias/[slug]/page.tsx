@@ -22,12 +22,6 @@ const mockDetails = {
   recipes: [
     { id: 1, name: 'Robalo ao molho de Vinho do Porto', difficulty: 'Média', time: '45 min', image: 'https://picsum.photos/400/300?random=12', data_ai_hint: 'fish dish' },
   ],
-  gallery: [
-    { id: 1, url: 'https://picsum.photos/400/300?random=13', data_ai_hint: 'wine cellar' },
-    { id: 2, url: 'https://picsum.photos/400/300?random=14', data_ai_hint: 'wine tasting' },
-    { id: 3, url: 'https://picsum.photos/400/300?random=15', data_ai_hint: 'people cheering' },
-    { id: 4, url: 'https://picsum.photos/400/300?random=16', data_ai_hint: 'douro valley' },
-  ]
 };
 
 export default async function ConfrariaProfilePage({ params }: { params: { slug: string } }) {
@@ -57,6 +51,7 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       website: confrariaData.website,
       facebook: confrariaData.facebook,
       instagram: confrariaData.instagram,
+      gallery: confrariaData.gallery || [],
       ...mockDetails
   }
 
@@ -212,9 +207,9 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                 <CardContent>
                    {confraria.gallery.length > 0 ? (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {confraria.gallery.map(item => (
+                            {confraria.gallery.map((item: any) => (
                                 <div key={item.id} className="overflow-hidden rounded-lg group">
-                                <Image src={item.url} alt="Foto da galeria" width={400} height={300} className="rounded-lg object-cover aspect-square transition-transform duration-300 group-hover:scale-110" data-ai-hint={item.data_ai_hint} />
+                                <Image src={item.url} alt="Foto da galeria" width={400} height={300} className="rounded-lg object-cover aspect-square transition-transform duration-300 group-hover:scale-110" data-ai-hint={item.data_ai_hint || 'gallery image'} />
                                 </div>
                             ))}
                         </div>
