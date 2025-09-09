@@ -29,13 +29,12 @@ import imageCompression from 'browser-image-compression';
 
 
 const baseMenuItems = [
-    { href: '/painel', label: 'Início', icon: Home, adminOnly: false },
-    { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen, disabled: false, adminOnly: false },
-    { href: '/painel/definicoes', label: 'Definições', icon: Settings, disabled: false, adminOnly: false },
+    { href: '/painel', label: 'Início', icon: Home },
+    { href: '/painel/descobertas', label: 'Descobertas', icon: BookOpen },
+    { href: '/painel/definicoes', label: 'Definições', icon: Settings },
 ];
 
-const confrariaMenuItem = { href: '/painel/minha-confraria', label: 'Minha Confraria', icon: UtensilsCrossed, disabled: false, adminOnly: false };
-const adminMenuItem = { href: '/painel/admin', label: 'Admin', icon: Shield, disabled: false, adminOnly: true };
+const confrariaMenuItem = { href: '/painel/minha-confraria', label: 'Minha Confraria', icon: UtensilsCrossed };
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -87,9 +86,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         if (userRole === 'Confraria') {
             items.push(confrariaMenuItem);
         }
-        if (userRole === 'Admin') {
-            items.push(adminMenuItem);
-        }
+        // Admin link is removed, as requested. Admin must navigate directly.
         return items;
     }, [userRole]);
 
@@ -196,35 +193,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarMenu>
             {menuItems.map((item) => (
-                (item.href === '/painel' ? (
-                     <SidebarMenuItem key={item.href}>
-                        <SidebarMenuButton
-                            asChild
-                            isActive={pathname === item.href}
-                            disabled={item.disabled}
-                            tooltip={{children: item.label}}
-                        >
-                            <Link href={item.href}>
-                                <item.icon />
-                                <span>{item.label}</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ) : (
-                    <SidebarMenuItem key={item.href}>
-                        <SidebarMenuButton
-                            asChild
-                            isActive={pathname.startsWith(item.href)}
-                            disabled={item.disabled}
-                            tooltip={{children: item.label}}
-                        >
-                            <Link href={item.href}>
-                                <item.icon />
-                                <span>{item.label}</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ))
+                <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                        asChild
+                        isActive={pathname.startsWith(item.href) && item.href !== '/painel' || pathname === '/painel' && item.href === '/painel'}
+                        tooltip={{children: item.label}}
+                    >
+                        <Link href={item.href}>
+                            <item.icon />
+                            <span>{item.label}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
             ))}
           </SidebarMenu>
         </SidebarContent>

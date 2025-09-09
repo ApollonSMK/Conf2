@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -26,8 +25,18 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { addOrUpdateUser } from '@/app/actions';
+import { addOrUpdateUser, deleteUser } from '@/app/actions';
 import Link from 'next/link';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 
 type Submission = {
@@ -187,6 +196,9 @@ function PedidosDeAdesao() {
 function ConfrariasAtivas({ refreshTrigger, onRefreshed }: { refreshTrigger: number, onRefreshed: () => void }) {
     const [confrarias, setConfrarias] = useState<ConfrariaUser[]>([]);
     const [loading, setLoading] = useState(true);
+    const [userToDelete, setUserToDelete] = useState<ConfrariaUser | null>(null);
+    const [isDeleting, startDeleteTransition] = useTransition();
+    const { toast } = useToast();
 
     const fetchConfrarias = async () => {
         setLoading(true);
@@ -201,6 +213,20 @@ function ConfrariasAtivas({ refreshTrigger, onRefreshed }: { refreshTrigger: num
             setLoading(false);
         }
     };
+    
+    const handleDeleteUser = () => {
+        if (!userToDelete) return;
+        startDeleteTransition(async () => {
+            const result = await deleteUser(userToDelete.uid);
+            if (result.success) {
+                toast({ title: 'Sucesso', description: 'Confraria eliminada com sucesso.' });
+                setUserToDelete(null);
+                await fetchConfrarias(); // Refresh user list
+            } else {
+                toast({ title: 'Erro', description: result.error, variant: 'destructive' });
+            }
+        });
+    };
 
     useEffect(() => {
         fetchConfrarias();
@@ -210,6 +236,7 @@ function ConfrariasAtivas({ refreshTrigger, onRefreshed }: { refreshTrigger: num
     }, [refreshTrigger]);
 
     return (
+        <>
          <Card>
             <CardHeader>
                 <CardTitle>Confrarias Ativas</CardTitle>
@@ -248,12 +275,34 @@ function ConfrariasAtivas({ refreshTrigger, onRefreshed }: { refreshTrigger: num
                                     <Badge variant={c.status === 'Ativo' ? 'secondary' : 'destructive'}>{c.status}</Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Button asChild variant="ghost" size="icon">
-                                      <Link href={`/painel/admin/confrarias/editar/${c.uid}`}>
-                                        <Pencil className="h-4 w-4" />
-                                        <span className="sr-only">Editar</span>
-                                      </Link>
-                                    </Button>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon">
+                                                <MoreHorizontal className="h-4 w-4" />
+                                                <span className="sr-only">Abrir menu</span>
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuLabel>Ações de Admin</DropdownMenuLabel>
+                                             <DropdownMenuItem asChild>
+                                                <Link href={`/confrarias/${c.uid}`} target="_blank">
+                                                    <Eye className="mr-2 h-4 w-4" />
+                                                    Ver Perfil
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href={`/painel/admin/confrarias/editar/${c.uid}`}>
+                                                    <Pencil className="mr-2 h-4 w-4" />
+                                                    Editar
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator/>
+                                             <DropdownMenuItem onSelect={() => setUserToDelete(c)} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Eliminar
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -266,6 +315,27 @@ function ConfrariasAtivas({ refreshTrigger, onRefreshed }: { refreshTrigger: num
                 )}
             </CardContent>
         </Card>
+        
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!userToDelete} onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Tem a certeza absoluta?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Esta ação não pode ser desfeita. Isto irá eliminar permanentemente a
+                        confraria <span className="font-bold">{userToDelete?.name}</span> da base de dados.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteUser} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                         {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Sim, eliminar
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+        </>
     );
 }
 
@@ -397,5 +467,3 @@ export default function AdminConfrariasPage() {
         </div>
   );
 }
-
-    

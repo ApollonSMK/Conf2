@@ -80,10 +80,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:hidden">
-            <h1 className="text-lg font-medium text-foreground">Painel Admin</h1>
-            <SidebarTrigger />
-        </header>
+        {/* Remove the mobile header to make the edit page feel standalone */}
+        {pathname.includes('/painel/admin/confrarias/editar') ? null : (
+             <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:hidden">
+                <h1 className="text-lg font-medium text-foreground">Painel Admin</h1>
+                <SidebarTrigger />
+            </header>
+        )}
         {children}
       </SidebarInset>
     </SidebarProvider>
