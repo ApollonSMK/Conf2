@@ -85,7 +85,6 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                 </div>
                 <div className="mt-4 md:mt-0 flex items-center gap-2 flex-wrap shrink-0">
                   <ConfrariaProfileActions confrariaId={confraria.id} />
-                  {confraria.contact && <Button variant="secondary" asChild><a href={`mailto:${confraria.contact}`}><Mail className="mr-2" /> Contactar</a></Button>}
                   {confraria.website && <Button variant="ghost" size="icon" asChild><Link href={confraria.website} target="_blank"><Globe /></Link></Button>}
                   {confraria.facebook && <Button variant="ghost" size="icon" asChild><Link href={confraria.facebook} target="_blank"><Facebook /></Link></Button>}
                   {confraria.instagram && <Button variant="ghost" size="icon" asChild><Link href={confraria.instagram} target="_blank"><Instagram /></Link></Button>}
