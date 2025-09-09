@@ -25,7 +25,7 @@ import {
   MapPin,
   Newspaper,
 } from 'lucide-react';
-import { getConfrarias } from '../actions';
+import { getConfrarias, getPostsByConfraria } from '../actions';
 import { Badge } from '@/components/ui/badge';
 
 type Confraria = {
@@ -98,12 +98,19 @@ function ConfrariaCard({ confraria }: { confraria: Confraria }) {
 }
 
 export default async function ConfrariasPage() {
-  const confrarias = (await getConfrarias()).map(c => ({
-      ...c,
-      events: 0,
-      recipes: 0,
-      posts: 0, // Mock value for now
-  })) as Confraria[];
+  const confrariasData = await getConfrarias();
+  
+  const confrarias = await Promise.all(
+      confrariasData.map(async (c) => {
+          const posts = await getPostsByConfraria(c.id);
+          return {
+              ...c,
+              events: 0,
+              recipes: 0,
+              posts: posts.length,
+          }
+      })
+  ) as Confraria[];
 
   return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
