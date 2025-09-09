@@ -27,6 +27,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { addOrUpdateUser } from '@/app/actions';
+import Link from 'next/link';
 
 
 type Submission = {
@@ -247,9 +248,11 @@ function ConfrariasAtivas({ refreshTrigger, onRefreshed }: { refreshTrigger: num
                                     <Badge variant={c.status === 'Ativo' ? 'secondary' : 'destructive'}>{c.status}</Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" disabled>
+                                    <Button asChild variant="ghost" size="icon">
+                                      <Link href={`/painel/admin/confrarias/editar/${c.uid}`}>
                                         <Pencil className="h-4 w-4" />
                                         <span className="sr-only">Editar</span>
+                                      </Link>
                                     </Button>
                                 </TableCell>
                             </TableRow>
@@ -394,3 +397,5 @@ export default function AdminConfrariasPage() {
         </div>
   );
 }
+
+    
