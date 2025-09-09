@@ -245,7 +245,7 @@ export async function getDiscoveryById(id: string) {
                 if (userSnap.exists()) {
                     const userData = userSnap.data();
                     data.author = userData.name || data.author;
-                    data.authorAvatar = userData.photoURL || '';
+                    data.authorAvatar = userData.photoURL || null;
                 }
             }
 
@@ -367,5 +367,22 @@ export async function getConfrariasCount(): Promise<number> {
     } catch (error) {
         console.error("Error fetching confrarias count:", error);
         return 0;
+    }
+}
+
+
+export async function getConfrarias() {
+    try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where("role", "==", "Confraria"));
+        const querySnapshot = await getDocs(q);
+        const confrariasList = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        return confrariasList;
+    } catch (error) {
+        console.error("Error fetching confrarias:", error);
+        return [];
     }
 }

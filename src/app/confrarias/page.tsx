@@ -23,35 +23,37 @@ import {
   Filter,
   Search,
 } from 'lucide-react';
+import { getConfrarias } from '../actions';
 
-const confrarias = [
-  { id: 1, slug: 'confraria-do-queijo-serra-da-estrela', name: 'Confraria do Queijo Serra da Estrela', region: 'Beira Alta', events: 15, recipes: 45, logo: 'https://picsum.photos/100/100?random=1', data_ai_hint: 'cheese logo' },
-  { id: 2, slug: 'confraria-gastronomica-do-leitao-da-bairrada', name: 'Confraria Gastronómica do Leitão da Bairrada', region: 'Beira Litoral', events: 22, recipes: 12, logo: 'https://picsum.photos/100/100?random=2', data_ai_hint: 'pig logo' },
-  { id: 3, slug: 'confraria-do-vinho-do-porto', name: 'Confraria do Vinho do Porto', region: 'Douro Litoral', events: 45, recipes: 5, logo: 'https://picsum.photos/100/100?random=3', data_ai_hint: 'wine logo' },
-  { id: 4, slug: 'confraria-dos-sabores-de-tras-os-montes', name: 'Confraria dos Sabores de Trás-os-Montes', region: 'Trás-os-Montes', events: 8, recipes: 60, logo: 'https://picsum.photos/100/100?random=4', data_ai_hint: 'food logo' },
-  { id: 5, slug: 'confraria-do-marisco-de-olhao', name: 'Confraria do Marisco de Olhão', region: 'Algarve', events: 30, recipes: 35, logo: 'https://picsum.photos/100/100?random=5', data_ai_hint: 'seafood logo' },
-  { id: 6, slug: 'confraria-da-broa-de-avintes', name: 'Confraria da Broa de Avintes', region: 'Douro Litoral', events: 12, recipes: 18, logo: 'https://picsum.photos/100/100?random=6', data_ai_hint: 'bread logo' },
-];
+type Confraria = {
+  id: string;
+  name: string;
+  region: string;
+  photoURL?: string | null;
+  // These are mock for now
+  events: number;
+  recipes: number;
+};
 
-function ConfrariaCard({ confraria }: { confraria: (typeof confrarias)[0] }) {
+function ConfrariaCard({ confraria }: { confraria: Confraria }) {
   return (
     <Card className="hover:shadow-xl transition-shadow duration-300 flex flex-col bg-card">
       <CardHeader className="flex flex-row items-center gap-4 p-4">
         <Image
-          src={confraria.logo}
+          src={confraria.photoURL || 'https://picsum.photos/100/100'}
           alt={`Logótipo da ${confraria.name}`}
           width={80}
           height={80}
           className="rounded-full border-2 border-secondary"
-          data-ai-hint={confraria.data_ai_hint}
+          data-ai-hint={'logo'}
         />
         <div>
           <CardTitle className="font-headline text-lg leading-tight text-primary">
-            <Link href={`/confrarias/${confraria.slug}`} className="hover:underline">
+            <Link href={`/confrarias/${confraria.id}`} className="hover:underline">
               {confraria.name}
             </Link>
           </CardTitle>
-          <p className="text-sm text-muted-foreground">{confraria.region}</p>
+          <p className="text-sm text-muted-foreground">{confraria.region || 'Região não definida'}</p>
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-4">
@@ -72,14 +74,21 @@ function ConfrariaCard({ confraria }: { confraria: (typeof confrarias)[0] }) {
       </CardContent>
       <CardFooter className="p-4">
         <Button asChild className="w-full" variant="secondary">
-          <Link href={`/confrarias/${confraria.slug}`}>Ver Perfil</Link>
+          <Link href={`/confrarias/${confraria.id}`}>Ver Perfil</Link>
         </Button>
       </CardFooter>
     </Card>
   );
 }
 
-export default function ConfrariasPage() {
+export default async function ConfrariasPage() {
+  const confrarias = (await getConfrarias()).map(c => ({
+      ...c,
+      // Add mock data for fields that don't exist yet
+      events: Math.floor(Math.random() * 50),
+      recipes: Math.floor(Math.random() * 50)
+  })) as Confraria[];
+
   return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <section className="text-center mb-12">
