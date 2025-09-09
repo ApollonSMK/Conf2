@@ -1,9 +1,9 @@
 'use client';
 
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { Card, CardHeader, CardContent, CardTitle } from './ui/card';
+import { Card, CardHeader, CardContent, CardTitle, CardFooter } from './ui/card';
 import { Button } from './ui/button';
-import { MoreHorizontal, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Loader2, Heart, MessageCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import {
@@ -162,7 +162,7 @@ export function PostCard({ post }: PostCardProps) {
                             </div>
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl p-2 bg-transparent border-none">
-                            <DialogHeader>
+                             <DialogHeader>
                                 <DialogTitle className="sr-only">{post.title}</DialogTitle>
                                 <DialogDescription className="sr-only">Imagem da publicação: {post.title}</DialogDescription>
                             </DialogHeader>
@@ -171,6 +171,9 @@ export function PostCard({ post }: PostCardProps) {
                     </Dialog>
                 )}
             </CardContent>
+            <CardFooter className="pt-4 border-t border-border">
+                {/* Action buttons removed as requested, but footer is kept for structure */}
+            </CardFooter>
         </Card>
     );
 }
