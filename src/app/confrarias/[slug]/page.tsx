@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram, Newspaper, Users, Clock } from "lucide-react";
 import Image from "next/image";
 import { notFound } from 'next/navigation';
@@ -181,26 +182,50 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
             </TabsContent>
 
             <TabsContent value="gallery" className="mt-6">
-              <Card>
-                <CardHeader><CardTitle>Galeria</CardTitle></CardHeader>
-                <CardContent>
-                   {confraria.gallery.length > 0 ? (
+                <Card>
+                    <CardHeader><CardTitle>Galeria</CardTitle></CardHeader>
+                    <CardContent>
+                    {confraria.gallery.length > 0 ? (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {confraria.gallery.map((item: any) => (
-                                <div key={item.id} className="overflow-hidden rounded-lg group">
-                                <Image src={item.url} alt="Foto da galeria" width={400} height={300} className="rounded-lg object-cover aspect-square transition-transform duration-300 group-hover:scale-110" data-ai-hint={item.data_ai_hint || 'gallery image'} />
+                            {confraria.gallery.map((item: any, index: number) => (
+                            <Dialog key={item.id || index}>
+                                <DialogTrigger asChild>
+                                <div className="overflow-hidden rounded-lg group cursor-pointer">
+                                    <Image
+                                    src={item.url}
+                                    alt={`Foto da galeria ${index + 1}`}
+                                    width={400}
+                                    height={300}
+                                    className="rounded-lg object-cover aspect-square transition-transform duration-300 group-hover:scale-110"
+                                    data-ai-hint={item.data_ai_hint || 'gallery image'}
+                                    />
                                 </div>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-4xl p-2 bg-transparent border-none">
+                                <DialogHeader>
+                                    <DialogTitle className="sr-only">Visualização de Imagem</DialogTitle>
+                                    <DialogDescription className="sr-only">Imagem da galeria ampliada</DialogDescription>
+                                </DialogHeader>
+                                <Image
+                                    src={item.url}
+                                    alt={`Foto da galeria ${index + 1}`}
+                                    width={1920}
+                                    height={1080}
+                                    className="w-full h-auto object-contain rounded-lg max-h-[90vh]"
+                                />
+                                </DialogContent>
+                            </Dialog>
                             ))}
                         </div>
-                    ) : (
-                         <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
+                        ) : (
+                        <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
                             <Camera className="h-12 w-12 mb-4" />
                             <p className="font-bold">Galeria Vazia</p>
                             <p className="text-sm">Esta confraria ainda não adicionou fotos à sua galeria.</p>
                         </div>
-                    )}
-                </CardContent>
-              </Card>
+                        )}
+                    </CardContent>
+                </Card>
             </TabsContent>
 
             <TabsContent value="eventos" className="mt-6">
