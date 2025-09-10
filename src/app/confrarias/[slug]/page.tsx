@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram, Newspaper, Users, Clock } from "lucide-react";
+import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram, Newspaper, Users, Clock, Phone } from "lucide-react";
 import Image from "next/image";
 import { notFound } from 'next/navigation';
 import { getUserProfile, getPostsByConfraria, getEventsByConfraria } from "@/app/actions";
@@ -58,6 +58,8 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       website: confrariaData.website,
       facebook: confrariaData.facebook,
       instagram: confrariaData.instagram,
+      contactEmail: confrariaData.contactEmail,
+      contactPhone: confrariaData.contactPhone,
       gallery: confrariaData.gallery || [],
       events: eventsData as Event[],
       ...mockDetails
@@ -88,6 +90,8 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                 </div>
                 <div className="mt-4 md:mt-0 flex items-center gap-2 flex-wrap shrink-0">
                   <ConfrariaProfileActions confrariaId={confraria.id} />
+                  {confraria.contactPhone && <Button variant="ghost" size="icon" asChild><Link href={`tel:${confraria.contactPhone}`} target="_blank"><Phone /></Link></Button>}
+                  {confraria.contactEmail && <Button variant="ghost" size="icon" asChild><Link href={`mailto:${confraria.contactEmail}`} target="_blank"><Mail /></Link></Button>}
                   {confraria.website && <Button variant="ghost" size="icon" asChild><Link href={confraria.website} target="_blank"><Globe /></Link></Button>}
                   {confraria.facebook && <Button variant="ghost" size="icon" asChild><Link href={confraria.facebook} target="_blank"><Facebook /></Link></Button>}
                   {confraria.instagram && <Button variant="ghost" size="icon" asChild><Link href={confraria.instagram} target="_blank"><Instagram /></Link></Button>}
@@ -284,3 +288,5 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       </div>
   );
 }
+
+    

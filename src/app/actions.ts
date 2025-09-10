@@ -102,7 +102,7 @@ export async function addOrUpdateUser(uid: string, data: { name: string, email: 
     }
 }
 
-export async function updateUser(uid: string, data: Partial<{ name: string; email: string; role: string; status: string; photoURL: string; description: string; region: string; foundationYear: string | number; bannerURL: string; }>) {
+export async function updateUser(uid: string, data: Partial<{ name: string; email: string; role: string; status: string; photoURL: string; description: string; region: string; council: string; foundationYear: string | number; bannerURL: string; lema: string; fundadores: string; website: string; facebook: string; instagram: string; contactEmail: string; contactPhone: string; gallery: any[]; }>) {
     try {
         const userRef = doc(db, "users", uid);
         await updateDoc(userRef, data);
@@ -540,4 +540,6 @@ export async function deleteEvent(eventId: string) {
     return { success: false, error: "Falha ao eliminar o evento." };
   }
 }
+    
+
     

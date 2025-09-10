@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils, Pencil, Globe, Facebook, Instagram, X, PlusCircle, Trash2, Edit } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Camera, BookOpen, Calendar, Info, Newspaper, Utensils, Pencil, Globe, Facebook, Instagram, X, PlusCircle, Trash2, Edit, Mail, Phone } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { updateUser, uploadImage, getEventsByConfraria, deleteEvent } from '@/app/actions';
 import { districts } from '@/lib/regions';
@@ -25,7 +25,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 type ConfrariaProfile = {
   id: string;
   name: string;
-  email: string;
+  email: string; // Login email
   photoURL?: string;
   description?: string;
   region?: string; // Corresponds to district
@@ -37,6 +37,8 @@ type ConfrariaProfile = {
   website?: string;
   facebook?: string;
   instagram?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   gallery?: { id: string; url: string; data_ai_hint: string }[];
 };
 
@@ -126,6 +128,8 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
         website: profile.website,
         facebook: profile.facebook,
         instagram: profile.instagram,
+        contactEmail: profile.contactEmail,
+        contactPhone: profile.contactPhone,
         gallery: profile.gallery,
       };
       
@@ -278,12 +282,12 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="name">Lema da Confraria</Label>
-                <Input id="lema" name="lema" value={profile.lema || ''} onChange={handleInputChange} placeholder="O lema que vos representa" />
-            </div>
-            <div className="space-y-2">
                 <Label htmlFor="name">Nome da Confraria</Label>
                 <Input id="name" name="name" value={profile.name} onChange={handleInputChange} />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="lema">Lema da Confraria</Label>
+                <Input id="lema" name="lema" value={profile.lema || ''} onChange={handleInputChange} placeholder="O lema que vos representa" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">A Nossa História</Label>
@@ -325,6 +329,16 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
                         </SelectContent>
                     </Select>
                 </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="space-y-2">
+                  <Label htmlFor="contactPhone">Telefone para Contacto Público</Label>
+                  <Input id="contactPhone" name="contactPhone" type="tel" value={profile.contactPhone || ''} onChange={handleInputChange} placeholder="+351..." />
+              </div>
+               <div className="space-y-2">
+                  <Label htmlFor="contactEmail">Email para Contacto Público</Label>
+                  <Input id="contactEmail" name="contactEmail" type="email" value={profile.contactEmail || ''} onChange={handleInputChange} placeholder="geral@confraria.pt" />
+              </div>
             </div>
              <div className="space-y-2">
                 <Label htmlFor="website">Website</Label>
@@ -543,3 +557,5 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
     </Dialog>
   );
 }
+
+    
