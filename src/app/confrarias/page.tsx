@@ -1,6 +1,4 @@
 
-'use client';
-
 import {
   Card,
   CardContent,
@@ -29,8 +27,6 @@ import {
 } from 'lucide-react';
 import { getConfrarias, getPostsByConfraria, getEventsByConfraria } from '../actions';
 import { Badge } from '@/components/ui/badge';
-import { useEffect, useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
 
 type Confraria = {
   id: string;
@@ -100,69 +96,40 @@ function ConfrariaCard({ confraria }: { confraria: Confraria }) {
   );
 }
 
-function CardSkeleton() {
-    return (
-        <Card className="flex flex-col bg-card">
-            <CardHeader className="p-4">
-                <div className="flex items-start gap-4">
-                    <Skeleton className="h-20 w-20 rounded-lg" />
-                    <div className="flex-grow space-y-2">
-                        <Skeleton className="h-5 w-3/4" />
-                        <Skeleton className="h-5 w-1/2" />
-                    </div>
-                </div>
-            </CardHeader>
-             <CardContent className="flex-grow p-4 pt-0">
-                 <div className="flex justify-around text-muted-foreground text-sm border-t pt-4">
-                    <div className="text-center space-y-1">
-                        <Skeleton className="h-5 w-5 mx-auto" />
-                        <Skeleton className="h-4 w-20" />
-                    </div>
-                    <div className="text-center space-y-1">
-                        <Skeleton className="h-5 w-5 mx-auto" />
-                        <Skeleton className="h-4 w-16" />
-                    </div>
-                    <div className="text-center space-y-1">
-                        <Skeleton className="h-5 w-5 mx-auto" />
-                        <Skeleton className="h-4 w-16" />
-                    </div>
-                 </div>
-             </CardContent>
-             <CardFooter className="p-4">
-                <Skeleton className="h-10 w-full" />
-             </CardFooter>
-        </Card>
-    )
-}
+export default async function ConfrariasPage() {
+  const confrariasData = await getConfrarias();
 
-export default function ConfrariasPage() {
-  const [confrarias, setConfrarias] = useState<Confraria[]>([]);
-  const [loading, setLoading] = useState(true);
+  // This is a more efficient way to get counts. Instead of N+1 queries, we fetch all
+  // posts/events and process them in memory. This could be further optimized with
+  // aggregated counts in Firestore if performance is still an issue with huge datasets.
+  const allPostsPromises = confrariasData.map(c => getPostsByConfraria(c.id));
+  const allEventsPromises = confrariasData.map(c => getEventsByConfraria(c.id));
 
-  useEffect(() => {
-    const fetchConfrarias = async () => {
-        setLoading(true);
-        const confrariasData = await getConfrarias();
+  const [allPosts, allEvents] = await Promise.all([
+    Promise.all(allPostsPromises),
+    Promise.all(allEventsPromises)
+  ]);
+
+  const postCounts = new Map<string, number>();
+  allPosts.flat().forEach(post => {
+    postCounts.set(post.confrariaId, (postCounts.get(post.confrariaId) || 0) + 1);
+  });
   
-        const confrariasWithDetails = await Promise.all(
-            confrariasData.map(async (c) => {
-                const [posts, events] = await Promise.all([
-                    getPostsByConfraria(c.id),
-                    getEventsByConfraria(c.id)
-                ]);
-                return {
-                    ...c,
-                    events: events.length,
-                    recipes: 0, // Still placeholder
-                    posts: posts.length,
-                }
-            })
-        ) as Confraria[];
-        setConfrarias(confrariasWithDetails);
-        setLoading(false);
-    }
-    fetchConfrarias();
-  }, []);
+  const eventCounts = new Map<string, number>();
+  allEvents.flat().forEach(event => {
+    eventCounts.set(event.confrariaId, (eventCounts.get(event.confrariaId) || 0) + 1);
+  });
+
+  const confrarias: Confraria[] = confrariasData.map(c => ({
+    id: c.id,
+    name: c.name,
+    region: c.region,
+    photoURL: c.photoURL,
+    posts: postCounts.get(c.id) || 0,
+    events: eventCounts.get(c.id) || 0,
+    recipes: 0, // Placeholder
+  }));
+
 
   return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -224,13 +191,9 @@ export default function ConfrariasPage() {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading ? (
-             Array.from({ length: 3 }).map((_, index) => <CardSkeleton key={index} />)
-          ) : (
-             confrarias.map((confraria) => (
-                <ConfrariaCard key={confraria.id} confraria={confraria} />
-            ))
-          )}
+          {confrarias.map((confraria) => (
+             <ConfrariaCard key={confraria.id} confraria={confraria} />
+          ))}
         </div>
       </div>
   );
