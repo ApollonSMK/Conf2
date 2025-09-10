@@ -233,7 +233,6 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
     details: <Info />,
     images: <ImageIcon />,
     events: <Calendar />,
-    publications: <Newspaper />,
     gallery: <Camera />,
     recipes: <Utensils />,
   };
@@ -248,7 +247,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
     <AlertDialog open={!!eventToDelete} onOpenChange={(isOpen) => !isOpen && setEventToDelete(null)}>
 
     <Tabs defaultValue="details" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto">
+      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
         <TabsTrigger value="details">
             {icons.details}
             <span className="ml-2 hidden sm:inline">Detalhes</span>
@@ -265,11 +264,7 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
             {icons.events}
             <span className="ml-2 hidden sm:inline">Eventos</span>
         </TabsTrigger>
-        <TabsTrigger value="publications" disabled>
-             {icons.publications}
-            <span className="ml-2 hidden sm:inline">Publicações</span>
-        </TabsTrigger>
-        <TabsTrigger value="recipes" disabled>
+        <TabsTrigger value="recipes">
              {icons.recipes}
             <span className="ml-2 hidden sm:inline">Receitas</span>
         </TabsTrigger>
@@ -484,6 +479,22 @@ export function ConfrariaEditForm({ confraria }: ConfrariaEditFormProps) {
                 </div>
             )}
           </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="recipes" className="mt-6">
+        <Card>
+            <CardHeader>
+                <CardTitle>Receitas da Confraria</CardTitle>
+                <CardDescription>Partilhe as receitas que definem a vossa tradição.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
+                    <Utensils className="h-12 w-12 mb-4" />
+                    <p className="font-bold">Em Breve</p>
+                    <p className="text-sm">A funcionalidade de gestão de receitas está a ser preparada.</p>
+                </div>
+            </CardContent>
         </Card>
       </TabsContent>
       
