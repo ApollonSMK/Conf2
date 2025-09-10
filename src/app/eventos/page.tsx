@@ -23,6 +23,8 @@ type Event = {
   confrariaLogo?: string;
 };
 
+export const dynamic = 'force-dynamic';
+
 function EventCard({ event }: { event: Event }) {
   return (
     <Card className="flex flex-col overflow-hidden transition-shadow hover:shadow-lg">

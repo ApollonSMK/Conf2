@@ -38,6 +38,8 @@ type Confraria = {
   posts: number;
 };
 
+export const dynamic = 'force-dynamic';
+
 function ConfrariaCard({ confraria }: { confraria: Confraria }) {
   return (
     <Card className="hover:shadow-xl transition-shadow duration-300 flex flex-col bg-card">
