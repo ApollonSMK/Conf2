@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreHorizontal, BookOpen, Eye, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
+import { MoreHorizontal, BookOpen, Eye, CheckCircle, XCircle, Clock, Loader2, Trash2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, DocumentData, Timestamp } from 'firebase/firestore';
 import {
@@ -18,8 +18,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
 import { useToast } from '@/hooks/use-toast';
-import { updateDiscoveryStatus } from '@/app/actions';
+import { updateDiscoveryStatus, deleteDiscovery } from '@/app/actions';
 import Link from 'next/link';
 
 type Discovery = {
@@ -54,6 +65,8 @@ export default function AdminDiscoveriesPage() {
     const [discoveries, setDiscoveries] = useState<Discovery[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
+    const [isDeleting, startDeleteTransition] = useTransition();
+    const [discoveryToDelete, setDiscoveryToDelete] = useState<Discovery | null>(null);
     const { toast } = useToast();
     
     const fetchDiscoveries = async () => {
@@ -84,6 +97,20 @@ export default function AdminDiscoveriesPage() {
         });
     }
 
+    const handleDeleteDiscovery = () => {
+        if (!discoveryToDelete) return;
+        startDeleteTransition(async () => {
+            const result = await deleteDiscovery(discoveryToDelete.id);
+             if (result.success) {
+                toast({ title: 'Sucesso', description: 'Descoberta eliminada com sucesso.' });
+                setDiscoveryToDelete(null);
+                await fetchDiscoveries(); // Refresh discovery list
+            } else {
+                toast({ title: 'Erro', description: result.error, variant: 'destructive' });
+            }
+        });
+    };
+
     const formatDate = (date: Date) => {
         return new Intl.DateTimeFormat('pt-PT', {
             day: '2-digit',
@@ -95,6 +122,7 @@ export default function AdminDiscoveriesPage() {
     }
 
   return (
+    <>
         <div className="p-4 sm:p-6 lg:p-8 w-full">
             <header className="mb-8">
             <div className="flex items-center gap-3">
@@ -173,9 +201,14 @@ export default function AdminDiscoveriesPage() {
                                                     <Clock className="mr-2 h-4 w-4" />
                                                     Marcar como Pendente
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onSelect={() => handleUpdateDiscoveryStatus(d.id, 'Rejeitado')} disabled={d.status === 'Rejeitado'} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                                <DropdownMenuItem onSelect={() => handleUpdateDiscoveryStatus(d.id, 'Rejeitado')} disabled={d.status === 'Rejeitado'} className="text-amber-600 focus:text-amber-600 focus:bg-amber-50">
                                                     <XCircle className="mr-2 h-4 w-4" />
                                                     Rejeitar
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem onSelect={() => setDiscoveryToDelete(d)} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    Eliminar
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -192,5 +225,24 @@ export default function AdminDiscoveriesPage() {
                 </CardContent>
             </Card>
         </div>
+
+        <AlertDialog open={!!discoveryToDelete} onOpenChange={(isOpen) => !isOpen && setDiscoveryToDelete(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Tem a certeza absoluta?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Esta ação não pode ser desfeita. A descoberta <span className="font-bold">{discoveryToDelete?.title}</span> será eliminada permanentemente.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteDiscovery} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                         {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Sim, eliminar
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </>
   );
 }

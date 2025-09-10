@@ -156,6 +156,18 @@ export async function updateDiscovery(id: string, data: any) {
   }
 }
 
+export async function deleteDiscovery(discoveryId: string) {
+    try {
+        const discoveryRef = doc(db, "discoveries", discoveryId);
+        await deleteDoc(discoveryRef);
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting discovery: ", error);
+        return { success: false, error: "Failed to delete discovery." };
+    }
+}
+
+
 export async function getUsers() {
     try {
         const usersCol = collection(db, 'users');
@@ -528,5 +540,4 @@ export async function deleteEvent(eventId: string) {
     return { success: false, error: "Falha ao eliminar o evento." };
   }
 }
-
     
