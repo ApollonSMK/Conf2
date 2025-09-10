@@ -13,6 +13,7 @@ import { ConfrariaProfileActions } from "@/components/confraria-profile-actions"
 import Link from "next/link";
 import { CreatePostWidget } from "@/components/create-post-widget";
 import { PostCard } from "@/components/post-card";
+import { ReadMore } from "@/components/read-more";
 
 // Mock data for tabs content, to be replaced later
 const mockDetails = {
@@ -167,8 +168,8 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
                                 <CardTitle className="flex items-center gap-2 font-headline text-xl text-primary"><Clock /> A Nossa História</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3 text-sm">
-                                <p className="text-foreground/90">{confraria.about}</p>
-                                {confraria.foundationYear && <p><span className="font-bold text-foreground">Ano de Fundação:</span> {confraria.foundationYear}</p>}
+                                <ReadMore text={confraria.about} />
+                                {confraria.foundationYear && <p className="pt-2"><span className="font-bold text-foreground">Ano de Fundação:</span> {confraria.foundationYear}</p>}
                             </CardContent>
                         </Card>
                         {confraria.fundadores && (
@@ -288,5 +289,3 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       </div>
   );
 }
-
-    
