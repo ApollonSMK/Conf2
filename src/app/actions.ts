@@ -415,38 +415,36 @@ export async function createPost(data: any) {
   }
 }
 
-export async function getPostsByConfraria(confrariaId: string) {
+export async function getPostsByConfraria(confrariaId?: string) {
     try {
         const postsRef = collection(db, 'posts');
-        // The query now only filters by confrariaId, avoiding the composite index error.
-        const q = query(postsRef, where("confrariaId", "==", confrariaId));
+        const q = confrariaId 
+            ? query(postsRef, where("confrariaId", "==", confrariaId), orderBy("createdAt", "desc"))
+            : query(postsRef, orderBy("createdAt", "desc"));
+            
         const querySnapshot = await getDocs(q);
         
         let postList = querySnapshot.docs.map(doc => {
             const data = doc.data();
             const createdAtDate = data.createdAt instanceof Timestamp 
                 ? data.createdAt.toDate() 
-                : new Date(data.createdAt); // Fallback for different timestamp formats
+                : new Date(data.createdAt); 
 
             return { 
                 id: doc.id, 
                 ...data,
                 createdAt: createdAtDate.toISOString(),
-                createdAtDate: createdAtDate // Keep the date object for sorting
             };
         });
 
-        // Sort the posts in descending order (newest first) in the application code.
-        postList.sort((a, b) => b.createdAtDate.getTime() - a.createdAtDate.getTime());
-
-        // Remove the temporary date object before returning
-        return postList.map(({ createdAtDate, ...rest }) => rest);
+        return postList;
 
     } catch (error) {
-        console.error("Error fetching posts by confraria:", error);
+        console.error("Error fetching posts:", error);
         return [];
     }
 }
+
 
 export async function updatePost(postId: string, data: any) {
   try {
@@ -484,62 +482,56 @@ export async function createEvent(data: any) {
   }
 }
 
-export async function getEventsByConfraria(confrariaId: string) {
+export async function getEventsByConfraria(confrariaId?: string) {
   try {
-    const eventsRef = collection(db, 'events');
-    const q = query(eventsRef, where("confrariaId", "==", confrariaId));
-    const querySnapshot = await getDocs(q);
-    
-    let eventList = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return { 
-            id: doc.id, 
-            ...data,
-            // Keep the original timestamp for sorting
-            dateObj: data.date instanceof Timestamp ? data.date.toDate() : new Date(data.date)
-        };
-    });
-    
-    // Sort in application code
-    eventList.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+      const eventsRef = collection(db, 'events');
+      const q = confrariaId 
+          ? query(eventsRef, where("confrariaId", "==", confrariaId), orderBy("date", "asc"))
+          : query(eventsRef, orderBy("date", "asc"));
+          
+      const querySnapshot = await getDocs(q);
+      
+      const eventList = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          const eventDate = data.date instanceof Timestamp 
+              ? data.date.toDate() 
+              : new Date(data.date); 
 
-    // Convert timestamps to string for serialization after sorting
-    return eventList.map(({ dateObj, ...rest }) => {
-        if (rest.date && rest.date instanceof Timestamp) {
-            rest.date = rest.date.toDate().toISOString();
-        }
-        if (rest.createdAt && rest.createdAt instanceof Timestamp) {
-            rest.createdAt = rest.createdAt.toDate().toISOString();
-        }
-        return rest;
-    });
+          return { 
+              id: doc.id, 
+              ...data,
+              date: eventDate.toISOString(),
+          };
+      });
+
+      return eventList;
 
   } catch (error) {
-    console.error("Error fetching events by confraria:", error);
-    return [];
+      console.error("Error fetching events:", error);
+      return [];
   }
 }
 
 export async function updateEvent(eventId: string, data: any) {
-  try {
-    const eventRef = doc(db, "events", eventId);
-    await updateDoc(eventRef, data);
-    return { success: true };
-  } catch (error) {
-    console.error("Error updating event: ", error);
-    return { success: false, error: "Falha ao atualizar o evento." };
-  }
+    try {
+      const eventRef = doc(db, "events", eventId);
+      await updateDoc(eventRef, data);
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating event: ", error);
+      return { success: false, error: "Falha ao atualizar o evento." };
+    }
 }
 
 export async function deleteEvent(eventId: string) {
-  try {
-    await deleteDoc(doc(db, "events", eventId));
-    return { success: true };
-  } catch (error) {
-    console.error("Error deleting event: ", error);
-    return { success: false, error: "Falha ao eliminar o evento." };
-  }
+    try {
+      const eventRef = doc(db, "events", eventId);
+      await deleteDoc(eventRef);
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting event: ", error);
+      return { success: false, error: "Falha ao eliminar o evento." };
+    }
 }
-    
 
     
