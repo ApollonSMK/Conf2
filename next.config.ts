@@ -3,6 +3,9 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  experimental: {
+    allowedDevOrigins: ["https://9000-firebase-studio-1756293699270.cluster-64pjnskmlbaxowh5lzq6i7v4ra.cloudworkstations.dev"],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -26,6 +29,18 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'pub-a65329865af84267abf2cf828c43d13e.r2.dev',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.confpt.us',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bucket.xyziow3.space',
         port: '',
         pathname: '/**',
       },
