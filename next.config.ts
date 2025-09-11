@@ -25,12 +25,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**.r2.dev',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'bucket.xyziow3.space',
         port: '',
         pathname: '/**',
