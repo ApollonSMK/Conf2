@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'bucket.xyziow3.space',
+        hostname: 'confpt.us',
         port: '',
         pathname: '/**',
       }
