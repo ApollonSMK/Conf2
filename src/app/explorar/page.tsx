@@ -93,11 +93,14 @@ export default function ExplorarPage() {
                 ))
               ) : (
                 descobertas.flatMap((descoberta, index) => {
+                  const imageUrl = (descoberta.images && descoberta.images.length > 0 && descoberta.images[0].url) || 'https://picsum.photos/400/300';
+                  const imageToShow = imageUrl.startsWith('https://') ? imageUrl : 'https://picsum.photos/400/300';
+
                   const items = [(
                     <Card key={descoberta.id} className="flex flex-col overflow-hidden group">
                       <Link href={`/explorar/${descoberta.id}`} className="flex flex-col flex-grow">
                         <div className="relative h-56">
-                          <Image src={(descoberta.images && descoberta.images.length > 0 && descoberta.images[0].url) || 'https://picsum.photos/400/300'} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={(descoberta.images && descoberta.images.length > 0 && descoberta.images[0].data_ai_hint) || 'food place'} />
+                          <Image src={imageToShow} alt={descoberta.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={(descoberta.images && descoberta.images.length > 0 && descoberta.images[0].data_ai_hint) || 'food place'} />
                         </div>
                         <CardHeader>
                           <CardTitle className="font-headline text-xl text-primary">{descoberta.title}</CardTitle>

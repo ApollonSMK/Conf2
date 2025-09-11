@@ -42,12 +42,16 @@ type Confraria = {
 export const dynamic = 'force-dynamic';
 
 function ConfrariaCard({ confraria }: { confraria: Confraria }) {
+  const imageToShow = (confraria.photoURL && confraria.photoURL.startsWith('https://'))
+    ? confraria.photoURL
+    : 'https://picsum.photos/100/100';
+
   return (
     <Card className="hover:shadow-xl transition-shadow duration-300 flex flex-col bg-card">
       <CardHeader className="p-4">
         <div className="flex items-start gap-4">
             <Image
-            src={confraria.photoURL || 'https://picsum.photos/100/100'}
+            src={imageToShow}
             alt={`Logótipo da ${confraria.name}`}
             width={80}
             height={80}
@@ -105,22 +109,23 @@ export default async function ConfrariasPage() {
   // This is a more efficient way to get counts. Instead of N+1 queries, we fetch all
   // posts/events and process them in memory. This could be further optimized with
   // aggregated counts in Firestore if performance is still an issue with huge datasets.
-  const allPostsPromises = confrariasData.map(c => getPostsByConfraria(c.id));
-  const allEventsPromises = confrariasData.map(c => getEventsByConfraria(c.id));
-
   const [allPosts, allEvents] = await Promise.all([
-    Promise.all(allPostsPromises),
-    Promise.all(allEventsPromises)
+    getPostsByConfraria(),
+    getEventsByConfraria()
   ]);
 
   const postCounts = new Map<string, number>();
   allPosts.flat().forEach(post => {
-    postCounts.set(post.confrariaId, (postCounts.get(post.confrariaId) || 0) + 1);
+    if(post.confrariaId) {
+        postCounts.set(post.confrariaId, (postCounts.get(post.confrariaId) || 0) + 1);
+    }
   });
   
   const eventCounts = new Map<string, number>();
   allEvents.flat().forEach(event => {
-    eventCounts.set(event.confrariaId, (eventCounts.get(event.confrariaId) || 0) + 1);
+    if(event.confrariaId) {
+        eventCounts.set(event.confrariaId, (eventCounts.get(event.confrariaId) || 0) + 1);
+    }
   });
 
   const confrarias: Confraria[] = confrariasData.map(c => ({

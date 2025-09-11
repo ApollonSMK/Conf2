@@ -49,7 +49,7 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       name: confrariaData.name || 'Nome Indisponível',
       region: confrariaData.region || 'Região não definida',
       council: confrariaData.council || null,
-      banner: confrariaData.bannerURL || 'https://picsum.photos/1200/400?random=10',
+      banner: confrariaData.bannerURL,
       data_ai_hint_banner: 'wine vineyard',
       logo: confrariaData.photoURL || null,
       contact: confrariaData.email || '',
@@ -67,10 +67,13 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       ...mockDetails
   }
 
+  const bannerToShow = confraria.banner && confraria.banner.startsWith('https://') ? confraria.banner : 'https://picsum.photos/1200/400?random=10';
+
+
   return (
       <div className="w-full">
-        <header className="relative h-64 md:h-80 w-full">
-          <Image src={confraria.banner} alt={`Banner da ${confraria.name}`} fill className="object-cover" data-ai-hint={confraria.data_ai_hint_banner} />
+        <header className="relative h-64 md:h-80 w-full bg-muted">
+          <Image src={bannerToShow} alt={`Banner da ${confraria.name}`} fill className="object-cover" data-ai-hint={confraria.data_ai_hint_banner} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-0 left-0 p-8 container mx-auto">
              <div className="flex flex-col md:flex-row md:items-end md:gap-8">
