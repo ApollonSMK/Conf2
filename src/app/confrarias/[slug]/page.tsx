@@ -67,13 +67,8 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       ...mockDetails
   }
 
-  const bannerToShow = (confraria.banner && confraria.banner.startsWith('https://'))
-    ? confraria.banner
-    : 'https://picsum.photos/seed/2/1200/400';
-    
-  const logoToShow = (confraria.logo && confraria.logo.startsWith('https://'))
-    ? confraria.logo
-    : null;
+  const bannerToShow = confraria.banner || 'https://picsum.photos/seed/2/1200/400';
+  const logoToShow = confraria.logo;
 
 
   return (
