@@ -42,9 +42,9 @@ type Confraria = {
 export const dynamic = 'force-dynamic';
 
 function ConfrariaCard({ confraria }: { confraria: Confraria }) {
-  const imageToShow = (confraria.photoURL && confraria.photoURL.startsWith('https://'))
+  const imageToShow = (confraria.photoURL && confraria.photoURL.startsWith('https'))
     ? confraria.photoURL
-    : 'https://picsum.photos/100/100';
+    : 'https://picsum.photos/seed/1/100/100';
 
   return (
     <Card className="hover:shadow-xl transition-shadow duration-300 flex flex-col bg-card">

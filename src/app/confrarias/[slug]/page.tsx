@@ -67,7 +67,13 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
       ...mockDetails
   }
 
-  const bannerToShow = confraria.banner && confraria.banner.startsWith('https://') ? confraria.banner : 'https://picsum.photos/1200/400?random=10';
+  const bannerToShow = (confraria.banner && confraria.banner.startsWith('https://'))
+    ? confraria.banner
+    : 'https://picsum.photos/seed/2/1200/400';
+    
+  const logoToShow = (confraria.logo && confraria.logo.startsWith('https://'))
+    ? confraria.logo
+    : null;
 
 
   return (
@@ -78,7 +84,7 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
           <div className="absolute bottom-0 left-0 p-8 container mx-auto">
              <div className="flex flex-col md:flex-row md:items-end md:gap-8">
                 <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-background shadow-lg shrink-0 -mb-16 md:-mb-8 bg-card">
-                  {confraria.logo && <AvatarImage src={confraria.logo} alt={`Logótipo da ${confraria.name}`} />}
+                  {logoToShow && <AvatarImage src={logoToShow} alt={`Logótipo da ${confraria.name}`} />}
                   <AvatarFallback className="text-4xl">{confraria.name.charAt(0)}</AvatarFallback>
                 </Avatar>
              </div>

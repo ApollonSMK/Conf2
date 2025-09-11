@@ -93,8 +93,8 @@ export default function ExplorarPage() {
                 ))
               ) : (
                 descobertas.flatMap((descoberta, index) => {
-                  const imageUrl = (descoberta.images && descoberta.images.length > 0 && descoberta.images[0].url) || 'https://picsum.photos/400/300';
-                  const imageToShow = imageUrl.startsWith('https://') ? imageUrl : 'https://picsum.photos/400/300';
+                  const imageUrl = (descoberta.images && descoberta.images.length > 0 && descoberta.images[0].url) || 'https://picsum.photos/seed/3/400/300';
+                  const imageToShow = imageUrl.startsWith('https://') ? imageUrl : 'https://picsum.photos/seed/4/400/300';
 
                   const items = [(
                     <Card key={descoberta.id} className="flex flex-col overflow-hidden group">
