@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'bucket.confrariasportugal.pt',
+        hostname: 'bucket.xyziow3.space',
         port: '',
         pathname: '/**',
       },

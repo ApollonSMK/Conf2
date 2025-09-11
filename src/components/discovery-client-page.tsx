@@ -101,7 +101,7 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
     const userHasSealed = user ? discovery.sealGivers?.includes(user.uid) : false;
 
     const gmapsUrl = discovery.location?.lat && discovery.location?.lng 
-        ? `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${discovery.location.lat},${discovery.location.lng}`
+        ? `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${discovery.location.lat},${discovery.location.lng}`
         : '';
     
     const hasContactInfo = discovery.contact?.website || discovery.contact?.email || discovery.contact?.phone || discovery.social?.facebook || discovery.social?.instagram;
