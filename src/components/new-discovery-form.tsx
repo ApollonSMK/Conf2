@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useTransition, useState, useEffect } from 'react';
+import { useTransition, useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
@@ -48,7 +48,12 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
 
   // State for location dropdowns
   const [selectedDistrict, setSelectedDistrict] = useState(discovery?.location?.district || '');
+  const [selectedCouncil, setSelectedCouncil] = useState(discovery?.location?.council || '');
   const [councils, setCouncils] = useState<string[]>([]);
+
+  // Ref for Google Maps Autocomplete
+  const addressInputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<any>(null);
 
   useEffect(() => {
     if (selectedDistrict) {
@@ -66,7 +71,48 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
     if (isEditMode && discovery?.location?.district) {
         setSelectedDistrict(discovery.location.district);
     }
+     if (isEditMode && discovery?.location?.council) {
+        setSelectedCouncil(discovery.location.council);
+    }
   }, [discovery, isEditMode]);
+
+  // Initialize Google Places Autocomplete
+  useEffect(() => {
+    if (window.google && addressInputRef.current) {
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+        addressInputRef.current,
+        {
+          componentRestrictions: { country: "pt" },
+          fields: ["address_components", "formatted_address"],
+          types: ["address"],
+        }
+      );
+
+      autocompleteRef.current.addListener("place_changed", () => {
+        const place = autocompleteRef.current.getPlace();
+        if (place && place.address_components) {
+          
+          let district = '';
+          let council = '';
+
+          for (const component of place.address_components) {
+            if (component.types.includes("administrative_area_level_1")) {
+              district = component.long_name;
+            }
+            if (component.types.includes("administrative_area_level_2")) {
+              council = component.long_name;
+            }
+          }
+          
+          setSelectedDistrict(district);
+          // Manually find the matching council name from our list to avoid discrepancies
+          const districtData = districts.find(d => d.name === district);
+          const foundCouncil = districtData?.councils.find(c => c.toLowerCase() === council.toLowerCase());
+          setSelectedCouncil(foundCouncil || council);
+        }
+      });
+    }
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -143,7 +189,7 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
                 location: {
                     address: formData.get('address') as string,
                     district: selectedDistrict,
-                    council: formData.get('council') as string,
+                    council: selectedCouncil,
                 },
                 contact: {
                      phone: formData.get('phone') as string,
@@ -177,6 +223,7 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
                 setImageFiles([]);
                 setImagePreviews([]);
                 setSelectedDistrict('');
+                setSelectedCouncil('');
             }
         } catch (error: any) {
              toast({
@@ -253,9 +300,15 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
             <div className="space-y-4">
                  <h3 className="text-lg font-medium text-foreground">Localização e Contactos</h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="space-y-2 md:col-span-2">
                         <Label htmlFor="address">Morada</Label>
-                        <Input id="address" name="address" placeholder="Rua, Número, Código Postal" defaultValue={discovery?.location?.address}/>
+                        <Input 
+                            id="address" 
+                            name="address" 
+                            placeholder="Comece a escrever a morada..." 
+                            defaultValue={discovery?.location?.address}
+                            ref={addressInputRef}
+                        />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="district">Distrito *</Label>
@@ -272,7 +325,7 @@ export function DiscoveryForm({ discovery }: DiscoveryFormProps) {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="council">Concelho *</Label>
-                        <Select name="council" defaultValue={discovery?.location?.council} disabled={!selectedDistrict} required>
+                        <Select name="council" value={selectedCouncil} onValueChange={setSelectedCouncil} disabled={councils.length === 0} required>
                             <SelectTrigger id="council">
                                 <SelectValue placeholder="Selecione o concelho" />
                             </SelectTrigger>
