@@ -28,15 +28,10 @@ const nextConfig: NextConfig = {
         hostname: 'bucket.xyziow3.space',
         port: '',
         pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'pub-a65329865af84267abf2cf828c43d13e.r2.dev',
-        port: '',
-        pathname: '/**',
       }
     ],
   },
 };
 
 export default nextConfig;
+
