@@ -533,5 +533,4 @@ export async function deleteEvent(eventId: string) {
       return { success: false, error: "Falha ao eliminar o evento." };
     }
 }
-
     
