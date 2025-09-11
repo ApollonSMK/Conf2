@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram, Newspaper, Users, Clock, Phone } from "lucide-react";
+import { BookOpen, Calendar, Camera, Info, Mail, Pencil, MapPin, Globe, Facebook, Instagram, Newspaper, Users, Clock, Phone, Utensils } from "lucide-react";
 import Image from "next/image";
 import { notFound } from 'next/navigation';
 import { getUserProfile, getPostsByConfraria, getEventsByConfraria } from "@/app/actions";
@@ -265,22 +265,11 @@ export default async function ConfrariaProfilePage({ params }: { params: { slug:
               <Card>
                 <CardHeader><CardTitle>Receitas da Confraria</CardTitle></CardHeader>
                 <CardContent>
-                   {confraria.recipes.length > 0 ? (
-                      <div className="relative group overflow-hidden rounded-lg">
-                        <Image src={confraria.recipes[0].image} alt={confraria.recipes[0].name} width={400} height={300} className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={confraria.recipes[0].data_ai_hint} />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                        <div className="absolute bottom-0 left-0 p-4 text-white">
-                          <h3 className="font-bold text-lg">{confraria.recipes[0].name}</h3>
-                          <div className="flex gap-4 text-sm"><span>Dificuldade: {confraria.recipes[0].difficulty}</span> <span>Tempo: {confraria.recipes[0].time}</span></div>
-                        </div>
-                      </div>
-                    ) : (
-                         <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
-                            <BookOpen className="h-12 w-12 mb-4" />
-                            <p className="font-bold">Sem Receitas</p>
-                            <p className="text-sm">Ainda não foram publicadas receitas.</p>
-                        </div>
-                    )}
+                    <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">
+                        <Utensils className="h-12 w-12 mb-4" />
+                        <p className="font-bold">Em Desenvolvimento</p>
+                        <p className="text-sm">A funcionalidade de gestão de receitas estará disponível em breve.</p>
+                    </div>
                 </CardContent>
               </Card>
             </TabsContent>
