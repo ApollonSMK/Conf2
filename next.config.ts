@@ -28,12 +28,6 @@ const nextConfig: NextConfig = {
         hostname: 'bucket.xyziow3.space',
         port: '',
         pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'bucket.confrariasportugal.pt',
-        port: '',
-        pathname: '/**',
       }
     ],
   },
