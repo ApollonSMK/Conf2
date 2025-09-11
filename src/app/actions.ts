@@ -123,10 +123,43 @@ export async function deleteUser(uid: string) {
     }
 }
 
+async function getCoordinatesForAddress(address: string) {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+        console.warn('Google Maps API Key not found. Skipping geocoding.');
+        return null;
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.status === 'OK' && data.results[0]) {
+            return data.results[0].geometry.location; // { lat, lng }
+        }
+        console.warn('Geocoding failed:', data.status, data.error_message);
+        return null;
+    } catch (error) {
+        console.error('Error fetching geocoding data:', error);
+        return null;
+    }
+}
 
 export async function createDiscovery(data: any) {
   try {
     const discoveryRef = doc(collection(db, "discoveries"));
+
+    // Geocode address if present
+    if (data.location?.address) {
+        const fullAddress = `${data.location.address}, ${data.location.council}, ${data.location.district}, Portugal`;
+        const coordinates = await getCoordinatesForAddress(fullAddress);
+        if (coordinates) {
+            data.location.lat = coordinates.lat;
+            data.location.lng = coordinates.lng;
+        }
+    }
+
     await setDoc(discoveryRef, {
       ...data,
       id: discoveryRef.id,
@@ -145,6 +178,17 @@ export async function createDiscovery(data: any) {
 export async function updateDiscovery(id: string, data: any) {
   try {
     const discoveryRef = doc(db, "discoveries", id);
+    
+    // Geocode address if present
+    if (data.location?.address) {
+        const fullAddress = `${data.location.address}, ${data.location.council}, ${data.location.district}, Portugal`;
+        const coordinates = await getCoordinatesForAddress(fullAddress);
+        if (coordinates) {
+            data.location.lat = coordinates.lat;
+            data.location.lng = coordinates.lng;
+        }
+    }
+
     await updateDoc(discoveryRef, {
       ...data,
       status: 'Pendente', // Reset status to Pending on edit
@@ -533,4 +577,6 @@ export async function deleteEvent(eventId: string) {
       return { success: false, error: "Falha ao eliminar o evento." };
     }
 }
+    
+
     

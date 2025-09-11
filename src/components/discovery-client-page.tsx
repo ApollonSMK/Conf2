@@ -211,24 +211,22 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
             </div>
             {/* Coluna Direita */}
             <div className="lg:col-span-1 space-y-8">
-                {discovery.location?.address && (
+                {discovery.location?.address && gmapsUrl && (
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><MapPin/> Localização</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {gmapsUrl && (
-                                <div className="aspect-video w-full rounded-lg overflow-hidden border">
-                                <iframe 
-                                    width="100%" 
-                                    height="100%" 
-                                    style={{border:0}} 
-                                    loading="lazy" 
-                                    allowFullScreen 
-                                    src={gmapsUrl}>
-                                </iframe>
-                                </div>
-                            )}
+                            <div className="aspect-video w-full rounded-lg overflow-hidden border">
+                            <iframe 
+                                width="100%" 
+                                height="100%" 
+                                style={{border:0}} 
+                                loading="lazy" 
+                                allowFullScreen 
+                                src={gmapsUrl}>
+                            </iframe>
+                            </div>
                             <p className="mt-4 text-sm text-muted-foreground">{discovery.location.address}</p>
                         </CardContent>
                     </Card>
@@ -321,3 +319,5 @@ export function DiscoveryClientPage({ discovery: initialDiscovery }: { discovery
     </>
     );
 }
+
+    
