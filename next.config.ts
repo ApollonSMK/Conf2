@@ -34,19 +34,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'media.confpt.us',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'bucket.xyziow3.space',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'confpt.us',
+        hostname: 'media2.confpt.us',
         port: '',
         pathname: '/**',
       }
