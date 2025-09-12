@@ -4,7 +4,12 @@ import type {NextConfig} from 'next';
 const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
-    allowedDevOrigins: ["https://9000-firebase-studio-1756293699270.cluster-64pjnskmlbaxowh5lzq6i7v4ra.cloudworkstations.dev"],
+    allowedDevOrigins: [
+        "https://9000-firebase-studio-1756293699270.cluster-64pjnskmlbaxowh5lzq6i7v4ra.cloudworkstations.dev",
+        "https://confrarias.netlify.app",
+        "https://confrariasportugal.pt",
+        "http://localhost:3000"
+    ],
   },
   typescript: {
     ignoreBuildErrors: true,
@@ -35,6 +40,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'media2.confpt.us',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'confpt.us',
         port: '',
         pathname: '/**',
       }
